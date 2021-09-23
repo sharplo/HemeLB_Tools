@@ -9,8 +9,9 @@ def CalExact(df, var):
         exSol = lambda x,y: G / (4*mu) * (R**2 - (x-R0)**2 - (y-R0)**2)
         df['exSol_Uz'] = exSol(df['grid_x'], df['grid_y'])
 
-def CalErrNorms(appSol, exSol):
-    err = appSol - exSol # local error
+def CalErrNorms(df, var):
+    err = df[var] - df['exSol_' + var] # local error
+    df['err_' + var] = err
     L1 = np.sum( np.abs(err) ) / err.size # L1-norm
     L2 = np.sqrt( np.dot(err, err) / err.size ) # L2-norm
     L8 = np.max( np.abs(err) ) # infinite-norm
@@ -18,7 +19,7 @@ def CalErrNorms(appSol, exSol):
 
 def WriteDiscErr(df, var):
     # Calculate error norms
-    L1, L2, L8 = CalErrNorms(df[var], df['exSol_' + var])
+    L1, L2, L8 = CalErrNorms(df, var)
     print('Error norms of', var, ':')
     print('dt = %f, L1 = %f, L2 = %f, L8 = %f' %(np.log(dt), np.log(L1), np.log(L2), np.log(L8)))
 
