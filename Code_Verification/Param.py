@@ -3,12 +3,21 @@ import pandas as pd
 
 # Read data file
 directory = sys.argv[1] + 'Extracted/'
-shotNum = sys.argv[2]
-#df_in = pd.read_csv(directory + 'inlet/inlet' + shotNum + '.txt', delimiter=' ')
-#df_out = pd.read_csv(directory + 'outlet/outlet' + shotNum + '.txt', delimiter=' ')
-df_cL = pd.read_csv(directory + 'centreLine/centreLine' + shotNum + '.txt', delimiter=' ')
-#df_pY = pd.read_csv(directory + 'planeY/planeY' + shotNum + '.txt', delimiter=' ')
-df_pZ = pd.read_csv(directory + 'planeZ/planeZ' + shotNum + '.txt', delimiter=' ')
+shotBeg = int(sys.argv[2])
+shotEnd = int(sys.argv[3])
+
+df_in = pd.DataFrame()
+df_out = pd.DataFrame()
+df_cL = pd.DataFrame()
+df_pY = pd.DataFrame()
+df_pZ = pd.DataFrame()
+for shot in range(shotBeg, shotEnd+1):
+    #df_in = df_in.append(pd.read_csv(directory + 'inlet/inlet' + str(shot) + '.txt', delimiter=' '))
+    #df_out = df_out.append(pd.read_csv(directory + 'outlet/outlet' + str(shot) + '.txt', delimiter=' '))
+    df_cL = df_cL.append(pd.read_csv(directory + 'centreLine/centreLine' + str(shot) + '.txt', delimiter=' '))
+    #df_pY = df_pY.append(pd.read_csv(directory + 'planeY/planeY' + str(shot) + '.txt', delimiter=' '))
+    df_pZ = df_pZ.append(pd.read_csv(directory + 'planeZ/planeZ' + str(shot) + '.txt', delimiter=' '))
+
 dfList = [df_cL, df_pZ]
 
 # Constants

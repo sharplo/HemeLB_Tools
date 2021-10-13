@@ -18,7 +18,6 @@ for df in dfList:
     RenameCol(df)
     AddRadialDistance(df)
 
-
 # ============================ Pipe ===============================
 ## Centre line
 # Process results
@@ -43,12 +42,17 @@ Compare_1D(df_pZ, 'Uz', 'grid_x')
 Compare_2D(df_pZ, 'Uz', 'grid_x', 'grid_y')
 Visualise_1D(df_pZ, 'err_Uz', 'grid_x')
 Visualise_2D(df_pZ, 'err_Uz', 'grid_x', 'grid_y')
+
+## Intersection of centre line and plane Z
+df_cLpZ = pd.merge(df_cL, df_pZ)
+Visualise_TimeSeries(df_cLpZ, 'P', 'Uz')
+Visualise_TimeSeries(df_cLpZ, 'Ux', 'Uy')
 # ============================ Pipe ===============================
 
 """
 
 # ============================ Bifurcation ===============================
-## Intersection of Plane Y and Z
+## Intersection of plane Y and Z
 df_pYpZ = pd.merge(df_pY, df_pZ)
 Visualise_1D(df_pYpZ, 'P', 'grid_x')
 Visualise_1D(df_pYpZ, 'Ux', 'grid_x')
