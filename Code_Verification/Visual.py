@@ -4,15 +4,15 @@ matplotlib.use('Agg') # disable Xwindows backend
 from matplotlib import pyplot as plt
 
 def Visualise_1D(df, var, grid):
-    plt.plot(df[grid], df[var])
+    plt.plot(df[grid], df[var], '.', markersize=2)
     plt.xlabel(grid)
     plt.ylabel(var)
     plt.savefig('figures/' + var + '-' + grid + '.png', bbox_inches='tight')
     plt.close()
 
 def Compare_1D(df, var, grid):
-    plt.plot(df[grid], df[var], label='appSol')
-    plt.plot(df[grid], df['exSol_' + var], label='exSol')
+    plt.plot(df[grid], df[var], '.', markersize=2, label='appSol')
+    plt.plot(df[grid], df['exSol_' + var], '.', markersize=2, label='exSol')
     plt.xlabel(grid)
     plt.ylabel(var)
     plt.legend()

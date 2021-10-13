@@ -6,8 +6,8 @@ def CalExact(df, var):
         exSol = lambda z: P_max + dPdz * (z - z_min)
         df['exSol_P'] = exSol(df['grid_z'])
     elif (var == 'Uz'):
-        exSol = lambda x,y: G / (4*mu) * (R**2 - (x-R0)**2 - (y-R0)**2)
-        df['exSol_Uz'] = exSol(df['grid_x'], df['grid_y'])
+        exSol = lambda r: G / (4*mu) * (R**2 - r**2)
+        df['exSol_Uz'] = exSol(df['r'])
 
 def CalErrNorms(df, var):
     err = df[var] - df['exSol_' + var] # local error
