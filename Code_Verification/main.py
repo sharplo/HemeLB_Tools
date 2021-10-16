@@ -18,6 +18,8 @@ for df in dfList:
     RenameCol(df)
     AddRadialDistance(df)
 
+"""
+
 # ============================ Pipe ===============================
 ## Centre line
 # Process results
@@ -45,8 +47,8 @@ Visualise_2D(df_pZ, 'err_Uz', 'grid_x', 'grid_y')
 
 ## Intersection of centre line and plane Z
 df_cLpZ = pd.merge(df_cL, df_pZ)
+df_cLpZ.name = 'cLpZ'
 Visualise_TimeSeries(df_cLpZ, 'P', 'Uz')
-Visualise_TimeSeries(df_cLpZ, 'Ux', 'Uy')
 # ============================ Pipe ===============================
 
 """
@@ -54,9 +56,33 @@ Visualise_TimeSeries(df_cLpZ, 'Ux', 'Uy')
 # ============================ Bifurcation ===============================
 ## Intersection of plane Y and Z
 df_pYpZ = pd.merge(df_pY, df_pZ)
-Visualise_1D(df_pYpZ, 'P', 'grid_x')
-Visualise_1D(df_pYpZ, 'Ux', 'grid_x')
-Visualise_1D(df_pYpZ, 'Uz', 'grid_x')
-# ============================ Bifurcation ===============================
+df_pYpZ.name = 'pYpZ'
+df_pYpZcen = df_pYpZ[df_pYpZ['r'] == df_pYpZ['r'].min()]
+df_pYpZcen.name = 'pYpZcen'
+Visualise_TimeSeries(df_pYpZcen, 'P', 'Uz')
 
-"""
+## Intersection of planeY and inlet
+df_pYin = pd.merge(df_pY, df_in)
+df_pYin.name = 'pYin'
+df_pYincen = df_pYin[df_pYin['r'] == df_pYin['r'].min()]
+df_pYincen.name = 'pYincen'
+Visualise_TimeSeries(df_pYincen, 'P', 'Uz')
+
+## Intersection of planeY and planeZ_outlet0
+df_pYpZout0 = pd.merge(df_pY, df_pZout0)
+df_pYpZout0.name = 'pYpZout0'
+df_pYpZout0cen = df_pYpZout0[df_pYpZout0['r'] == df_pYpZout0['r'].min()]
+df_pYpZout0cen.name = 'pYpZout0cen'
+Visualise_TimeSeries(df_pYpZout0cen, 'P', 'Uz')
+
+## Intersection of planeY and planeZ_outlet1
+df_pYpZout1 = pd.merge(df_pY, df_pZout1)
+df_pYpZout1.name = 'pYpZout1'
+df_pYpZout1cen = df_pYpZout1[df_pYpZout1['r'] == df_pYpZout1['r'].min()]
+df_pYpZout1cen.name = 'pYpZout1cen'
+Visualise_TimeSeries(df_pYpZout1cen, 'P', 'Uz')
+
+Compare_TimeSeries(df_pYincen, df_pYpZcen, 'P', 'Uz')
+Compare_TimeSeries(df_pYincen, df_pYpZout0cen, 'P', 'Uz')
+Compare_TimeSeries(df_pYincen, df_pYpZout1cen, 'P', 'Uz')
+# ============================ Bifurcation ===============================
