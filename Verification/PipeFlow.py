@@ -1,5 +1,4 @@
 import sys
-import numpy as np
 import pandas as pd
 
 # Local modules
@@ -16,9 +15,9 @@ class PipeFlow(Visual, DiscError):
         Visual.__init__(self)
         DiscError.__init__(self)
 
-        self.dir = sys.argv[1] + 'Extracted/' # directory where data reside
-        self.shotBeg = int(sys.argv[2])
-        self.shotEnd = int(sys.argv[3])
+        self.dir = sys.argv[1] # directory where data reside
+        self.shotBeg = int(sys.argv[2]) # first file to be read
+        self.shotEnd = int(sys.argv[3]) # last file to be read
         
         self.dfDict = dfDict # dictionary between data frame names and data file names
         self.dt = dt # step_length (s)
