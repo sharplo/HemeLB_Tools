@@ -27,6 +27,7 @@ class Visual(object):
             fileName = 'figures/' + df.name + '_' + var1 + '&' + var2 + '-' + grid + '.png'
         
         fig.savefig(fileName, bbox_inches='tight')
+        plt.close()
 
     def Visualise_2D(self, df, grid_1, grid_2, var1, var2=None):
         df_last = df[df['step'] == df['step'].max()]
@@ -63,6 +64,7 @@ class Visual(object):
 
         fig.subplots_adjust(hspace=0.4)
         fig.savefig(fileName, bbox_inches='tight')
+        plt.close()
 
     def Visualise_TimeSeries(self, df, var1, var2=None):
         fig, ax1 = plt.subplots()
@@ -70,6 +72,7 @@ class Visual(object):
         ax1.set_xlabel('Time step')
         ax1.set_ylabel(var1, color=self.color[0])
         fileName = 'figures/' + df.name + '_timeSeries_' + var1 + '.png'
+
         if var2 != None:
             # Plot var2 on the right axis
             ax2 = ax1.twinx()
@@ -78,7 +81,9 @@ class Visual(object):
             ax2.yaxis.set_label_position('right')
             ax2.yaxis.tick_right()
             fileName = 'figures/' + df.name + '_timeSeries_' + var1 + '&' + var2 + '.png'
+
         fig.savefig(fileName, bbox_inches='tight')
+        plt.close()
 
     def Compare_TimeSeries(self, df1, df2, var1, var2=None):
         fig, ax1 = plt.subplots()
@@ -102,3 +107,30 @@ class Visual(object):
             fileName = 'figures/' + df1.name + '_vs_' + df2.name + '-' + var1 + '&' + var2 + '-timeSeries.png'
 
         fig.savefig(fileName, bbox_inches='tight')
+        plt.close()
+
+    def Visualise_Clusters(self, df, var, clusters):
+        plt.figure()
+        for i in clusters:
+            view = df[df['cluster'] == i]
+            plt.plot(view['step'], view[var], label=df.name + str(i))
+        plt.xlabel('Time step')
+        plt.ylabel(var)
+        plt.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=3)
+        fileName = 'figures/' + df.name + '_Clusters_' + var + '.png'
+        plt.savefig(fileName, bbox_inches='tight')
+        plt.close()
+
+    def Visualise_Ratios(self, df, var, clusters, ref):
+        plt.figure()
+        view_ref = df[df['cluster'] == ref]
+        for i in clusters:
+            if i != ref:
+                view = df[df['cluster'] == i]
+                plt.plot(view['step'], view[var] / view_ref[var], label=df.name + str(i))
+        plt.xlabel('Time step')
+        plt.ylabel(var + ' ratio w.r.t. ' + df.name + str(ref))
+        plt.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=3)
+        fileName = 'figures/' + df.name + '_Ratios_' + var + '.png'
+        plt.savefig(fileName, bbox_inches='tight')
+        plt.close()

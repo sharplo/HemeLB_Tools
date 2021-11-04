@@ -1,6 +1,10 @@
 #!/usr/bin/python3.6
+
 # Local modules
 from PipeFlow import *
+from Bifurcation import *
+from Poiseuille import *
+from SixBranch import *
 
 """
 
@@ -37,6 +41,9 @@ position_oUT = np.array([[8.02016,13.0403,73.2765],
                         [94.978,13.0403,123.482],
                         [94.978,13.0403,73.2765]])
 
-dfDict = {'iN':'inlet', 'oUT':'outlet', 'pY':'planeY'}
-obj = PipeFlow(2e-5, 1e-5, dfDict)
+obj = SixBranch(dx=2e-5, dt=1e-5)
 obj.Clustering(obj.oUT, position_oUT)
+flowRate_oUT = obj.CalFlowRate(obj.oUT, normal_oUT, range(5))
+obj.Visualise_Clusters(flowRate_oUT, 'FlowRate', range(5))
+obj.Visualise_Ratios(flowRate_oUT, 'FlowRate', range(5), 0)
+obj.Visualise_TimeSeries(obj.oUT, 'P')
