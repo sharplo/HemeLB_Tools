@@ -121,13 +121,19 @@ class Visual(object):
         plt.savefig(fileName, bbox_inches='tight')
         plt.close()
 
-    def Visualise_Ratios(self, df, var, clusters, ref):
+    def Visualise_Ratios(self, df, var, clusters, ref, ideal):
         plt.figure()
         view_ref = df[df['cluster'] == ref]
         for i in clusters:
             if i != ref:
                 view = df[df['cluster'] == i]
                 plt.plot(view['step'], view[var] / view_ref[var], label=df.name + str(i))
+        for i in range(len(ideal)):
+            if i == 0:
+                label = 'ideal'
+            else:
+                label = None
+            plt.hlines(ideal[i], df['step'].min(), df['step'].max(), colors='black', linestyles='dashed', label=label)
         plt.xlabel('Time step')
         plt.ylabel(var + ' ratio w.r.t. ' + df.name + str(ref))
         plt.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=3)
