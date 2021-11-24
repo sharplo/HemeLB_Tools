@@ -18,6 +18,7 @@ class PipeFlow(Visual, DiscError):
         self.dir = sys.argv[1] # directory where data reside
         self.shotBeg = int(sys.argv[2]) # first file to be read
         self.shotEnd = int(sys.argv[3]) # last file to be read
+        self.shotStep = int(sys.argv[4]) # step of file reading
         
         self.dfDict = dfDict # dictionary between data frame names and data file names
         self.dt = dt # step_length (s)
@@ -49,7 +50,7 @@ class PipeFlow(Visual, DiscError):
 
     def LoadData(self, file):
         df = pd.DataFrame()
-        for shot in range(self.shotBeg, self.shotEnd+1):
+        for shot in range(self.shotBeg, self.shotEnd+1, self.shotStep):
             # TODO: make it compatible with all operating system, e.g. using sys.path
             df = df.append(pd.read_csv(self.dir + file + '/' + file + str(shot) + '.txt', delimiter=' '))
         return df
