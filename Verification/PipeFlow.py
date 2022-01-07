@@ -68,12 +68,12 @@ class PipeFlow(Visual, DiscError):
         return df
     
     def CentrePoint(self, df):
-        return df[(df['grid_x'] > df['grid_x'].mean() - 0.5 * self.dx) \
-            & (df['grid_x'] < df['grid_x'].mean() + 0.5 * self.dx) \
-            & (df['grid_y'] > df['grid_y'].mean() - 0.5 * self.dx) \
-            & (df['grid_y'] < df['grid_y'].mean() + 0.5 * self.dx) \
-            & (df['grid_z'] > df['grid_z'].mean() - 0.5 * self.dx) \
-            & (df['grid_z'] < df['grid_z'].mean() + 0.5 * self.dx)]
+        return df[(df['grid_x'] >= df['grid_x'].mean() - 0.5 * self.dx) \
+            & (df['grid_x'] <= df['grid_x'].mean() + 0.5 * self.dx) \
+            & (df['grid_y'] >= df['grid_y'].mean() - 0.5 * self.dx) \
+            & (df['grid_y'] <= df['grid_y'].mean() + 0.5 * self.dx) \
+            & (df['grid_z'] >= df['grid_z'].mean() - 0.5 * self.dx) \
+            & (df['grid_z'] <= df['grid_z'].mean() + 0.5 * self.dx)]
 
     def RenameCol(self, df):
         df.rename(columns={
