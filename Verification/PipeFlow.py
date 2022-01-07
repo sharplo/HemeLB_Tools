@@ -6,11 +6,6 @@ from InputOutput import *
 from Visual import *
 from DiscError import *
 
-# Constants
-mmHg = 133.3223874 # Pa
-mu = 0.004 # dynamic viscosity (Pa*s)
-PI = 3.14159265358979323846264338327950288
-
 class PipeFlow(Visual, DiscError):
     def __init__(self, dfDict):
         Visual.__init__(self)
