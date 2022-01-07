@@ -2,10 +2,10 @@
 from PipeFlow import *
 
 class Poiseuille(PipeFlow):
-    def __init__(self, dx, dt, dfDict=None):
+    def __init__(self, dfDict=None):
         if dfDict == None:
             dfDict = {'iN':'inlet', 'oUT':'outlet', 'cL':'centreLine', 'pZ':'planeZ'}
-        PipeFlow.__init__(self, dx, dt, dfDict)
+        PipeFlow.__init__(self, dfDict)
 
         for key in self.dfDict.keys():
             self.AddRadialDistance(getattr(self, key))

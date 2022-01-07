@@ -2,6 +2,7 @@ import sys
 import pandas as pd
 
 # Local modules
+from InputOutput import *
 from Visual import *
 from DiscError import *
 
@@ -11,7 +12,7 @@ mu = 0.004 # dynamic viscosity (Pa*s)
 PI = 3.14159265358979323846264338327950288
 
 class PipeFlow(Visual, DiscError):
-    def __init__(self, dx, dt, dfDict):
+    def __init__(self, dfDict):
         Visual.__init__(self)
         DiscError.__init__(self)
 
@@ -19,10 +20,15 @@ class PipeFlow(Visual, DiscError):
         self.shotBeg = int(sys.argv[2]) # first file to be read
         self.shotEnd = int(sys.argv[3]) # last file to be read
         self.shotStep = int(sys.argv[4]) # step of file reading
+        InputOutput.ReadInput(InputOutput, sys.argv[5]) # extract parameters from input.xml
         
         self.dfDict = dfDict # dictionary between data frame names and data file names
-        self.dt = dt # step_length (s)
-        self.dx = dx # voxel_size (m)
+        self.dt = InputOutput.dt # step_length (s)
+        self.dx = InputOutput.dx # voxel_size (m)
+        self.norm_iN = InputOutput.normal_iN # normal vector of inlets (no unit)
+        self.pos_iN = InputOutput.position_iN # position vector of inlets (lattice unit)
+        self.norm_oUT = InputOutput.normal_oUT # normal vector of outlets (no unit)
+        self.pos_oUT = InputOutput.position_oUT # position vector of outlets (lattice unit)
         self.R = None # radius of pipe (m)
         self.P_in = [] # pressure at inlets (mmHg)
         self.P_out = [] # pressure at outlets (mmHg)

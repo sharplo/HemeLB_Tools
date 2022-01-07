@@ -1,15 +1,13 @@
 #!/usr/bin/python3.6
 
 # Local modules
-from PipeFlow import *
-from Bifurcation import *
 from Poiseuille import *
+from Bifurcation import *
 from SixBranch import *
-from ReadInput import *
 
 """
 
-obj = Poiseuille(5e-5, 5e-5)
+obj = Poiseuille()
 obj.CompareExSol_1D(obj.cL, 'grid_z', 'Uz')
 obj.CompareExSol_1D(obj.cL, 'grid_z', 'P')
 obj.CompareExSol_2D(obj.pZ, 'grid_x', 'grid_y', 'Uz')
@@ -19,7 +17,7 @@ obj.WriteDiscErr(obj.pZ, 'Uz')
 
 
 
-obj = Bifurcation(dx=5e-5, dt=1e-5)
+obj = Bifurcation()
 obj.Visualise_TimeSeries(obj.iNpYcEN, 'P', 'Uz')
 obj.Visualise_TimeSeries(obj.pZOUT0pYcEN, 'P', 'Uz')
 obj.Visualise_TimeSeries(obj.pZOUT1pYcEN, 'P', 'Uz')
@@ -28,9 +26,9 @@ obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT1pYcEN, 'P', 'Uz')
 
 """
 
-obj = SixBranch(dx=dx, dt=dt, dfDict={'oUT':'outlet'})
-obj.Clustering(obj.oUT, position_oUT)
-flowRate_oUT = obj.CalFlowRate(obj.oUT, normal_oUT, range(5))
+obj = SixBranch(dfDict={'oUT':'outlet'})
+obj.Clustering(obj.oUT, obj.pos_oUT)
+flowRate_oUT = obj.CalFlowRate(obj.oUT, obj.norm_oUT, range(5))
 obj.Visualise_Clusters(flowRate_oUT, 'FlowRate', range(5))
 obj.Visualise_Ratios(flowRate_oUT, 'FlowRate', range(5), 0, [1, 0.75, 0.5])
 obj.Visualise_TimeSeries(obj.oUT, 'P')
@@ -47,17 +45,9 @@ obj.Visualise_TimeSeries(obj.oUT4cEN, 'P')
 
 """
 
-normal_iN = np.array([[-2.22988e-12,1.00453e-10,1]])
-position_iN = np.array([[151.555,13.0034,3]])
-
-normal_oUT = - np.array([[0.707107,-5.70527e-11,-0.707107],
-                        [-0.707107,-4.05565e-11,-0.707107]]) # note the global minus sign
-position_oUT = np.array([[10.0735,13.0034,244.523],
-                        [186.925,13.0034,138.412]])
-
-obj = SixBranch(dx=2e-5, dt=1e-5, dfDict={'oUT':'outlet'})
-obj.Clustering(obj.oUT, position_oUT)
-flowRate_oUT = obj.CalFlowRate(obj.oUT, normal_oUT, range(2))
+obj = SixBranch(dfDict={'oUT':'outlet'})
+obj.Clustering(obj.oUT, obj.pos_oUT)
+flowRate_oUT = obj.CalFlowRate(obj.oUT, obj.norm_oUT, range(2))
 obj.Visualise_Clusters(flowRate_oUT, 'FlowRate', range(2))
 obj.Visualise_Ratios(flowRate_oUT, 'FlowRate', range(2), 0, [1, 1])
 obj.AddDataFrame('oUT0cEN', ['oUT0', 'cEN'])

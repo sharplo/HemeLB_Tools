@@ -2,10 +2,10 @@
 from PipeFlow import *
 
 class SixBranch(PipeFlow):
-    def __init__(self, dx, dt, dfDict=None):
+    def __init__(self, dfDict=None):
         if dfDict == None:
             dfDict = {'iN':'inlet', 'oUT':'outlet'}
-        PipeFlow.__init__(self, dx, dt, dfDict)
+        PipeFlow.__init__(self, dfDict)
 
     def CalFlowRate(self, df, normal, clusters):
         result = pd.DataFrame()
