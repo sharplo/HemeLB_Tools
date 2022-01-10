@@ -1,12 +1,12 @@
 import numpy as np
 import matplotlib
+from numpy.typing import _128Bit
 matplotlib.use('Agg') # disable Xwindows backend
 from matplotlib import pyplot as plt
-from matplotlib import patches as mpatches
 
 class Visual(object):
     def __init__(self):
-        self.color = ['tab:blue', 'tab:orange']
+        self.color = ['tab:blue', 'tab:orange', 'tab:gray']
 
     def Visualise_1D(self, df, grid, var1, var2=None, kwargs1={}, kwargs2={}):
         df_last = df[df['step'] == df['step'].max()]
@@ -71,7 +71,7 @@ class Visual(object):
         ax1.plot(df['step'], df[var1], '.-', color=self.color[0])
         ax1.set_xlabel('Time step')
         ax1.set_ylabel(var1, color=self.color[0])
-        fileName = 'figures/' + df.name + '_timeSeries_' + var1 + '.png'
+        fileName = 'figures/' + df.name + '_' + var1 + '-timeSeries.png'
 
         if var2 != None:
             # Plot var2 on the right axis
@@ -80,7 +80,7 @@ class Visual(object):
             ax2.set_ylabel(var2, color=self.color[1])
             ax2.yaxis.set_label_position('right')
             ax2.yaxis.tick_right()
-            fileName = 'figures/' + df.name + '_timeSeries_' + var1 + '&' + var2 + '.png'
+            fileName = 'figures/' + df.name + '_' + var1 + '&' + var2 + '-timeSeries.png'
 
         fig.savefig(fileName, bbox_inches='tight')
         plt.close()
@@ -117,26 +117,38 @@ class Visual(object):
         plt.xlabel('Time step')
         plt.ylabel(var)
         plt.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=3)
-        fileName = 'figures/' + df.name + '_Clusters_' + var + '.png'
+        fileName = 'figures/' + df.name + '_' + var + '-clusters.png'
         plt.savefig(fileName, bbox_inches='tight')
         plt.close()
 
-    def Visualise_Ratios(self, df, var, clusters, ref, ideal):
+    def Visualise_Ratios(self, df, var, clusters, ref, desired):
         plt.figure()
         view_ref = df[df['cluster'] == ref]
         for i in clusters:
             if i != ref:
                 view = df[df['cluster'] == i]
                 plt.plot(view['step'], view[var] / view_ref[var], label=df.name + str(i))
-        for i in range(len(ideal)):
+        for i in range(len(desired)):
             if i == 0:
-                label = 'ideal'
+                label = 'desired'
             else:
                 label = None
-            plt.hlines(ideal[i], df['step'].min(), df['step'].max(), colors='black', linestyles='dashed', label=label)
+            plt.hlines(desired[i], df['step'].min(), df['step'].max(), colors='black', linestyles='dashed', label=label)
         plt.xlabel('Time step')
         plt.ylabel(var + ' ratio w.r.t. ' + df.name + str(ref))
         plt.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=3)
-        fileName = 'figures/' + df.name + '_Ratios_' + var + '.png'
+        fileName = 'figures/' + df.name + '_' + var + '-ratios.png'
         plt.savefig(fileName, bbox_inches='tight')
+        plt.close()
+
+    def Compare_Scatter(self, df):
+        fig = plt.figure()
+        ax = fig.add_subplot()
+        ax.scatter(df['desired'], df['measured'], color=self.color[1])
+        ax.plot(ax.get_xlim(), ax.get_ylim(), '--', color=self.color[2], label='y=x')
+        ax.set_xlabel('desired')
+        ax.set_ylabel('measured')
+        ax.legend()
+        fileName = 'figures/' + df.name + '-scatter.png'
+        fig.savefig(fileName, bbox_inches='tight')
         plt.close()

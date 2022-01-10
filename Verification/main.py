@@ -3,7 +3,7 @@
 # Local modules
 from Poiseuille import *
 from Bifurcation import *
-from SixBranch import *
+from Windkessel import *
 
 """
 
@@ -26,11 +26,11 @@ obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT1pYcEN, 'P', 'Uz')
 
 """
 
-obj = SixBranch(dfDict={'oUT':'outlet'})
+obj = Windkessel(dfDict={'oUT':'outlet'})
 obj.Clustering(obj.oUT, obj.position_oUT)
 flowRate_oUT = obj.CalFlowRate(obj.oUT, obj.normal_oUT, range(5))
 obj.Visualise_Clusters(flowRate_oUT, 'FlowRate', range(5))
-obj.Visualise_Ratios(flowRate_oUT, 'FlowRate', range(5), 0, [1, 0.75, 0.5])
+obj.Visualise_Ratios(flowRate_oUT, 'FlowRate', range(5), 0)
 obj.Visualise_TimeSeries(obj.oUT, 'P')
 obj.AddDataFrame('oUT0cEN', ['oUT0', 'cEN'])
 obj.Visualise_TimeSeries(obj.oUT0cEN, 'P')
@@ -42,14 +42,16 @@ obj.AddDataFrame('oUT3cEN', ['oUT3', 'cEN'])
 obj.Visualise_TimeSeries(obj.oUT3cEN, 'P')
 obj.AddDataFrame('oUT4cEN', ['oUT4', 'cEN'])
 obj.Visualise_TimeSeries(obj.oUT4cEN, 'P')
+flowRateRatios = obj.CalFlowRateRatios(flowRate_oUT, 0)
+obj.Compare_Scatter(flowRateRatios)
 
 """
 
-obj = SixBranch(dfDict={'oUT':'outlet'})
+obj = Windkessel(dfDict={'oUT':'outlet'})
 obj.Clustering(obj.oUT, obj.position_oUT)
 flowRate_oUT = obj.CalFlowRate(obj.oUT, obj.normal_oUT, range(2))
 obj.Visualise_Clusters(flowRate_oUT, 'FlowRate', range(2))
-obj.Visualise_Ratios(flowRate_oUT, 'FlowRate', range(2), 0, [1, 1])
+obj.Visualise_Ratios(flowRate_oUT, 'FlowRate', range(2), 0)
 obj.AddDataFrame('oUT0cEN', ['oUT0', 'cEN'])
 obj.Visualise_TimeSeries(obj.oUT0cEN, 'P')
 obj.AddDataFrame('oUT1cEN', ['oUT1', 'cEN'])

@@ -1,7 +1,9 @@
+import numpy as np
+
 # Local modules
 from PipeFlow import *
 
-class SixBranch(PipeFlow):
+class Windkessel(PipeFlow):
     def __init__(self, dfDict=None):
         if dfDict == None:
             dfDict = {'iN':'inlet', 'oUT':'outlet'}
@@ -19,3 +21,15 @@ class SixBranch(PipeFlow):
             result = pd.concat([result, new])
         result.name = df.name
         return result
+
+    def CalFlowRateRatios(self, df, ref):
+        desired = self.resistance[ref] / self.resistance
+        mean = df.groupby(['cluster'], as_index=False)['FlowRate'].mean()
+        measured = mean['FlowRate'] / mean['FlowRate'].loc[ref]
+        result = pd.DataFrame({'desired':desired, 'measured':measured})
+        result.name = df.name + '_FlowRateRatios'
+        return result
+
+    def Visualise_Ratios(self, df, var, clusters, ref):
+        desired = self.resistance[ref] / self.resistance[clusters]
+        return super().Visualise_Ratios(df, var, clusters, ref, desired)
