@@ -7,12 +7,14 @@ mu = 0.004 # dynamic viscosity (Pa*s)
 PI = 3.14159265358979323846264338327950288
 
 class InputOutput():
-    dt = None
-    dx = None
-    normal_iN = np.array([])
-    position_iN = np.array([])
-    normal_oUT = np.array([])
-    position_oUT = np.array([])
+    dt = None # step_length (s)
+    dx = None # voxel_size (m)
+    normal_iN = np.array([]) # normal vector of inlets (no unit)
+    position_iN = np.array([]) # position vector of inlets (lattice unit)
+    normal_oUT = np.array([]) # normal vector of outlets (no unit)
+    position_oUT = np.array([]) # position vector of inlets (lattice unit)
+    resistance = np.array([]) # resistance of the Windkessel model (kg/m^4*s)
+    capacitance = np.array([]) # capacitance of the Windkessel model (m^4*s^2/kg)
 
     def ReadInput(self, inFile):
         print('Reading inputs from "%s"' %(inFile))
@@ -27,13 +29,13 @@ class InputOutput():
 
         # Find normal and position vector of inlets
         for elm in root.find('inlets').iter('inlet'):
-            normal = elm.find('normal').attrib['value']
-            normal = normal.strip('(').strip(')').split(',')
-            self.normal_iN = np.append(self.normal_iN, np.array(normal, dtype=np.float64))
+            value = elm.find('normal').attrib['value']
+            value = value.strip('(').strip(')').split(',')
+            self.normal_iN = np.append(self.normal_iN, np.array(value, dtype=np.float64))
             
-            position = elm.find('position').attrib['value']
-            position = position.strip('(').strip(')').split(',')
-            self.position_iN = np.append(self.position_iN, np.array(position, dtype=np.float64))
+            value = elm.find('position').attrib['value']
+            value = value.strip('(').strip(')').split(',')
+            self.position_iN = np.append(self.position_iN, np.array(value, dtype=np.float64))
         self.normal_iN = self.normal_iN.reshape(int(self.normal_iN.size/3), 3)
         self.position_iN = self.position_iN.reshape(int(self.position_iN.size/3), 3)
         #print('normal_iN', self.normal_iN)
@@ -41,18 +43,30 @@ class InputOutput():
 
         # Find normal and position vector of outlets
         for elm in root.find('outlets').iter('outlet'):
-            normal = elm.find('normal').attrib['value']
-            normal = normal.strip('(').strip(')').split(',')
-            self.normal_oUT = np.append(self.normal_oUT, np.array(normal, dtype=np.float64))
+            value = elm.find('normal').attrib['value']
+            value = value.strip('(').strip(')').split(',')
+            self.normal_oUT = np.append(self.normal_oUT, np.array(value, dtype=np.float64))
             
-            position = elm.find('position').attrib['value']
-            position = position.strip('(').strip(')').split(',')
-            self.position_oUT = np.append(self.position_oUT, np.array(position, dtype=np.float64))
+            value = elm.find('position').attrib['value']
+            value = value.strip('(').strip(')').split(',')
+            self.position_oUT = np.append(self.position_oUT, np.array(value, dtype=np.float64))
         self.normal_oUT = self.normal_oUT.reshape(int(self.normal_oUT.size/3), 3)
         self.position_oUT = self.position_oUT.reshape(int(self.position_oUT.size/3), 3)
         self.normal_oUT = - self.normal_oUT # normal vectos point inwards in HemeLB
         #print('normal_oUT', self.normal_oUT)
         #print('position_oUT', self.position_oUT)
+
+        # Find parameters of the Windkessel model
+        for elm in root.find('outlets').iter('outlet'):
+            condition = elm.find('condition')
+            if condition.attrib['type'] == 'windkessel':
+                value = condition.find('R').attrib['value']
+                self.resistance = np.append(self.resistance, float(value))
+
+                value = condition.find('C').attrib['value']
+                self.capacitance = np.append(self.capacitance, float(value))
+        #print('resistance', self.resistance)
+        #print('capacitance', self.capacitance)
 
         print('Reading inputs is finished.\n')
 

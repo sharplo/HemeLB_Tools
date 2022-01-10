@@ -27,8 +27,8 @@ obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT1pYcEN, 'P', 'Uz')
 """
 
 obj = SixBranch(dfDict={'oUT':'outlet'})
-obj.Clustering(obj.oUT, obj.pos_oUT)
-flowRate_oUT = obj.CalFlowRate(obj.oUT, obj.norm_oUT, range(5))
+obj.Clustering(obj.oUT, obj.position_oUT)
+flowRate_oUT = obj.CalFlowRate(obj.oUT, obj.normal_oUT, range(5))
 obj.Visualise_Clusters(flowRate_oUT, 'FlowRate', range(5))
 obj.Visualise_Ratios(flowRate_oUT, 'FlowRate', range(5), 0, [1, 0.75, 0.5])
 obj.Visualise_TimeSeries(obj.oUT, 'P')
@@ -46,8 +46,8 @@ obj.Visualise_TimeSeries(obj.oUT4cEN, 'P')
 """
 
 obj = SixBranch(dfDict={'oUT':'outlet'})
-obj.Clustering(obj.oUT, obj.pos_oUT)
-flowRate_oUT = obj.CalFlowRate(obj.oUT, obj.norm_oUT, range(2))
+obj.Clustering(obj.oUT, obj.position_oUT)
+flowRate_oUT = obj.CalFlowRate(obj.oUT, obj.normal_oUT, range(2))
 obj.Visualise_Clusters(flowRate_oUT, 'FlowRate', range(2))
 obj.Visualise_Ratios(flowRate_oUT, 'FlowRate', range(2), 0, [1, 1])
 obj.AddDataFrame('oUT0cEN', ['oUT0', 'cEN'])
