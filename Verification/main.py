@@ -43,7 +43,7 @@ obj.Visualise_TimeSeries(obj.oUT3cEN, 'P')
 obj.AddDataFrame('oUT4cEN', ['oUT4', 'cEN'])
 obj.Visualise_TimeSeries(obj.oUT4cEN, 'P')
 flowRateRatios = obj.CalFlowRateRatios(flowRate_oUT, 0)
-obj.Compare_Scatter(flowRateRatios)
+obj.Compare_Scatter(flowRateRatios, 0)
 
 """
 

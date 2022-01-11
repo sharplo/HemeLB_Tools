@@ -106,7 +106,9 @@ class InputOutput():
 
         tree.write(outFile, encoding='utf-8', xml_declaration=True)
 
-    def ChangeParam(self, inFile, outFile, tau, timeSteps, Wo, Re, epsilon, resistanceFactor, flowRateRatios):
+    def ChangeParam(self, inFile, outFile, tau, timeSteps, Wo, Re, epsilon, \
+            flowRateRatios, mulFact_R, mulFact_C):
+
         tree = ET.parse(inFile, parser)
         root = tree.getroot()
 
@@ -126,29 +128,34 @@ class InputOutput():
         for elm in root.find('outlets').iter('outlet'):
             condition = elm.find('condition')
             if condition.attrib['type'] == 'windkessel':
-                self.SetParam_Windkessel(condition, i, resistanceFactor, flowRateRatios)
+                self.SetParam_Windkessel(condition, i, Wo, flowRateRatios, mulFact_R, mulFact_C)
             i = i + 1
 
         tree.write(outFile, encoding='utf-8', xml_declaration=True)
 
-    def SetParam_Windkessel(self, condition, i, resistanceFactor, flowRateRatios):
+    def SetParam_Windkessel(self, condition, i, Wo, flowRateRatios, mulFact_R, mulFact_C):
+        # Find equivalent length of the pipe
         length = np.array([9.7e-4, 9.7e-4, 1.94e-3, 9.7e-4, 9.7e-4]) # SixBranch
-
         if condition.attrib['subtype'] == 'GKmodel':
             radius = float(condition.find('radius').attrib['value'])
-            G = 8 * mu / (PI * radius**4)
             L = np.amax(length)
         elif condition.attrib['subtype'] == 'fileGKmodel':
             area = float(condition.find('area').attrib['value'])
-            G = 8 * PI * mu / area**2
-            L = 10 / np.sqrt(area) # under testing
+            radius = np.sqrt(area / PI)
+            L = 10 / radius # under testing
             #condition.set('subtype', 'GKmodel')
             #condition.remove(condition.find('path'))
             #condition.remove(condition.find('area'))
 
+        # Find resistance
+        G = 8 * mu / (PI * radius**4)
         ratio = np.amax(flowRateRatios) / flowRateRatios[i]
-        resistance = resistanceFactor * ratio * abs(G * L)
-        capacitance = 0.2 # under testing
+        resistance = mulFact_R * ratio * abs(G * L)
+
+        # Find capacitance
+        omega = (Wo / radius)**2 * nu
+        RC = 0.1 / omega
+        capacitance = mulFact_C * RC / resistance
 
         if condition.find('R') == None:
             elm = ET.Element('R', {'units':'kg/m^4*s', 'value':'{:0.5e}'.format(resistance)})
@@ -167,10 +174,12 @@ class InputOutput():
     def WriteInletProfile(self, fileName, dt, dx, timeSteps, radius, Wo, Re, epsilon):
         omega = (Wo / radius)**2 * nu
         Umean = Re * nu / radius
-
         Ma2 = (Umean * dx / dt)**2 / cs2
         if Ma2 > 0.1:
             print('Warning -- Mach number = %.3f exceeds the limit!' %(Ma2))
+        #print('omega', omega)
+        #print('Umean', Umean)
+        #print('Ma2', Ma2)
 
         time = np.linspace(0, dt * timeSteps, timeSteps)
         vel = Umean * (1 + epsilon * np.cos(omega*time))

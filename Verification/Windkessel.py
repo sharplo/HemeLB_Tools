@@ -32,4 +32,5 @@ class Windkessel(PipeFlow):
 
     def Visualise_Ratios(self, df, var, clusters, ref):
         desired = self.resistance[ref] / self.resistance[clusters]
+        desired = np.delete(desired, ref)
         return super().Visualise_Ratios(df, var, clusters, ref, desired)

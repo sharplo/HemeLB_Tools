@@ -1,6 +1,5 @@
 import numpy as np
 import matplotlib
-from numpy.typing import _128Bit
 matplotlib.use('Agg') # disable Xwindows backend
 from matplotlib import pyplot as plt
 
@@ -141,10 +140,10 @@ class Visual(object):
         plt.savefig(fileName, bbox_inches='tight')
         plt.close()
 
-    def Compare_Scatter(self, df):
-        fig = plt.figure()
-        ax = fig.add_subplot()
-        ax.scatter(df['desired'], df['measured'], color=self.color[1])
+    def Compare_Scatter(self, df, ref):
+        fig, ax = plt.subplots()
+        view = df.drop(index=ref)
+        ax.scatter(view['desired'], view['measured'], color=self.color[1], label=None)
         ax.plot(ax.get_xlim(), ax.get_ylim(), '--', color=self.color[2], label='y=x')
         ax.set_xlabel('desired')
         ax.set_ylabel('measured')
