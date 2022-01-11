@@ -2,9 +2,22 @@ import xml.etree.ElementTree as ET
 import numpy as np
 
 # Constants
-mmHg = 133.3223874 # Pa
-mu = 0.004 # dynamic viscosity (Pa*s)
 PI = 3.14159265358979323846264338327950288
+mmHg = 133.3223874 # Pa
+cs2 = 1.0 / 3.0 # speed of sound squared (lattice unit)
+mu = 0.004 # dynamic viscosity (Pa*s)
+rho = 1000 # fluid density (kg/m^3)
+
+# Derived constants
+nu = mu / rho # kinematic viscosity
+
+# For preserving comments in the xml file
+class CommentedTreeBuilder(ET.TreeBuilder):
+    def comment(self, data):
+        self.start(ET.Comment, {})
+        self.data(data)
+        self.end(ET.Comment)
+parser = ET.XMLParser(target=CommentedTreeBuilder())
 
 class InputOutput():
     dt = None # step_length (s)
@@ -71,7 +84,6 @@ class InputOutput():
         print('Reading inputs is finished.\n')
 
     def RescaleSize(self, inFile, outFile, scale):
-        parser = ET.XMLParser(target=ET.TreeBuilder(insert_comments=True))
         tree = ET.parse(inFile, parser)
         root = tree.getroot()
 
@@ -94,29 +106,49 @@ class InputOutput():
 
         tree.write(outFile, encoding='utf-8', xml_declaration=True)
 
-    def ChangeParam(self, inFile, outFile):
-        parser = ET.XMLParser(target=ET.TreeBuilder(insert_comments=True))
+    def ChangeParam(self, inFile, outFile, tau, timeSteps, Wo, Re, epsilon, resistanceFactor, flowRateRatios):
         tree = ET.parse(inFile, parser)
         root = tree.getroot()
 
+        elm = root.find('simulation')
+        dx = float(elm.find('voxel_size').attrib['value'])
+        dt = cs2 * (tau - 0.5) * dx**2 / nu
+        elm.find('step_length').set('value', '{:0.5e}'.format(dt))
+        elm.find('steps').set('value', str(timeSteps))
+
+        elm = root.find('inlets').find('inlet').find('condition')
+        radius_iN = float(elm.find('radius').attrib['value'])
+        fileName = 'inletProfile.txt'
+        elm.find('path').set('value', fileName)
+        self.WriteInletProfile(fileName, dt, dx, timeSteps, radius_iN, Wo, Re, epsilon)
+
+        i = 0
         for elm in root.find('outlets').iter('outlet'):
             condition = elm.find('condition')
             if condition.attrib['type'] == 'windkessel':
-                self.SetParam_Windkessel(condition)
+                self.SetParam_Windkessel(condition, i, resistanceFactor, flowRateRatios)
+            i = i + 1
 
         tree.write(outFile, encoding='utf-8', xml_declaration=True)
 
-    def SetParam_Windkessel(self, condition):
-        radius = float(condition.find('radius').attrib['value'])
-        G = 8 * mu / (PI * radius**4)
-        L = 10 / radius # under testing
-        resistance = abs(G * L)
-        capacitance = 0.2 # under testing
+    def SetParam_Windkessel(self, condition, i, resistanceFactor, flowRateRatios):
+        length = np.array([9.7e-4, 9.7e-4, 1.94e-3, 9.7e-4, 9.7e-4]) # SixBranch
 
-        if condition.attrib['subtype'] == 'fileGKmodel':
-            condition.set('subtype', 'GKmodel')
-            condition.remove(condition.find('path'))
-            condition.remove(condition.find('area'))
+        if condition.attrib['subtype'] == 'GKmodel':
+            radius = float(condition.find('radius').attrib['value'])
+            G = 8 * mu / (PI * radius**4)
+            L = np.amax(length)
+        elif condition.attrib['subtype'] == 'fileGKmodel':
+            area = float(condition.find('area').attrib['value'])
+            G = 8 * PI * mu / area**2
+            L = 10 / np.sqrt(area) # under testing
+            #condition.set('subtype', 'GKmodel')
+            #condition.remove(condition.find('path'))
+            #condition.remove(condition.find('area'))
+
+        ratio = np.amax(flowRateRatios) / flowRateRatios[i]
+        resistance = resistanceFactor * ratio * abs(G * L)
+        capacitance = 0.2 # under testing
 
         if condition.find('R') == None:
             elm = ET.Element('R', {'units':'kg/m^4*s', 'value':'{:0.5e}'.format(resistance)})
@@ -132,3 +164,17 @@ class InputOutput():
         else:
             condition.find('C').set('value', '{:0.5e}'.format(capacitance))
         
+    def WriteInletProfile(self, fileName, dt, dx, timeSteps, radius, Wo, Re, epsilon):
+        omega = (Wo / radius)**2 * nu
+        Umean = Re * nu / radius
+
+        Ma2 = (Umean * dx / dt)**2 / cs2
+        if Ma2 > 0.1:
+            print('Warning -- Mach number = %.3f exceeds the limit!' %(Ma2))
+
+        time = np.linspace(0, dt * timeSteps, timeSteps)
+        vel = Umean * (1 + epsilon * np.cos(omega*time))
+
+        with open(fileName, 'w') as f:
+            for i in range(len(time)):
+                f.write(str(time[i]) + ' ' + str(vel[i]) + '\n')
