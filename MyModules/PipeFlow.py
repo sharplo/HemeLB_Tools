@@ -1,10 +1,8 @@
 import sys
 import pandas as pd
-
-# Local modules
-from InputOutput import *
-from Visual import *
-from DiscError import *
+from MyModules.InputOutput import *
+from MyModules.Visual import *
+from MyModules.DiscError import *
 
 class PipeFlow(InputOutput, Visual, DiscError):
     def __init__(self, dfDict):
@@ -12,11 +10,11 @@ class PipeFlow(InputOutput, Visual, DiscError):
         Visual.__init__(self)
         DiscError.__init__(self)
 
-        self.dir = sys.argv[1] # directory where data reside
-        self.shotBeg = int(sys.argv[2]) # first file to be read
-        self.shotEnd = int(sys.argv[3]) # last file to be read
-        self.shotStep = int(sys.argv[4]) # step of file reading
-        self.ReadInput(sys.argv[5]) # extract parameters from input.xml
+        self.ReadInput(sys.argv[1]) # extract parameters from input.xml
+        self.dir = sys.argv[2] # directory where data reside
+        self.shotBeg = int(sys.argv[3]) # first file to be read
+        self.shotEnd = int(sys.argv[4]) # last file to be read
+        self.shotStep = int(sys.argv[5]) # step of file reading
         
         self.dfDict = dfDict # dictionary between data frame names and data file names
         self.R = None # radius of pipe (m)

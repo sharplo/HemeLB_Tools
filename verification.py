@@ -1,9 +1,7 @@
 #!/usr/bin/python3.8
-
-# Local modules
-from Poiseuille import *
-from Bifurcation import *
-from Windkessel import *
+from MyModules.Poiseuille import *
+from MyModules.Bifurcation import *
+from MyModules.Windkessel import *
 
 """
 
@@ -44,17 +42,4 @@ obj.AddDataFrame('oUT4cEN', ['oUT4', 'cEN'])
 obj.Visualise_TimeSeries(obj.oUT4cEN, 'P')
 flowRateRatios = obj.CalFlowRateRatios(flowRate_oUT, 0)
 obj.Compare_Scatter(flowRateRatios, 0)
-
-"""
-
-obj = Windkessel(dfDict={'oUT':'outlet'})
-obj.Clustering(obj.oUT, obj.position_oUT)
-flowRate_oUT = obj.CalFlowRate(obj.oUT, obj.normal_oUT, range(2))
-obj.Visualise_Clusters(flowRate_oUT, 'FlowRate', range(2))
-obj.Visualise_Ratios(flowRate_oUT, 'FlowRate', range(2), 0)
-obj.AddDataFrame('oUT0cEN', ['oUT0', 'cEN'])
-obj.Visualise_TimeSeries(obj.oUT0cEN, 'P')
-obj.AddDataFrame('oUT1cEN', ['oUT1', 'cEN'])
-obj.Visualise_TimeSeries(obj.oUT1cEN, 'P')
-
-"""
+flowRateRatios.to_csv('figures/flowRateRatios.csv', index=False)

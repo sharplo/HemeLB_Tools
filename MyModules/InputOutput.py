@@ -134,8 +134,9 @@ class InputOutput():
         tree.write(outFile, encoding='utf-8', xml_declaration=True)
 
     def SetParam_Windkessel(self, condition, i, Wo, flowRateRatios, mulFact_R, mulFact_C):
-        # Find equivalent length of the pipe
         length = np.array([9.7e-4, 9.7e-4, 1.94e-3, 9.7e-4, 9.7e-4]) # SixBranch
+
+        # Find equivalent length of the pipe
         if condition.attrib['subtype'] == 'GKmodel':
             radius = float(condition.find('radius').attrib['value'])
             L = np.amax(length)

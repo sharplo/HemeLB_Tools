@@ -1,7 +1,5 @@
 import numpy as np
-
-# Local modules
-from PipeFlow import *
+from MyModules.PipeFlow import *
 
 class Windkessel(PipeFlow):
     def __init__(self, dfDict=None):

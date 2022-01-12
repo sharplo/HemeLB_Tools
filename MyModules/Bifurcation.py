@@ -1,5 +1,4 @@
-# Local modules
-from PipeFlow import *
+from MyModules.PipeFlow import *
 
 class Bifurcation(PipeFlow):
     def __init__(self, dfDict=None):
