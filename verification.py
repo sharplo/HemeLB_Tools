@@ -1,7 +1,11 @@
-#!/usr/bin/python3.8
+#!/usr/bin/python3.6
+import os
 from MyModules.Poiseuille import *
 from MyModules.Bifurcation import *
 from MyModules.Windkessel import *
+
+if not os.path.exists('./figures'):
+    os.mkdir('./figures')
 
 """
 
@@ -41,5 +45,5 @@ obj.Visualise_TimeSeries(obj.oUT3cEN, 'P')
 obj.AddDataFrame('oUT4cEN', ['oUT4', 'cEN'])
 obj.Visualise_TimeSeries(obj.oUT4cEN, 'P')
 flowRateRatios = obj.CalFlowRateRatios(flowRate_oUT, 0)
-obj.Compare_Scatter(flowRateRatios, 0)
+obj.Compare_Scatter(flowRateRatios)
 flowRateRatios.to_csv('figures/flowRateRatios.csv', index=False)

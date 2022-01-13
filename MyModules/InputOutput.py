@@ -155,7 +155,7 @@ class InputOutput():
 
         # Find capacitance
         omega = (Wo / radius)**2 * nu
-        RC = 0.1 / omega
+        RC = 0.01 / omega
         capacitance = mulFact_C * RC / resistance
 
         if condition.find('R') == None:
@@ -174,8 +174,9 @@ class InputOutput():
         
     def WriteInletProfile(self, fileName, dt, dx, timeSteps, radius, Wo, Re, epsilon):
         omega = (Wo / radius)**2 * nu
-        Umean = Re * nu / radius
-        Ma2 = (Umean * dx / dt)**2 / cs2
+        Umean = Re * nu / (2 * radius)
+        Umax = Umean * (1 + epsilon)
+        Ma2 = (Umax * dt / dx)**2 / cs2
         if Ma2 > 0.1:
             print('Warning -- Mach number = %.3f exceeds the limit!' %(Ma2))
         #print('omega', omega)

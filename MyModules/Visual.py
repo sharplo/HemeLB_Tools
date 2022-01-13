@@ -140,11 +140,10 @@ class Visual(object):
         plt.savefig(fileName, bbox_inches='tight')
         plt.close()
 
-    def Compare_Scatter(self, df, ref):
+    def Compare_Scatter(self, df):
         fig, ax = plt.subplots()
-        view = df.drop(index=ref)
-        ax.scatter(view['desired'], view['measured'], color=self.color[1], label=None)
-        ax.plot(ax.get_xlim(), ax.get_ylim(), '--', color=self.color[2], label='y=x')
+        ax.scatter(df['desired'], df['measured'], color=self.color[1], label=None)
+        ax.plot(ax.get_xlim(), ax.get_ylim(), '--', color=self.color[-1], label='y=x')
         ax.set_xlabel('desired')
         ax.set_ylabel('measured')
         ax.legend()
