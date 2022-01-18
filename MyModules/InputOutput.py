@@ -124,16 +124,17 @@ class InputOutput():
         elm.find('path').set('value', fileName)
         self.WriteInletProfile(fileName, dt, dx, timeSteps, radius_iN, Wo, Re, epsilon)
 
+        sumRadiusCube = self.SumRadiusCube(root.find('outlets'))
         i = 0
         for elm in root.find('outlets').iter('outlet'):
             condition = elm.find('condition')
             if condition.attrib['type'] == 'windkessel':
-                self.SetParam_Windkessel(condition, i, Wo, flowRateRatios, mulFact_R, mulFact_C)
+                self.SetParam_Windkessel(condition, i, Wo, flowRateRatios, mulFact_R, mulFact_C, sumRadiusCube)
             i = i + 1
 
         tree.write(outFile, encoding='utf-8', xml_declaration=True)
 
-    def SetParam_Windkessel(self, condition, i, Wo, flowRateRatios, mulFact_R, mulFact_C):
+    def SetParam_Windkessel(self, condition, i, Wo, flowRateRatios, mulFact_R, mulFact_C, sumRadiusCube):
         length = np.array([9.7e-4, 9.7e-4, 1.94e-3, 9.7e-4, 9.7e-4]) # SixBranch
 
         # Find equivalent length of the pipe
@@ -150,7 +151,12 @@ class InputOutput():
 
         # Find resistance
         G = 8 * mu / (PI * radius**4)
-        ratio = np.amax(flowRateRatios) / flowRateRatios[i]
+        if type(flowRateRatios) == list:
+            ratio = np.amax(flowRateRatios) / flowRateRatios[i]
+        elif flowRateRatios == 'Murray':
+            ratio = radius**3 / sumRadiusCube
+        else:
+            print('flowRateRatios does not amit this option!')
         resistance = mulFact_R * ratio * abs(G * L)
 
         # Find capacitance
@@ -189,3 +195,10 @@ class InputOutput():
         with open(fileName, 'w') as f:
             for i in range(len(time)):
                 f.write(str(time[i]) + ' ' + str(vel[i]) + '\n')
+
+    def SumRadiusCube(self, outlets):
+        result = 0
+        for outlet in outlets.iter('outlet'):
+            radius = outlet.find('condition').find('radius').get('value')
+            result = result + float(radius)**3
+        return result
