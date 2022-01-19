@@ -20,12 +20,19 @@ class CommentedTreeBuilder(ET.TreeBuilder):
 
 class InputOutput():
     def __init__(self, inFile):
+        self.type_iN = None # type of boundary condition in inlets
+        self.type_oUT = None # type of boundary condition in outlets
+
         self.dt = None # step_length (s)
         self.dx = None # voxel_size (m)
         self.normal_iN = np.array([]) # normal vector of inlets (no unit)
         self.position_iN = np.array([]) # position vector of inlets (lattice unit)
         self.normal_oUT = np.array([]) # normal vector of outlets (no unit)
         self.position_oUT = np.array([]) # position vector of inlets (lattice unit)
+        self.radius_iN = np.array([]) # radius of inlets (m)
+        self.area_iN = np.array([]) # area of inlets (m^2)
+        self.radius_oUT = np.array([]) # radius of outlets (m)
+        self.area_oUT = np.array([]) # area of outlets (m^2)
         self.resistance = np.array([]) # resistance of the Windkessel model (kg/m^4*s)
         self.capacitance = np.array([]) # capacitance of the Windkessel model (m^4*s^2/kg)
 
@@ -74,15 +81,53 @@ class InputOutput():
         #print('normal_oUT', self.normal_oUT)
         #print('position_oUT', self.position_oUT)
 
-        # Find parameters of the Windkessel model
-        for elm in root.find('outlets').iter('outlet'):
-            condition = elm.find('condition')
-            if condition.attrib['type'] == 'windkessel':
-                value = condition.find('R').attrib['value']
-                self.resistance = np.append(self.resistance, float(value))
+        # Find the type of boundary conditions
+        self.type_iN = root.find('inlets').find('inlet').find('condition').attrib['type']
+        self.type_oUT = root.find('outlets').find('outlet').find('condition').attrib['type']
+        #print('type_iN', self.type_iN)
+        #print('type_oUT', self.type_oUT)
 
-                value = condition.find('C').attrib['value']
-                self.capacitance = np.append(self.capacitance, float(value))
+        # Find radius and area of inlets
+        if self.type_iN == 'velocity':
+            for elm in root.find('inlets').iter('inlet'):
+                condition = elm.find('condition')
+
+                value = condition.find('radius').attrib['value']
+                self.radius_iN = np.append(self.radius_iN, float(value))
+
+                if condition.find('area') != None:
+                    value = condition.find('area').attrib['value']
+                    self.area_iN = np.append(self.area_iN, float(value))
+        #print('radius_iN', self.radius_iN)
+        #print('area_iN', self.area_iN)
+
+        # Find parameters of the Windkessel model
+        if self.type_oUT == 'windkessel':
+            for elm in root.find('outlets').iter('outlet'):
+                condition = elm.find('condition')
+
+                value = condition.find('radius').attrib['value']
+                self.radius_oUT = np.append(self.radius_oUT, float(value))
+
+                if condition.find('area') != None:
+                    value = condition.find('area').attrib['value']
+                    self.area_oUT = np.append(self.area_oUT, float(value))
+
+                if condition.find('R') != None:
+                    value = condition.find('R').attrib['value']
+                    if value == 'CHANGE':
+                        self.resistance = np.append(self.resistance, None)
+                    else:
+                        self.resistance = np.append(self.resistance, float(value))
+
+                if condition.find('C') != None:
+                    value = condition.find('C').attrib['value']
+                    if value == 'CHANGE':
+                        self.capacitance = np.append(self.capacitance, None)
+                    else:
+                        self.capacitance = np.append(self.capacitance, float(value))
+        #print('radius_oUT', self.radius_oUT)
+        #print('area_oUT', self.area_oUT)
         #print('resistance', self.resistance)
         #print('capacitance', self.capacitance)
 
@@ -93,8 +138,7 @@ class InputOutput():
         root = self.tree.getroot()
 
         # Rescale voxel size
-        value = float(root.find('simulation').find('voxel_size').attrib['value'])
-        value = value * scale
+        value = self.dx * scale
         root.find('simulation').find('voxel_size').set('value', '{:0.5e}'.format(value))
 
         # Rescale radii
@@ -109,31 +153,33 @@ class InputOutput():
             value = value * scale**2
             elm.set('value', '{:0.5e}'.format(value))
 
-    def ChangeParam(self, tau, timeSteps, Wo, Re, epsilon, \
-            flowRateRatios, mulFact_R, mulFact_C):
+    def ChangeParam(self, tau, timeSteps, Wo, Re, epsilon, flowRateRatios, gamma_R, gamma_C):
         root = self.tree.getroot()
 
+        # Change parameters in simulation
         elm = root.find('simulation')
-        dx = float(elm.find('voxel_size').attrib['value'])
-        dt = cs2 * (tau - 0.5) * dx**2 / nu
-        elm.find('step_length').set('value', '{:0.5e}'.format(dt))
+        self.dt = cs2 * (tau - 0.5) * self.dx**2 / nu
+        elm.find('step_length').set('value', '{:0.5e}'.format(self.dt))
         elm.find('steps').set('value', str(timeSteps))
 
-        elm = root.find('inlets').find('inlet').find('condition')
-        radius_iN = float(elm.find('radius').attrib['value'])
-        fileName = 'inletProfile.txt'
-        elm.find('path').set('value', fileName)
-        self.WriteInletProfile(fileName, dt, dx, timeSteps, radius_iN, Wo, Re, epsilon)
+        # Change parameters in inlets
+        if self.type_iN == 'velocity':
+            elm = root.find('inlets')[0].find('condition')
+            radius_iN = self.radius_iN[0]
+            fileName = 'INLET0_VELOCITY.txt'
+            elm.find('path').set('value', fileName)
+            self.WriteInletProfile(fileName, timeSteps, radius_iN, Wo, Re, epsilon)
 
-        sumRadiusCube = self.SumRadiusCube(root.find('outlets'))
-        i = 0
-        for elm in root.find('outlets').iter('outlet'):
-            condition = elm.find('condition')
-            if condition.attrib['type'] == 'windkessel':
-                self.SetParam_Windkessel(condition, i, Wo, flowRateRatios, mulFact_R, mulFact_C, sumRadiusCube)
-            i = i + 1
+        # Change parameters in outlets
+        if self.type_oUT == 'windkessel':
+            ratios = self.DesiredFlowRateRatios(flowRateRatios)
+            idx = 0
+            for elm in root.find('outlets').iter('outlet'):
+                condition = elm.find('condition')
+                self.SetParam_Windkessel(condition, Wo, ratios[idx], gamma_R, gamma_C)
+                idx = idx + 1
 
-    def SetParam_Windkessel(self, condition, i, Wo, flowRateRatios, mulFact_R, mulFact_C, sumRadiusCube):
+    def SetParam_Windkessel(self, condition, Wo, flowRateRatio, gamma_R, gamma_C):
         length = np.array([9.7e-4, 9.7e-4, 1.94e-3, 9.7e-4, 9.7e-4]) # SixBranch
 
         # Find equivalent length of the pipe
@@ -150,18 +196,12 @@ class InputOutput():
 
         # Find resistance
         G = 8 * mu / (PI * radius**4)
-        if type(flowRateRatios) == list:
-            ratio = np.amax(flowRateRatios) / flowRateRatios[i]
-        elif flowRateRatios == 'Murray':
-            ratio = radius**3 / sumRadiusCube
-        else:
-            print('flowRateRatios does not amit this option!')
-        resistance = mulFact_R * ratio * abs(G * L)
+        resistance = gamma_R * flowRateRatio * abs(G * L)
 
         # Find capacitance
         omega = (Wo / radius)**2 * nu
-        RC = 0.01 / omega
-        capacitance = mulFact_C * RC / resistance
+        RC = 1 / omega
+        capacitance = gamma_C * RC / resistance
 
         if condition.find('R') == None:
             elm = ET.Element('R', {'units':'kg/m^4*s', 'value':'{:0.5e}'.format(resistance)})
@@ -177,27 +217,32 @@ class InputOutput():
         else:
             condition.find('C').set('value', '{:0.5e}'.format(capacitance))
         
-    def WriteInletProfile(self, fileName, dt, dx, timeSteps, radius, Wo, Re, epsilon):
+    def WriteInletProfile(self, fileName, timeSteps, radius, Wo, Re, epsilon):
         omega = (Wo / radius)**2 * nu
         Umean = Re * nu / (2 * radius)
         Umax = Umean * (1 + epsilon)
-        Ma2 = (Umax * dt / dx)**2 / cs2
-        if Ma2 > 0.1:
-            print('Warning -- Mach number = %.3f exceeds the limit!' %(Ma2))
+        Ma2 = (Umax * self.dt / self.dx)**2 / cs2
+        if Ma2 > 0.01:
+            print('Warning -- Ma2 = %.3f exceeds the limit!' %(Ma2))
         #print('omega', omega)
         #print('Umean', Umean)
         #print('Ma2', Ma2)
 
-        time = np.linspace(0, dt * timeSteps, timeSteps)
+        time = np.linspace(0, self.dt * timeSteps, timeSteps)
         vel = Umean * (1 + epsilon * np.cos(omega*time))
 
         with open(fileName, 'w') as f:
             for i in range(len(time)):
                 f.write(str(time[i]) + ' ' + str(vel[i]) + '\n')
 
-    def SumRadiusCube(self, outlets):
-        result = 0
-        for outlet in outlets.iter('outlet'):
-            radius = outlet.find('condition').find('radius').get('value')
-            result = result + float(radius)**3
-        return result
+    def DesiredFlowRateRatios(self, flowRateRatios):
+        if type(flowRateRatios) == list:
+            ratios = np.amax(flowRateRatios) / flowRateRatios
+        elif flowRateRatios == 'Murray':
+            sumRadiusCube = 0
+            for radius in self.radius_oUT:
+                sumRadiusCube = sumRadiusCube + float(radius)**3
+            ratios = self.radius_oUT**3 / sumRadiusCube
+        else:
+            print('flowRateRatios does not admit this option!')
+        return ratios
