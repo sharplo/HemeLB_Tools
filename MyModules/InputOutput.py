@@ -20,19 +20,24 @@ class CommentedTreeBuilder(ET.TreeBuilder):
 parser = ET.XMLParser(target=CommentedTreeBuilder())
 
 class InputOutput():
-    dt = None # step_length (s)
-    dx = None # voxel_size (m)
-    normal_iN = np.array([]) # normal vector of inlets (no unit)
-    position_iN = np.array([]) # position vector of inlets (lattice unit)
-    normal_oUT = np.array([]) # normal vector of outlets (no unit)
-    position_oUT = np.array([]) # position vector of inlets (lattice unit)
-    resistance = np.array([]) # resistance of the Windkessel model (kg/m^4*s)
-    capacitance = np.array([]) # capacitance of the Windkessel model (m^4*s^2/kg)
+    def __init__(self, inFile):
+        self.dt = None # step_length (s)
+        self.dx = None # voxel_size (m)
+        self.normal_iN = np.array([]) # normal vector of inlets (no unit)
+        self.position_iN = np.array([]) # position vector of inlets (lattice unit)
+        self.normal_oUT = np.array([]) # normal vector of outlets (no unit)
+        self.position_oUT = np.array([]) # position vector of inlets (lattice unit)
+        self.resistance = np.array([]) # resistance of the Windkessel model (kg/m^4*s)
+        self.capacitance = np.array([]) # capacitance of the Windkessel model (m^4*s^2/kg)
 
-    def ReadInput(self, inFile):
+        # Extract the above parameters from input.xml
         print('Reading inputs from "%s"' %(inFile))
-        tree = ET.parse(inFile)
-        root = tree.getroot()
+        self.tree = ET.parse(inFile, parser)
+        self.ReadInput()
+        print('Reading inputs is finished.\n')
+
+    def ReadInput(self):
+        root = self.tree.getroot()
 
         # Find grid sizes
         self.dt = float(root.find('simulation').find('step_length').attrib['value'])
@@ -81,11 +86,11 @@ class InputOutput():
         #print('resistance', self.resistance)
         #print('capacitance', self.capacitance)
 
-        print('Reading inputs is finished.\n')
+    def WriteInput(self, outFile):
+        self.tree.write(outFile, encoding='utf-8', xml_declaration=True)
 
-    def RescaleSize(self, inFile, outFile, scale):
-        tree = ET.parse(inFile, parser)
-        root = tree.getroot()
+    def RescaleSize(self, scale):
+        root = self.tree.getroot()
 
         # Rescale voxel size
         value = float(root.find('simulation').find('voxel_size').attrib['value'])
@@ -104,13 +109,9 @@ class InputOutput():
             value = value * scale**2
             elm.set('value', '{:0.5e}'.format(value))
 
-        tree.write(outFile, encoding='utf-8', xml_declaration=True)
-
-    def ChangeParam(self, inFile, outFile, tau, timeSteps, Wo, Re, epsilon, \
+    def ChangeParam(self, tau, timeSteps, Wo, Re, epsilon, \
             flowRateRatios, mulFact_R, mulFact_C):
-
-        tree = ET.parse(inFile, parser)
-        root = tree.getroot()
+        root = self.tree.getroot()
 
         elm = root.find('simulation')
         dx = float(elm.find('voxel_size').attrib['value'])
@@ -131,8 +132,6 @@ class InputOutput():
             if condition.attrib['type'] == 'windkessel':
                 self.SetParam_Windkessel(condition, i, Wo, flowRateRatios, mulFact_R, mulFact_C, sumRadiusCube)
             i = i + 1
-
-        tree.write(outFile, encoding='utf-8', xml_declaration=True)
 
     def SetParam_Windkessel(self, condition, i, Wo, flowRateRatios, mulFact_R, mulFact_C, sumRadiusCube):
         length = np.array([9.7e-4, 9.7e-4, 1.94e-3, 9.7e-4, 9.7e-4]) # SixBranch

@@ -6,11 +6,10 @@ from MyModules.DiscError import *
 
 class PipeFlow(InputOutput, Visual, DiscError):
     def __init__(self, dfDict):
-        InputOutput.__init__(self)
+        InputOutput.__init__(self, sys.argv[1])
         Visual.__init__(self)
         DiscError.__init__(self)
 
-        self.ReadInput(sys.argv[1]) # extract parameters from input.xml
         self.dir = sys.argv[2] # directory where data reside
         self.shotBeg = int(sys.argv[3]) # first file to be read
         self.shotEnd = int(sys.argv[4]) # last file to be read
