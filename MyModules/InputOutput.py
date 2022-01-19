@@ -172,31 +172,28 @@ class InputOutput():
 
         # Change parameters in outlets
         if self.type_oUT == 'windkessel':
+            outlets = root.find('outlets')
             ratios = self.DesiredFlowRateRatios(flowRateRatios)
+            maxGL = self.FindMaxGL(outlets)
             idx = 0
-            for elm in root.find('outlets').iter('outlet'):
+            for elm in outlets.iter('outlet'):
                 condition = elm.find('condition')
-                self.SetParam_Windkessel(condition, Wo, ratios[idx], gamma_R, gamma_C)
+                self.SetParam_Windkessel(condition, idx, Wo, ratios, maxGL, gamma_R, gamma_C)
                 idx = idx + 1
 
-    def SetParam_Windkessel(self, condition, Wo, flowRateRatio, gamma_R, gamma_C):
-        length = np.array([9.7e-4, 9.7e-4, 1.94e-3, 9.7e-4, 9.7e-4]) # SixBranch
-
-        # Find equivalent length of the pipe
+    def SetParam_Windkessel(self, condition, idx, Wo, flowRateRatios, maxGL, gamma_R, gamma_C):
+        # Find radius of the pipe
         if condition.attrib['subtype'] == 'GKmodel':
-            radius = float(condition.find('radius').attrib['value'])
-            L = np.amax(length)
+            radius = self.radius_oUT[idx]
         elif condition.attrib['subtype'] == 'fileGKmodel':
-            area = float(condition.find('area').attrib['value'])
+            area = self.area_oUT[idx]
             radius = np.sqrt(area / PI)
-            L = 10 / radius # under testing
             #condition.set('subtype', 'GKmodel')
             #condition.remove(condition.find('path'))
             #condition.remove(condition.find('area'))
 
         # Find resistance
-        G = 8 * mu / (PI * radius**4)
-        resistance = gamma_R * flowRateRatio * abs(G * L)
+        resistance = gamma_R * flowRateRatios[idx] * maxGL
 
         # Find capacitance
         omega = (Wo / radius)**2 * nu
@@ -246,3 +243,22 @@ class InputOutput():
         else:
             print('flowRateRatios does not admit this option!')
         return ratios
+
+    def FindMaxGL(self, outlets):
+        lengths = np.array([9.7e-4, 9.7e-4, 1.94e-3, 9.7e-4, 9.7e-4]) # FiveExit with radius 2e-4
+
+        idx = 0
+        maxGL = 0
+        for elm in outlets.iter('outlet'):
+            condition = elm.find('condition')
+            if condition.attrib['subtype'] == 'GKmodel':
+                radius = self.radius_oUT[idx]
+            elif condition.attrib['subtype'] == 'fileGKmodel':
+                area = self.area_oUT[idx]
+                radius = np.sqrt(area / PI)
+            G = 8 * mu / (PI * radius**4)
+            GL = G * lengths[idx]
+            if GL > maxGL:
+                maxGL = GL
+            idx = idx + 1
+        return maxGL
