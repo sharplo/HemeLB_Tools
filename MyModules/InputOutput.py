@@ -17,7 +17,6 @@ class CommentedTreeBuilder(ET.TreeBuilder):
         self.start(ET.Comment, {})
         self.data(data)
         self.end(ET.Comment)
-parser = ET.XMLParser(target=CommentedTreeBuilder())
 
 class InputOutput():
     def __init__(self, inFile):
@@ -31,10 +30,11 @@ class InputOutput():
         self.capacitance = np.array([]) # capacitance of the Windkessel model (m^4*s^2/kg)
 
         # Extract the above parameters from input.xml
+        parser = ET.XMLParser(target=CommentedTreeBuilder())
         print('Reading inputs from "%s"' %(inFile))
         self.tree = ET.parse(inFile, parser)
         self.ReadInput()
-        print('Reading inputs is finished.\n')
+        print('Finished reading inputs.')
 
     def ReadInput(self):
         root = self.tree.getroot()
