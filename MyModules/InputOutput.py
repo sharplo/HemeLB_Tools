@@ -153,7 +153,7 @@ class InputOutput():
             value = value * scale**2
             elm.set('value', '{:0.5e}'.format(value))
 
-    def ChangeParam(self, tau, timeSteps, Wo, Re, epsilon, flowRateRatios, gamma_R, gamma_C):
+    def ChangeParam(self, tau, timeSteps, Wo, Re, epsilon, geometry, flowRateRatios, gamma_R, gamma_C):
         root = self.tree.getroot()
 
         # Change parameters in simulation
@@ -173,8 +173,8 @@ class InputOutput():
         # Change parameters in outlets
         if self.type_oUT == 'windkessel':
             outlets = root.find('outlets')
+            maxGL = self.FindMaxGL(geometry, outlets)
             ratios = self.DesiredFlowRateRatios(flowRateRatios)
-            maxGL = self.FindMaxGL(outlets)
             idx = 0
             for elm in outlets.iter('outlet'):
                 condition = elm.find('condition')
@@ -188,9 +188,6 @@ class InputOutput():
         elif condition.attrib['subtype'] == 'fileGKmodel':
             area = self.area_oUT[idx]
             radius = np.sqrt(area / PI)
-            #condition.set('subtype', 'GKmodel')
-            #condition.remove(condition.find('path'))
-            #condition.remove(condition.find('area'))
 
         # Find resistance
         resistance = gamma_R * flowRateRatios[idx] * maxGL
@@ -200,19 +197,26 @@ class InputOutput():
         RC = 1 / omega
         capacitance = gamma_C * RC / resistance
 
+        # Set R and C
         if condition.find('R') == None:
             elm = ET.Element('R', {'units':'kg/m^4*s', 'value':'{:0.5e}'.format(resistance)})
             elm.tail = "\n" + 4 * "  "
-            condition.insert(0, elm)
+            condition.insert(1, elm)
         else:
             condition.find('R').set('value', '{:0.5e}'.format(resistance))
 
         if condition.find('C') == None:
             elm = ET.Element('C', {'units':'m^4*s^2/kg', 'value':'{:0.5e}'.format(capacitance)})
             elm.tail = "\n" + 4 * "  "
-            condition.insert(1, elm)
+            condition.insert(2, elm)
         else:
             condition.find('C').set('value', '{:0.5e}'.format(capacitance))
+
+        # Change from fileGKmodel to GKmodel
+        if condition.attrib['subtype'] == 'fileGKmodel':
+            condition.set('subtype', 'GKmodel')
+            condition.remove(condition.find('path'))
+            condition.remove(condition.find('area'))
         
     def WriteInletProfile(self, fileName, timeSteps, radius, Wo, Re, epsilon):
         omega = (Wo / radius)**2 * nu
@@ -221,9 +225,9 @@ class InputOutput():
         Ma2 = (Umax * self.dt / self.dx)**2 / cs2
         if Ma2 > 0.01:
             print('Warning -- Ma2 = %.3f exceeds the limit!' %(Ma2))
-        #print('omega', omega)
-        #print('Umean', Umean)
-        #print('Ma2', Ma2)
+        print('omega', omega)
+        print('Umean', Umean)
+        print('Ma2', Ma2)
 
         time = np.linspace(0, self.dt * timeSteps, timeSteps)
         vel = Umean * (1 + epsilon * np.cos(omega*time))
@@ -244,8 +248,17 @@ class InputOutput():
             print('flowRateRatios does not admit this option!')
         return ratios
 
-    def FindMaxGL(self, outlets):
-        lengths = np.array([9.7e-4, 9.7e-4, 1.94e-3, 9.7e-4, 9.7e-4]) # FiveExit with radius 2e-4
+    def FindMaxGL(self, geometry, outlets):
+        # Expedient solution
+        if geometry == 'FiveExit_2e-4': # radii=2e-4
+            lengths = np.array([9.7e-4, 9.7e-4, 1.94e-3, 9.7e-4, 9.7e-4])
+        elif geometry == 'FiveExit_1e-3': # radii=1e-3
+            lengths = np.array([4.83e-3, 4.83e-3, 9.67e-3, 4.83e-3, 4.83e-3])
+        elif geometry == 'ArteriesLegs_5e-3':  # inlet radius=5e-3
+            lengths = [1]*38
+            lengths[9] = 0.02297
+        else:
+            print('This geometry is not registered!')
 
         idx = 0
         maxGL = 0
