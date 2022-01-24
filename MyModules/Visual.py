@@ -133,6 +133,7 @@ class Visual(object):
             else:
                 label = None
             plt.hlines(desired[i], df['step'].min(), df['step'].max(), colors='black', linestyles='dashed', label=label)
+        plt.ylim(np.min(desired) - 0.2, np.max(desired) + 0.2)
         plt.xlabel('Time step')
         plt.ylabel(var + ' ratio w.r.t. ' + df.name + str(ref))
         plt.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=3)
@@ -142,10 +143,10 @@ class Visual(object):
 
     def Compare_Scatter(self, df):
         fig, ax = plt.subplots()
-        ax.scatter(df['desired'], df['measured'], color=self.color[1], label=None)
-        ax.plot(ax.get_xlim(), ax.get_ylim(), '--', color=self.color[-1], label='y=x')
-        ax.set_xlabel('desired')
-        ax.set_ylabel('measured')
+        ax.scatter(df['Desired'], df['Measured'], color=self.color[1], label=None)
+        ax.plot(ax.get_xlim(), ax.get_xlim(), '--', color=self.color[-1], label='y = x')
+        ax.set_xlabel('Desired value')
+        ax.set_ylabel('Measured value')
         ax.legend()
         fileName = 'figures/' + df.name + '-scatter.png'
         fig.savefig(fileName, bbox_inches='tight')

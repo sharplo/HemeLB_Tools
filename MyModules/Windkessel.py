@@ -25,7 +25,7 @@ class Windkessel(PipeFlow):
         mean = df.groupby(['cluster'], as_index=False)['FlowRate'].mean()
         measured = mean['FlowRate'] / mean['FlowRate'].loc[ref]
         relErr = (measured - desired) / desired
-        result = pd.DataFrame({'desired':desired, 'measured':measured, 'relErr':relErr})
+        result = pd.DataFrame({'Desired':desired, 'Measured':measured, 'RelErr':relErr})
         result = result.drop(index=ref)
         result.name = df.name + '_FlowRateRatios'
         return result

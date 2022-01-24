@@ -9,23 +9,25 @@ import numpy as np
 if not os.path.exists('./figures'):
     os.mkdir('./figures')
 
-Exp = pd.read_csv('experiments.csv')
-Dir = '/hppfs/work/pn72qu/di46kes/'
-CaseName = 'FiveExit_1e-3_fine/FiveExit_'
-FileName = '/figures/flowRateRatios.csv'
+Dir = '/hppfs/work/pn72qu/di46kes/FiveExit_1e-3_fine/FiveExit_'
+Exp = pd.read_csv('FiveExit_1e-3_fine/experiments.csv')
+Qratios = '/figures/flowRateRatios.csv'
 
+# Colour map
 cmap_tend = matplotlib.cm.get_cmap('magma')
 
+# Add a coloumn about stability in the data frame
 def SetStability(exp, caseNum):
     exp['stable'] = None
     for i in range(len(caseNum)):
-        file = Dir + CaseName + str(caseNum[i]) + FileName
-        if not os.path.exists(file):
+        data = Dir + str(caseNum[i]) + Qratios
+        if not os.path.exists(data):
             exp['stable'].at[caseNum[i]-1] = False
         else:
             exp['stable'].at[caseNum[i]-1] = True
 
-def StabilityMap(exp, caseNum, fileName):
+# Plot a map showing whether the simulations are stable
+def StabilityMap(exp, caseNum, outFile):
     row = [i-1 for i in caseNum]
     view = exp.iloc[row,:]
     stable = view[view['stable'] == True]
@@ -40,11 +42,11 @@ def StabilityMap(exp, caseNum, fileName):
     ax.set_xlabel(r'$\log_2 \ \gamma_R$')
     ax.set_ylabel(r'$\log_2 \ \gamma_C$')
     ax.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=5)
-    fig.savefig(fileName, bbox_inches='tight')
+    fig.savefig(outFile, bbox_inches='tight')
     plt.close()
 
 # Compare desired and measured values in scatter plot
-def Desired_Measured(exp, caseNum, param, fileName):
+def Desired_Measured(exp, caseNum, param, outFile):
     if param == 'gamma_R':
         tex = r'$\gamma_R$'
     elif param == 'gamma_C':
@@ -53,22 +55,22 @@ def Desired_Measured(exp, caseNum, param, fileName):
 
     fig, ax = plt.subplots()
     for i in range(len(caseNum)):
-        file = Dir + CaseName + str(caseNum[i]) + FileName
-        if not os.path.exists(file):
+        data = Dir + str(caseNum[i]) + Qratios
+        if not os.path.exists(data):
             continue
-        df = pd.read_csv(file)
-        ax.scatter(df['desired'], df['measured'], color=cmap_tend(tendency[i]), \
+        df = pd.read_csv(data)
+        ax.scatter(df['Desired'], df['Measured'], color=cmap_tend(tendency[i]), \
             label= tex + ' = ' + str(exp[param].at[caseNum[i]-1]))
     ax.plot(ax.get_xlim(), ax.get_xlim(), '--', color='tab:gray', label='y = x')
 
     ax.set_xlabel('Desired value')
     ax.set_ylabel('Measured value')
     ax.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=4)
-    fig.savefig(fileName, bbox_inches='tight')
+    fig.savefig(outFile, bbox_inches='tight')
     plt.close()
 
 # Plot relative error of desired and measured values against model parameters
-def PercentError(exp, caseNum, param, fileName):
+def PercentError(exp, caseNum, param, outFile):
     if param == 'gamma_R':
         tex = r'$\gamma_R$'
     elif param == 'gamma_C':
@@ -77,21 +79,21 @@ def PercentError(exp, caseNum, param, fileName):
 
     fig, ax = plt.subplots()
     for i in range(len(caseNum)):
-        file = Dir + CaseName + str(caseNum[i]) + FileName
-        if not os.path.exists(file):
+        data = Dir + str(caseNum[i]) + Qratios
+        if not os.path.exists(data):
             continue
-        df = pd.read_csv(file)
-        x = [ exp[param].at[caseNum[i]-1] ] * len(df['relErr'])
-        y = df['relErr']*100
+        df = pd.read_csv(data)
+        x = [ exp[param].at[caseNum[i]-1] ] * len(df['RelErr'])
+        y = df['RelErr']*100
         ax.scatter(np.log2(x), y, color=cmap_tend(tendency[i]))
 
     ax.set_xlabel(r'$\log_2 \ $' + tex)
     ax.set_ylabel('% error')
-    fig.savefig(fileName, bbox_inches='tight')
+    fig.savefig(outFile, bbox_inches='tight')
     plt.close()
 
-SetStability(Exp, [i for i in range(1,50)])
-StabilityMap(Exp, [i for i in range(1,50)], 'figures/stability.png')
+SetStability(Exp, [i for i in range(1,92)])
+StabilityMap(Exp, [i for i in range(1,92)], 'figures/stability.png')
 Desired_Measured(Exp, [i for i in range(1,50,7)], 'gamma_C', 'figures/dm-R_1.png')
 Desired_Measured(Exp, [i for i in range(2,50,7)], 'gamma_C', 'figures/dm-R_2.png')
 Desired_Measured(Exp, [i for i in range(3,50,7)], 'gamma_C', 'figures/dm-R_4.png')
