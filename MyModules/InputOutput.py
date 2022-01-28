@@ -174,14 +174,14 @@ class InputOutput():
         if self.type_oUT == 'windkessel':
             outlets = root.find('outlets')
             maxGL = self.FindMaxGL(geometry, outlets)
-            ratios = self.DesiredFlowRateRatios(flowRateRatios)
+            ratios = self.CalResistanceRatios(flowRateRatios)
             idx = 0
             for elm in outlets.iter('outlet'):
                 condition = elm.find('condition')
                 self.SetParam_Windkessel(condition, idx, Wo, ratios, maxGL, gamma_R, gamma_C)
                 idx = idx + 1
 
-    def SetParam_Windkessel(self, condition, idx, Wo, flowRateRatios, maxGL, gamma_R, gamma_C):
+    def SetParam_Windkessel(self, condition, idx, Wo, resistanceRatios, maxGL, gamma_R, gamma_C):
         # Find radius of the pipe
         if condition.attrib['subtype'] == 'GKmodel':
             radius = self.radius_oUT[idx]
@@ -190,7 +190,7 @@ class InputOutput():
             radius = np.sqrt(area / PI)
 
         # Find resistance
-        resistance = gamma_R * flowRateRatios[idx] * maxGL
+        resistance = gamma_R * resistanceRatios[idx] * maxGL
 
         # Find capacitance
         omega = (Wo / radius)**2 * nu
@@ -213,10 +213,10 @@ class InputOutput():
             condition.find('C').set('value', '{:0.5e}'.format(capacitance))
 
         # Change from fileGKmodel to GKmodel
-        if condition.attrib['subtype'] == 'fileGKmodel':
-            condition.set('subtype', 'GKmodel')
-            condition.remove(condition.find('path'))
-            condition.remove(condition.find('area'))
+        #if condition.attrib['subtype'] == 'fileGKmodel':
+        #    condition.set('subtype', 'GKmodel')
+        #    condition.remove(condition.find('path'))
+        #    condition.remove(condition.find('area'))
         
     def WriteInletProfile(self, fileName, timeSteps, radius, Wo, Re, epsilon):
         omega = (Wo / radius)**2 * nu
@@ -236,17 +236,19 @@ class InputOutput():
             for i in range(len(time)):
                 f.write(str(time[i]) + ' ' + str(vel[i]) + '\n')
 
-    def DesiredFlowRateRatios(self, flowRateRatios):
+    def CalResistanceRatios(self, flowRateRatios):
         if type(flowRateRatios) == list:
-            ratios = np.amax(flowRateRatios) / flowRateRatios
+            pass
         elif flowRateRatios == 'Murray':
             sumRadiusCube = 0
             for radius in self.radius_oUT:
                 sumRadiusCube = sumRadiusCube + float(radius)**3
-            ratios = self.radius_oUT**3 / sumRadiusCube
+            flowRateRatios = self.radius_oUT**3 / sumRadiusCube
         else:
             print('flowRateRatios does not admit this option!')
-        return ratios
+        resistanceRatios = np.amax(flowRateRatios) / flowRateRatios
+        print('resistanceRatios', resistanceRatios)
+        return resistanceRatios
 
     def FindMaxGL(self, geometry, outlets):
         # Expedient solution
@@ -255,8 +257,9 @@ class InputOutput():
         elif geometry == 'FiveExit_1e-3': # radii=1e-3
             lengths = np.array([4.83e-3, 4.83e-3, 9.67e-3, 4.83e-3, 4.83e-3])
         elif geometry == 'ArteriesLegs_5e-3':  # inlet radius=5e-3
-            lengths = [1]*38
-            lengths[9] = 0.02297
+            lengths = [0.02297]*38
+        elif geometry == 'InferiorGluteal_2e-3': # inlet radius=1.88e-3
+            lengths = [0.00874]*10
         else:
             print('This geometry is not registered!')
 
