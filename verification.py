@@ -1,5 +1,6 @@
 #!/usr/bin/python3.6
 import os
+import sys
 from MyModules.Poiseuille import *
 from MyModules.Bifurcation import *
 from MyModules.Windkessel import *
@@ -7,9 +8,15 @@ from MyModules.Windkessel import *
 if not os.path.exists('./figures'):
     os.mkdir('./figures')
 
+inFile=sys.argv[1]
+dir=sys.argv[2]
+shotBeg=int(sys.argv[3])
+shotEnd=int(sys.argv[4])
+shotStep=int(sys.argv[5])
+
 """
 
-obj = Poiseuille()
+obj = Poiseuille(inFile, dir, shotBeg, shotEnd, shotStep)
 obj.CompareExSol_1D(obj.cL, 'grid_z', 'Uz')
 obj.CompareExSol_1D(obj.cL, 'grid_z', 'P')
 obj.CompareExSol_2D(obj.pZ, 'grid_x', 'grid_y', 'Uz')
@@ -19,7 +26,7 @@ obj.WriteDiscErr(obj.pZ, 'Uz')
 
 
 
-obj = Bifurcation()
+obj = Bifurcation(inFile, dir, shotBeg, shotEnd, shotStep)
 obj.Visualise_TimeSeries(obj.iNpYcEN, 'P', 'Uz')
 obj.Visualise_TimeSeries(obj.pZOUT0pYcEN, 'P', 'Uz')
 obj.Visualise_TimeSeries(obj.pZOUT1pYcEN, 'P', 'Uz')
@@ -28,7 +35,7 @@ obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT1pYcEN, 'P', 'Uz')
 
 """
 
-obj = Windkessel()
+obj = Windkessel(inFile, dir, shotBeg, shotEnd, shotStep)
 obj.AddDataFrame('iNcEN', ['iN', 'cEN'])
 obj.Visualise_TimeSeries(obj.iNcEN, 'P', 'Uz')
 obj.Clustering(obj.oUT, obj.position_oUT)

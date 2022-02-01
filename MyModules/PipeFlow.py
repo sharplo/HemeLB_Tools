@@ -1,21 +1,20 @@
-import sys
 import pandas as pd
 from MyModules.InputOutput import *
 from MyModules.Visual import *
 from MyModules.DiscError import *
 
 class PipeFlow(InputOutput, Visual, DiscError):
-    def __init__(self, dfDict):
-        InputOutput.__init__(self, sys.argv[1])
+    def __init__(self, inFile, dir, shotBeg, shotEnd, shotStep, dfDict):
+        InputOutput.__init__(self, inFile)
         Visual.__init__(self)
         DiscError.__init__(self)
 
-        self.dir = sys.argv[2] # directory where data reside
-        self.shotBeg = int(sys.argv[3]) # first file to be read
-        self.shotEnd = int(sys.argv[4]) # last file to be read
-        self.shotStep = int(sys.argv[5]) # step of file reading
-        
+        self.dir = dir # directory where data reside
+        self.shotBeg = shotBeg # first file to be read
+        self.shotEnd = shotEnd # last file to be read
+        self.shotStep = shotStep # step of file reading
         self.dfDict = dfDict # dictionary between data frame names and data file names
+        
         self.R = None # radius of pipe (m)
         self.P_in = [] # pressure at inlets (mmHg)
         self.P_out = [] # pressure at outlets (mmHg)
