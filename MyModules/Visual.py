@@ -132,8 +132,9 @@ class Visual(object):
                 label = 'desired'
             else:
                 label = None
-            plt.hlines(desired[i], df['step'].min(), df['step'].max(), colors='black', linestyles='dashed', label=label)
-        plt.ylim(np.min(desired) - 0.2, np.max(desired) + 0.2)
+            plt.hlines(desired[i], df['step'].min(), df['step'].max(), \
+                colors=self.color[-1], linestyles='dashed', label=label)
+        plt.ylim(np.min(desired) - 0.1, np.max(desired) + 0.1)
         plt.xlabel('Time step')
         plt.ylabel(var + ' ratio w.r.t. ' + df.name + str(ref))
         plt.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=3)

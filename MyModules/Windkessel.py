@@ -20,7 +20,8 @@ class Windkessel(PipeFlow):
         result.name = df.name
         return result
 
-    def CalFlowRateRatios(self, df, ref):
+    def CalFlowRateRatios(self, df):
+        ref = np.argmin(self.resistance)
         desired = self.resistance[ref] / self.resistance
         mean = df.groupby(['cluster'], as_index=False)['FlowRate'].mean()
         measured = mean['FlowRate'] / mean['FlowRate'].loc[ref]
@@ -30,7 +31,8 @@ class Windkessel(PipeFlow):
         result.name = df.name + '_FlowRateRatios'
         return result
 
-    def Visualise_Ratios(self, df, var, clusters, ref):
+    def Visualise_Ratios(self, df, var, clusters):
+        ref = np.argmin(self.resistance[clusters])
         desired = self.resistance[ref] / self.resistance[clusters]
         desired = np.delete(desired, ref)
         return super().Visualise_Ratios(df, var, clusters, ref, desired)
