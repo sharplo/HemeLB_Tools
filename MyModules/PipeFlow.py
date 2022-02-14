@@ -6,7 +6,7 @@ from MyModules.DiscError import *
 class PipeFlow(InputOutput, Visual, DiscError):
     def __init__(self, inFile, dir, shotBeg, shotEnd, shotStep, dfDict):
         InputOutput.__init__(self, inFile)
-        Visual.__init__(self)
+        Visual.__init__(self, dfDict)
         DiscError.__init__(self)
 
         self.dir = dir # directory where data reside

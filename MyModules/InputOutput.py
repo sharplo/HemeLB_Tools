@@ -258,7 +258,7 @@ class InputOutput():
             lengths = np.array([4.83e-3, 4.83e-3, 9.67e-3, 4.83e-3, 4.83e-3])
         elif geometry == 'ArteriesLegs_5e-3':  # inlet radius=5e-3
             lengths = [0.02297]*38
-        elif geometry == 'InferiorGluteal_2e-3': # inlet radius=1.88e-3
+        elif geometry == 'ProfundaFemoris_2e-3': # inlet radius=1.88e-3
             lengths = [0.00874]*10
         else:
             print('This geometry is not registered!')
