@@ -164,7 +164,7 @@ class Visual(object):
         plt.minorticks_on()
         plt.ticklabel_format(axis='x', style='sci', scilimits=(0,3), useMathText=True)
         plt.xlabel('Time step')
-        plt.ylabel(var + '-ratios with respect to ' + self.dfDict[df.name] + ' ' + str(ref))
+        plt.ylabel(var + ' ratios with respect to ' + self.dfDict[df.name] + ' ' + str(ref))
         plt.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=3)
         fileName = 'figures/' + df.name + '_' + var + '-ratios.pdf'
         plt.savefig(fileName, bbox_inches='tight')
