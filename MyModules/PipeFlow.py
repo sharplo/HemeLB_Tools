@@ -44,7 +44,8 @@ class PipeFlow(InputOutput, Visual, DiscError):
         df = pd.DataFrame()
         for shot in range(self.shotBeg, self.shotEnd+1, self.shotStep):
             # TODO: make it compatible with all operating system, e.g. using sys.path
-            df = df.append(pd.read_csv(self.dir + file + '/' + file + str(shot) + '.txt', delimiter=' '))
+            fileName = self.dir + file + '/' + file + str(shot) + '.txt'
+            df = df.append(pd.read_csv(fileName, delimiter=' '), ignore_index=True)
         return df
 
     def JoinDataFrames(self, values):
