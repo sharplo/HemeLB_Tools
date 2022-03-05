@@ -79,8 +79,8 @@ def CompareMeasuredDesired(exp, dir, caseNum, param, outFile):
 
     ax1.plot(ax1.get_xlim(), ax1.get_xlim(), '--', color='tab:gray', label='y = x')
     ax1.minorticks_on()
-    ax1.set_xlabel('Desired value')
-    ax1.set_ylabel('Measured value')
+    ax1.set_xlabel('Desired Q ratios')
+    ax1.set_ylabel('Simulated Q ratios')
 
     ax2.minorticks_on()
     ax2.tick_params(axis='x', which='minor', bottom=False)
