@@ -19,7 +19,7 @@ class CommentedTreeBuilder(ET.TreeBuilder):
         self.end(ET.Comment)
 
 class InputOutput():
-    def __init__(self, inFile):
+    def __init__(self, inFile, outDir):
         self.type_iN = None # type of boundary condition in inlets
         self.type_oUT = None # type of boundary condition in outlets
 
@@ -42,6 +42,9 @@ class InputOutput():
         self.tree = ET.parse(inFile, parser)
         self.ReadInput()
         print('Finished reading inputs.')
+
+        # Set the directory output files written to
+        self.outDir = outDir
 
     def ReadInput(self):
         root = self.tree.getroot()
@@ -131,8 +134,8 @@ class InputOutput():
         #print('resistance', self.resistance)
         #print('capacitance', self.capacitance)
 
-    def WriteInput(self, outFile):
-        self.tree.write(outFile, encoding='utf-8', xml_declaration=True)
+    def WriteInput(self, fileName):
+        self.tree.write(self.outDir + fileName, encoding='utf-8', xml_declaration=True)
 
     def RescaleSize(self, scale):
         root = self.tree.getroot()
@@ -225,14 +228,14 @@ class InputOutput():
         Ma2 = (Umax * self.dt / self.dx)**2 / cs2
         if Ma2 > 0.01:
             print('Warning -- Ma2 = %.3f exceeds the limit!' %(Ma2))
-        print('omega', omega)
-        print('Umean', Umean)
-        print('Ma2', Ma2)
+        #print('omega', omega)
+        #print('Umean', Umean)
+        #print('Ma2', Ma2)
 
         time = np.linspace(0, self.dt * timeSteps, timeSteps)
         vel = Umean * (1 + epsilon * np.cos(omega*time))
 
-        with open(fileName, 'w') as f:
+        with open(self.outDir + fileName, 'w') as f:
             for i in range(len(time)):
                 f.write(str(time[i]) + ' ' + str(vel[i]) + '\n')
 

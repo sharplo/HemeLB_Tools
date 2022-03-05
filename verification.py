@@ -5,18 +5,19 @@ from MyModules.Poiseuille import *
 from MyModules.Bifurcation import *
 from MyModules.Windkessel import *
 
-if not os.path.exists('./figures'):
-    os.mkdir('./figures')
-
 inFile=sys.argv[1]
-dir=sys.argv[2]
-shotBeg=int(sys.argv[3])
-shotEnd=int(sys.argv[4])
-shotStep=int(sys.argv[5])
+dataDir=sys.argv[2]
+outDir=sys.argv[3] + 'figures/'
+shotBeg=int(sys.argv[4])
+shotEnd=int(sys.argv[5])
+shotStep=int(sys.argv[6])
+
+if not os.path.exists(outDir):
+    os.mkdir(outDir)
 
 """
 
-obj = Poiseuille(inFile, dir, shotBeg, shotEnd, shotStep)
+obj = Poiseuille(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep)
 obj.CompareExSol_1D(obj.cL, 'grid_z', 'Uz')
 obj.CompareExSol_1D(obj.cL, 'grid_z', 'P')
 obj.CompareExSol_2D(obj.pZ, 'grid_x', 'grid_y', 'Uz')
@@ -26,7 +27,7 @@ obj.WriteDiscErr(obj.pZ, 'Uz')
 
 
 
-obj = Bifurcation(inFile, dir, shotBeg, shotEnd, shotStep)
+obj = Bifurcation(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep)
 obj.Visualise_TimeSeries(obj.iNpYcEN, 'P', 'Uz')
 obj.Visualise_TimeSeries(obj.pZOUT0pYcEN, 'P', 'Uz')
 obj.Visualise_TimeSeries(obj.pZOUT1pYcEN, 'P', 'Uz')
@@ -35,7 +36,7 @@ obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT1pYcEN, 'P', 'Uz')
 
 """
 
-obj = Windkessel(inFile, dir, shotBeg, shotEnd, shotStep)
+obj = Windkessel(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep)
 obj.Clustering(obj.oUT, obj.position_oUT)
 Q_oUT = obj.CalFlowRate(obj.oUT, obj.normal_oUT, range(5))
 Qratios = obj.CalFlowRateRatios(Q_oUT)

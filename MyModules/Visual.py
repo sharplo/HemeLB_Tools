@@ -24,7 +24,7 @@ class Visual(object):
         ax1.plot(df_last[grid], df_last[var1], '.', markersize=2, color=self.color[0], **kwargs1)
         ax1.set_xlabel(grid)
         ax1.set_ylabel(var1, color=self.color[0])
-        fileName = 'figures/' + df.name + '_' + var1 + '-' + grid + '.pdf'
+        fileName = df.name + '_' + var1 + '-' + grid + '.pdf'
 
         if var2 != None:
             # Plot var2 on the right axis
@@ -33,9 +33,9 @@ class Visual(object):
             ax2.set_ylabel(var2, color=self.color[1])
             ax2.yaxis.set_label_position('right')
             ax2.yaxis.tick_right()
-            fileName = 'figures/' + df.name + '_' + var1 + '&' + var2 + '-' + grid + '.pdf'
+            fileName = df.name + '_' + var1 + '&' + var2 + '-' + grid + '.pdf'
         
-        fig.savefig(fileName, bbox_inches='tight')
+        fig.savefig(self.outDir + fileName, bbox_inches='tight')
         plt.close()
 
     def Visualise_2D(self, df, grid_1, grid_2, var1, var2=None):
@@ -54,7 +54,7 @@ class Visual(object):
         fig.colorbar(im1, ax=ax1, label=var1)
         ax1.set_xlabel(grid_1)
         ax1.set_ylabel(grid_2)
-        fileName = 'figures/' + df.name + '_' + var1 + '-' + grid_1 + '&' + grid_2 + '.pdf'
+        fileName = df.name + '_' + var1 + '-' + grid_1 + '&' + grid_2 + '.pdf'
 
         if var2 != None:
             # Plot var2 on the 2nd row
@@ -69,10 +69,10 @@ class Visual(object):
             fig.colorbar(im1, ax=ax2, label=var2)
             ax2.set_xlabel(grid_1)
             ax2.set_ylabel(grid_2)
-            fileName = 'figures/' + df.name + '_' + var1 + '&' + var2 + '-' + grid_1 + '&' + grid_2 + '.pdf'
+            fileName = df.name + '_' + var1 + '&' + var2 + '-' + grid_1 + '&' + grid_2 + '.pdf'
 
         fig.subplots_adjust(hspace=0.4)
-        fig.savefig(fileName, bbox_inches='tight')
+        fig.savefig(self.outDir + fileName, bbox_inches='tight')
         plt.close()
 
     def Visualise_TimeSeries(self, df, var1, var2=None):
@@ -83,7 +83,7 @@ class Visual(object):
         ax1.ticklabel_format(axis='x', style='sci', scilimits=(0,3), useMathText=True)
         ax1.set_xlabel('Time step')
         ax1.set_ylabel(var1)
-        fileName = 'figures/' + df.name + '_' + var1 + '-timeSeries.pdf'
+        fileName = df.name + '_' + var1 + '-timeSeries.pdf'
 
         if var2 != None:
             # Plot var2 on the right axis
@@ -95,9 +95,9 @@ class Visual(object):
             ax2.set_ylabel(var2)
             plt.legend([h1, h2], [var1, var2], \
                 bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=2)
-            fileName = 'figures/' + df.name + '_' + var1 + '&' + var2 + '-timeSeries.pdf'
+            fileName = df.name + '_' + var1 + '&' + var2 + '-timeSeries.pdf'
 
-        fig.savefig(fileName, bbox_inches='tight')
+        fig.savefig(self.outDir + fileName, bbox_inches='tight')
         plt.close()
 
     def Compare_TimeSeries(self, df1, df2, var1, var2=None):
@@ -109,7 +109,7 @@ class Visual(object):
         ax1.ticklabel_format(axis='x', style='sci', scilimits=(0,3), useMathText=True)
         ax1.set_xlabel('Time step')
         ax1.set_ylabel(var1)
-        fileName = 'figures/' + df1.name + '_vs_' + df2.name + '-' + var1 + '-timeSeries.pdf'
+        fileName = df1.name + '_vs_' + df2.name + '-' + var1 + '-timeSeries.pdf'
 
         if var2 != None:
             # Plot var2 on the right axis
@@ -125,9 +125,9 @@ class Visual(object):
                 [var1 + ' in ' + df1.name, var1 + ' in ' + df2.name, \
                 var2 + ' in ' + df1.name, var2 + ' in ' + df2.name], \
                 bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=2)
-            fileName = 'figures/' + df1.name + '_vs_' + df2.name + '-' + var1 + '&' + var2 + '-timeSeries.pdf'
+            fileName = df1.name + '_vs_' + df2.name + '-' + var1 + '&' + var2 + '-timeSeries.pdf'
 
-        fig.savefig(fileName, bbox_inches='tight')
+        fig.savefig(self.outDir + fileName, bbox_inches='tight')
         plt.close()
 
     def Visualise_Clusters(self, df, var, clusters):
@@ -140,8 +140,8 @@ class Visual(object):
         plt.xlabel('Time step')
         plt.ylabel(var)
         plt.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=3)
-        fileName = 'figures/' + df.name + '_' + var + '-clusters.pdf'
-        plt.savefig(fileName, bbox_inches='tight')
+        fileName = df.name + '_' + var + '-clusters.pdf'
+        plt.savefig(self.outDir + fileName, bbox_inches='tight')
         plt.close()
 
     def Visualise_Ratios(self, df, var, clusters, ref, desired):
@@ -166,8 +166,8 @@ class Visual(object):
         plt.xlabel('Time step')
         plt.ylabel(var + ' ratios with respect to ' + self.dfDict[df.name] + ' ' + str(ref))
         plt.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=3)
-        fileName = 'figures/' + df.name + '_' + var + '-ratios.pdf'
-        plt.savefig(fileName, bbox_inches='tight')
+        fileName = df.name + '_' + var + '-ratios.pdf'
+        plt.savefig(self.outDir + fileName, bbox_inches='tight')
         plt.close()
 
     def Compare_Scatter(self, df):
@@ -178,6 +178,6 @@ class Visual(object):
         ax.set_xlabel('Desired value')
         ax.set_ylabel('Measured value')
         ax.legend()
-        fileName = 'figures/' + df.name + '-scatter.pdf'
-        fig.savefig(fileName, bbox_inches='tight')
+        fileName = df.name + '-scatter.pdf'
+        fig.savefig(self.outDir + fileName, bbox_inches='tight')
         plt.close()

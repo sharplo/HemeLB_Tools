@@ -2,10 +2,10 @@ import numpy as np
 from MyModules.PipeFlow import *
 
 class Windkessel(PipeFlow):
-    def __init__(self, inFile, dir, shotBeg, shotEnd, shotStep, dfDict=None):
+    def __init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict=None):
         if dfDict == None:
             dfDict = {'iN':'inlet', 'oUT':'outlet'}
-        PipeFlow.__init__(self, inFile, dir, shotBeg, shotEnd, shotStep, dfDict)
+        PipeFlow.__init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict)
 
     def CalFlowRate(self, df, normal, clusters):
         result = pd.DataFrame()
