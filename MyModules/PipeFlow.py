@@ -4,12 +4,12 @@ from MyModules.Visual import *
 from MyModules.DiscError import *
 
 class PipeFlow(InputOutput, Visual, DiscError):
-    def __init__(self, inFile, dir, shotBeg, shotEnd, shotStep, dfDict):
-        InputOutput.__init__(self, inFile)
+    def __init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict):
+        InputOutput.__init__(self, inFile, outDir)
         Visual.__init__(self, dfDict)
         DiscError.__init__(self)
 
-        self.dir = dir # directory where data reside
+        self.dataDir = dataDir # directory where data reside
         self.shotBeg = shotBeg # first file to be read
         self.shotEnd = shotEnd # last file to be read
         self.shotStep = shotStep # step of file reading
@@ -44,7 +44,7 @@ class PipeFlow(InputOutput, Visual, DiscError):
         df = pd.DataFrame()
         for shot in range(self.shotBeg, self.shotEnd+1, self.shotStep):
             # TODO: make it compatible with all operating system, e.g. using sys.path
-            fileName = self.dir + file + '/' + file + str(shot) + '.txt'
+            fileName = self.dataDir + file + '/' + file + str(shot) + '.txt'
             df = df.append(pd.read_csv(fileName, delimiter=' '), ignore_index=True)
         return df
 

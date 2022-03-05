@@ -14,15 +14,15 @@ from MyModules.InputOutput import *
 
 
 # Series of experiments
-CaseName = 'FiveExit_1e-3_fine'
+CaseName = 'FiveExit_coarse'
 Exp = pd.read_csv(CaseName + '/experiments.csv')
 InFile = CaseName + '/input_VfWKf.xml'
-OutFilePrefix = CaseName + '/input_'
+OutFilePrefix = '/input_'
 
 for row in Exp.itertuples(index=False):
     print('caseNum', row.caseNum)
-    InOut = InputOutput(InFile)
-    InOut.ChangeParam(tau=row.tau, timeSteps=row.timeSteps, Wo=2, Re=row.Re, epsilon=0.1, \
+    InOut = InputOutput(InFile, CaseName + '/')
+    InOut.ChangeParam(tau=0.8, timeSteps=row.timeSteps, Wo=2, Re=10, epsilon=0.1, \
         geometry='FiveExit_1e-3', flowRateRatios=[3,4,5,6,7], gamma_R=row.gamma_R, gamma_C=row.gamma_C)
     InOut.WriteInput(OutFilePrefix + str(row.caseNum) + '.xml')
 
