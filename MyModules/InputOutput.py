@@ -1,3 +1,4 @@
+import sys
 import xml.etree.ElementTree as ET
 import numpy as np
 
@@ -156,7 +157,7 @@ class InputOutput():
             value = value * scale**2
             elm.set('value', '{:0.5e}'.format(value))
 
-    def ChangeParam(self, tau, timeSteps, Wo, Re, epsilon, geometry, flowRateRatios, gamma_R, gamma_C):
+    def ChangeParam(self, tau, timeSteps, param_iN, param_oUT):
         root = self.tree.getroot()
 
         # Change parameters in simulation
@@ -166,39 +167,74 @@ class InputOutput():
         elm.find('steps').set('value', str(timeSteps))
 
         # Change parameters in inlets
-        if self.type_iN == 'velocity':
-            elm = root.find('inlets')[0].find('condition')
-            radius_iN = self.radius_iN[0]
-            fileName = 'INLET0_VELOCITY.txt'
-            elm.find('path').set('value', fileName)
-            self.WriteInletProfile(fileName, timeSteps, radius_iN, Wo, Re, epsilon)
+        if self.type_iN != param_iN['type']:
+            sys.exit('Error: Inlet types are different!')
+        elif self.type_iN == 'velocity':
+            idx = 0
+            for elm in root.find('inlets').iter('inlet'):
+                condition = elm.find('condition')
+                self.SetParam_Velocity(condition, idx, param_iN, timeSteps)
+                idx = idx + 1
 
         # Change parameters in outlets
-        if self.type_oUT == 'windkessel':
+        if self.type_oUT != param_oUT['type']:
+            sys.exit('Error: Outlet types are different!')
+        elif self.type_oUT == 'windkessel':
             outlets = root.find('outlets')
+            geometry = param_oUT['geometry']
             maxGL = self.FindMaxGL(geometry, outlets)
+            flowRateRatios = param_oUT['flowRateRatios']
             ratios = self.CalResistanceRatios(flowRateRatios)
+            Wo = param_iN['Wo']  # from the inlet
+
             idx = 0
             for elm in outlets.iter('outlet'):
                 condition = elm.find('condition')
-                self.SetParam_Windkessel(condition, idx, Wo, ratios, maxGL, gamma_R, gamma_C)
+                self.SetParam_Windkessel(condition, idx, param_oUT, maxGL, ratios, Wo)
                 idx = idx + 1
 
-    def SetParam_Windkessel(self, condition, idx, Wo, resistanceRatios, maxGL, gamma_R, gamma_C):
+    def SetParam_Velocity(self, condition, idx, param_iN, timeSteps):
+        radius = self.radius_iN[idx]
+        Re = param_iN['Re']
+
+        subtype = condition.attrib['subtype']
+        if subtype != param_iN['subtype']:
+            print('Error: Subtypes are different at inlet %d!' %(idx))
+            sys.exit()
+        elif subtype == 'file':
+            Wo = param_iN['Wo']
+            epsilon = param_iN['epsilon']
+            fileName = 'INLET' + str(idx) + '_VELOCITY.txt'
+            condition.find('path').set('value', fileName)
+            self.WriteInletProfile(radius, Re, Wo, epsilon, timeSteps, fileName)
+        elif subtype == 'parabolic':
+            Umax = self.CentralVelocity(radius, Re)
+            self.CompressibilityErrorCheck(Umax)
+            condition.find('maximum').set('value', '{:0.5e}'.format(Umax))
+
+    def SetParam_Windkessel(self, condition, idx, param_oUT, maxGL, resistanceRatios, Wo):
+        subtype = condition.attrib['subtype']
+        if subtype != param_oUT['subtype']:
+            if subtype == 'fileGKmodel' and param_oUT['subtype'] == 'GKmodel':
+                # Change from fileGKmodel to GKmodel
+                condition.set('subtype', 'GKmodel')
+                condition.remove(condition.find('path'))
+                condition.remove(condition.find('area'))
+
         # Find radius of the pipe
-        if condition.attrib['subtype'] == 'GKmodel':
+        if subtype == 'GKmodel':
             radius = self.radius_oUT[idx]
-        elif condition.attrib['subtype'] == 'fileGKmodel':
+        elif subtype == 'fileGKmodel':
             area = self.area_oUT[idx]
             radius = np.sqrt(area / PI)
 
         # Find resistance
-        resistance = gamma_R * resistanceRatios[idx] * maxGL
+        resistance = param_oUT['gamma_R'] * resistanceRatios[idx] * maxGL
 
         # Find capacitance
-        omega = (Wo / radius)**2 * nu
+        omega = self.AngularFrequency(radius, Wo)
         RC = 1 / omega
-        capacitance = gamma_C * RC / resistance
+        capacitance = param_oUT['gamma_C'] * RC / resistance
 
         # Set R and C
         if condition.find('R') == None:
@@ -215,22 +251,25 @@ class InputOutput():
         else:
             condition.find('C').set('value', '{:0.5e}'.format(capacitance))
 
-        # Change from fileGKmodel to GKmodel
-        #if condition.attrib['subtype'] == 'fileGKmodel':
-        #    condition.set('subtype', 'GKmodel')
-        #    condition.remove(condition.find('path'))
-        #    condition.remove(condition.find('area'))
-        
-    def WriteInletProfile(self, fileName, timeSteps, radius, Wo, Re, epsilon):
-        omega = (Wo / radius)**2 * nu
-        Umean = Re * nu / (2 * radius)
-        Umax = Umean * (1 + epsilon)
+    def AngularFrequency(self, radius, Wo):
+        return (Wo / radius)**2 * nu
+
+    def CentralVelocity(self, radius, Re):
+        return Re * nu / (2 * radius)
+
+    def CompressibilityErrorCheck(self, Umax):
         Ma2 = (Umax * self.dt / self.dx)**2 / cs2
         if Ma2 > 0.01:
             print('Warning -- Ma2 = %.3f exceeds the limit!' %(Ma2))
-        #print('omega', omega)
-        #print('Umean', Umean)
         #print('Ma2', Ma2)
+
+    def WriteInletProfile(self, radius, Re, Wo, epsilon, timeSteps, fileName):
+        Umean = self.CentralVelocity(radius, Re)
+        Umax = Umean * (1 + epsilon)
+        self.CompressibilityErrorCheck(Umax)
+        omega = self.AngularFrequency(radius, Wo)
+        #print('Umean', Umean)
+        #print('omega', omega)
 
         time = np.linspace(0, self.dt * timeSteps, timeSteps)
         vel = Umean * (1 + epsilon * np.cos(omega*time))
@@ -259,7 +298,7 @@ class InputOutput():
             lengths = np.array([9.7e-4, 9.7e-4, 1.94e-3, 9.7e-4, 9.7e-4])
         elif geometry == 'FiveExit_1e-3': # radii=1e-3
             lengths = np.array([4.83e-3, 4.83e-3, 9.67e-3, 4.83e-3, 4.83e-3])
-        elif geometry == 'ArteriesLegs_5e-3':  # inlet radius=5e-3
+        elif geometry == 'ArteriesLegs_5e-3': # inlet radius=5e-3
             lengths = [0.02297]*38
         elif geometry == 'ProfundaFemoris_2e-3': # inlet radius=1.88e-3
             lengths = [0.00874]*10
