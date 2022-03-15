@@ -7,6 +7,9 @@ from MyModules.InputOutput import *
 ## Single experiment
 InOut = InputOutput(sys.argv[1], sys.argv[2])
 
+# General
+param_sim = {'tau':0.8, 'timeSteps':1000}
+
 # Pipe
 param_iN = {'type':'velocity', 'subtype':'parabolic', 'Re':10}
 param_oUT = {'type':'pressure'}
@@ -16,7 +19,7 @@ param_oUT = {'type':'pressure'}
 #param_oUT = {'type':'windkessel', 'subtype':'GKmodel', 'geometry':'FiveExit_1e-3', \
 #    'flowRateRatios':[3,4,5,6,7], 'gamma_R':1, 'gamma_C':1}
 
-InOut.ChangeParam(tau=0.8, timeSteps=25800, param_iN=param_iN, param_oUT=param_oUT)
+InOut.ChangeParam(param_sim, param_iN=param_iN, param_oUT=param_oUT)
 InOut.WriteInput(sys.argv[3])
 
 """

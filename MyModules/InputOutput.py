@@ -157,14 +157,31 @@ class InputOutput():
             value = value * scale**2
             elm.set('value', '{:0.5e}'.format(value))
 
-    def ChangeParam(self, tau, timeSteps, param_iN, param_oUT):
+    def ChangeParam(self, param_sim, param_iN, param_oUT):
         root = self.tree.getroot()
 
         # Change parameters in simulation
+        if param_sim.get('dt') == None:
+            tau = param_sim['tau']
+            self.dt = cs2 * (tau - 0.5) * self.dx**2 / nu
+        elif param_sim.get('tau') == None:
+            self.dt = param_sim['dt']
+            self.RelaxationTimeCheck()
+        else:
+            sys.exit('Error: dt and tau should not be specified simultaneously!')
+
+        if param_sim.get('time') == None:
+            self.timeSteps = param_sim['timeSteps']
+        elif param_sim.get('timeSteps') == None:
+            time = param_sim['time']
+            self.timeSteps = int(np.ceil(time / self.dt))
+            print('Physical end time will be', self.timeSteps * self.dt)
+        else:
+            sys.exit('Error: time and timeSteps should not be specified simultaneously!')
+
         elm = root.find('simulation')
-        self.dt = cs2 * (tau - 0.5) * self.dx**2 / nu
         elm.find('step_length').set('value', '{:0.5e}'.format(self.dt))
-        elm.find('steps').set('value', str(timeSteps))
+        elm.find('steps').set('value', str(self.timeSteps))
 
         # Change parameters in inlets
         if self.type_iN != param_iN['type']:
@@ -173,7 +190,7 @@ class InputOutput():
             idx = 0
             for elm in root.find('inlets').iter('inlet'):
                 condition = elm.find('condition')
-                self.SetParam_Velocity(condition, idx, param_iN, timeSteps)
+                self.SetParam_Velocity(condition, idx, param_iN)
                 idx = idx + 1
 
         # Change parameters in outlets
@@ -193,7 +210,7 @@ class InputOutput():
                 self.SetParam_Windkessel(condition, idx, param_oUT, maxGL, ratios, Wo)
                 idx = idx + 1
 
-    def SetParam_Velocity(self, condition, idx, param_iN, timeSteps):
+    def SetParam_Velocity(self, condition, idx, param_iN):
         radius = self.radius_iN[idx]
         Re = param_iN['Re']
 
@@ -206,7 +223,7 @@ class InputOutput():
             epsilon = param_iN['epsilon']
             fileName = 'INLET' + str(idx) + '_VELOCITY.txt'
             condition.find('path').set('value', fileName)
-            self.WriteInletProfile(radius, Re, Wo, epsilon, timeSteps, fileName)
+            self.WriteInletProfile(radius, Re, Wo, epsilon, fileName)
         elif subtype == 'parabolic':
             Umax = self.CentralVelocity(radius, Re)
             self.CompressibilityErrorCheck(Umax)
@@ -257,13 +274,22 @@ class InputOutput():
     def CentralVelocity(self, radius, Re):
         return Re * nu / (2 * radius)
 
+    def RelaxationTimeCheck(self):
+        tau = nu * self.dt / (cs2 * self.dx**2) + 0.5
+        if tau < 0.55:
+            sys.exit('Error: tau = %.3f falls below 0.55' %(tau))
+        elif tau < 0.6:
+            print('Warning: tau = %.3f falls below 0.6!' %(tau))
+
     def CompressibilityErrorCheck(self, Umax):
         Ma2 = (Umax * self.dt / self.dx)**2 / cs2
-        if Ma2 > 0.01:
-            print('Warning -- Ma2 = %.3f exceeds the limit!' %(Ma2))
+        if Ma2 > 0.1:
+            sys.exit('Error: Ma2 = %.3f exceeds 0.1' %(Ma2))
+        elif Ma2 > 0.01:
+            print('Warning: Ma2 = %.3f exceeds 0.01!' %(Ma2))
         #print('Ma2', Ma2)
 
-    def WriteInletProfile(self, radius, Re, Wo, epsilon, timeSteps, fileName):
+    def WriteInletProfile(self, radius, Re, Wo, epsilon, fileName):
         Umean = self.CentralVelocity(radius, Re)
         Umax = Umean * (1 + epsilon)
         self.CompressibilityErrorCheck(Umax)
@@ -271,8 +297,8 @@ class InputOutput():
         #print('Umean', Umean)
         #print('omega', omega)
 
-        time = np.linspace(0, self.dt * timeSteps, timeSteps)
-        vel = Umean * (1 + epsilon * np.cos(omega*time))
+        time = np.linspace(0, self.dt * self.timeSteps, self.timeSteps)
+        vel = Umean * (1 + epsilon * np.cos(omega * time))
 
         with open(self.outDir + fileName, 'w') as f:
             for i in range(len(time)):
