@@ -14,10 +14,6 @@ class PipeFlow(InputOutput, Visual, DiscError):
         self.shotEnd = shotEnd # last file to be read
         self.shotStep = shotStep # step of file reading
         self.dfDict = dfDict # dictionary between data frame names and data file names
-        
-        self.R = None # radius of pipe (m)
-        self.P_in = [] # pressure at inlets (mmHg)
-        self.P_out = [] # pressure at outlets (mmHg)
 
         # General procedures
         for key in self.dfDict.keys():

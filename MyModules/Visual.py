@@ -22,17 +22,27 @@ class Visual(object):
 
         fig, ax1 = plt.subplots()
         ax1.plot(df_last[grid], df_last[var1], '.', markersize=2, color=self.color[0], **kwargs1)
+        ax1.grid(axis='both')
+        ax1.minorticks_on()
+        ax1.ticklabel_format(axis='x', style='sci', scilimits=(0,3), useMathText=True)
         ax1.set_xlabel(grid)
-        ax1.set_ylabel(var1, color=self.color[0])
+        ax1.set_ylabel(var1)
         fileName = df.name + '_' + var1 + '-' + grid + '.pdf'
 
         if var2 != None:
-            # Plot var2 on the right axis
-            ax2 = ax1.twinx()
-            ax2.plot(df_last[grid], df_last[var2], '.', markersize=2, color=self.color[1], **kwargs2)
-            ax2.set_ylabel(var2, color=self.color[1])
-            ax2.yaxis.set_label_position('right')
-            ax2.yaxis.tick_right()
+            if var2 == 'exSol_' + var1:
+                # Plot var2 on the same axis
+                ax1.plot(df_last[grid], df_last[var2], '.', markersize=2, color=self.color[1], **kwargs2)
+            else:
+                # Plot var2 on the right axis
+                ax2 = ax1.twinx()
+                ax2.plot(df_last[grid], df_last[var2], '.', markersize=2, color=self.color[1], **kwargs2)
+                ax2.yaxis.set_label_position('right')
+                ax2.yaxis.tick_right()
+                ax2.minorticks_on()
+                ax2.set_ylabel(var2)
+                ax1.grid(axis='y') # turn off grid line on y-axis
+            plt.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=2)
             fileName = df.name + '_' + var1 + '&' + var2 + '-' + grid + '.pdf'
         
         fig.savefig(self.outDir + fileName, bbox_inches='tight')
@@ -78,7 +88,7 @@ class Visual(object):
     def Visualise_TimeSeries(self, df, var1, var2=None):
         fig, ax1 = plt.subplots()
         h1, = ax1.plot(df['step'], df[var1], '-', color=self.color[0])
-        ax1.grid(axis='x')
+        ax1.grid(axis='both')
         ax1.minorticks_on()
         ax1.ticklabel_format(axis='x', style='sci', scilimits=(0,3), useMathText=True)
         ax1.set_xlabel('Time step')
@@ -93,6 +103,7 @@ class Visual(object):
             ax2.yaxis.tick_right()
             ax2.minorticks_on()
             ax2.set_ylabel(var2)
+            ax1.grid(axis='y') # turn off grid line on y-axis
             plt.legend([h1, h2], [var1, var2], \
                 bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=2)
             fileName = df.name + '_' + var1 + '&' + var2 + '-timeSeries.pdf'
@@ -104,7 +115,7 @@ class Visual(object):
         fig, ax1 = plt.subplots()
         h1, = ax1.plot(df1['step'], df1[var1], '-', color=self.color[0])
         h2, = ax1.plot(df2['step'], df2[var1], '^-', markersize=6, color=self.color[0])
-        ax1.grid(axis='x')
+        ax1.grid(axis='both')
         ax1.minorticks_on()
         ax1.ticklabel_format(axis='x', style='sci', scilimits=(0,3), useMathText=True)
         ax1.set_xlabel('Time step')
@@ -121,6 +132,7 @@ class Visual(object):
             ax2.yaxis.tick_right()
             ax2.minorticks_on()
             ax2.set_ylabel(var2)
+            ax1.grid(axis='y') # turn off grid line on y-axis
             plt.legend([h1, h2, h3, h4], \
                 [var1 + ' in ' + df1.name, var1 + ' in ' + df2.name, \
                 var2 + ' in ' + df1.name, var2 + ' in ' + df2.name], \

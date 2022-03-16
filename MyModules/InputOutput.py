@@ -36,6 +36,8 @@ class InputOutput():
         self.area_oUT = np.array([]) # area of outlets (m^2)
         self.resistance = np.array([]) # resistance of the Windkessel model (kg/m^4*s)
         self.capacitance = np.array([]) # capacitance of the Windkessel model (m^4*s^2/kg)
+        self.P_iN = np.array([]) # pressure at inlets (mmHg)
+        self.P_oUT = np.array([]) # pressure at outlets (mmHg)
 
         # Extract the above parameters from input.xml
         parser = ET.XMLParser(target=CommentedTreeBuilder())
@@ -104,6 +106,20 @@ class InputOutput():
                     self.area_iN = np.append(self.area_iN, float(value))
         #print('radius_iN', self.radius_iN)
         #print('area_iN', self.area_iN)
+
+        # Find pressure of inlets
+        if self.type_iN == 'pressure':
+            for elm in root.find('inlets').iter('inlet'):
+                value = elm.find('condition').find('mean').attrib['value']
+                self.P_iN = np.append(self.P_iN, float(value))
+        #print('P_iN', self.P_iN)
+
+        # Find pressure of outlets
+        if self.type_oUT == 'pressure':
+            for elm in root.find('outlets').iter('outlet'):
+                value = elm.find('condition').find('mean').attrib['value']
+                self.P_oUT = np.append(self.P_oUT, float(value))
+        #sprint('P_oUT', self.P_oUT)
 
         # Find parameters of the Windkessel model
         if self.type_oUT == 'windkessel':
@@ -280,6 +296,9 @@ class InputOutput():
             sys.exit('Error: tau = %.3f falls below 0.55' %(tau))
         elif tau < 0.6:
             print('Warning: tau = %.3f falls below 0.6!' %(tau))
+        elif tau > 1:
+            print('Warning: tau = %.3f exceeds 1!' %(tau))
+        #print('tau', tau)
 
     def CompressibilityErrorCheck(self, Umax):
         Ma2 = (Umax * self.dt / self.dx)**2 / cs2

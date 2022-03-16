@@ -15,17 +15,18 @@ shotStep=int(sys.argv[6])
 if not os.path.exists(outDir):
     os.mkdir(outDir)
 
-"""
+
 
 obj = Poiseuille(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep)
 obj.CompareExSol_1D(obj.cL, 'grid_z', 'Uz')
 obj.CompareExSol_1D(obj.cL, 'grid_z', 'P')
+obj.Visualise_1D(obj.cL, 'grid_z', 'err_P')
 obj.CompareExSol_2D(obj.pZ, 'grid_x', 'grid_y', 'Uz')
-obj.Visualise_TimeSeries(obj.pZ, 'P', 'Uz')
+obj.Visualise_2D(obj.pZ, 'grid_x', 'grid_y', 'err_Uz')
 obj.WriteDiscErr(obj.cL, 'P')
 obj.WriteDiscErr(obj.pZ, 'Uz')
 
-
+"""
 
 obj = Bifurcation(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep)
 obj.Visualise_TimeSeries(obj.iNpYcEN, 'P', 'Uz')
@@ -34,7 +35,7 @@ obj.Visualise_TimeSeries(obj.pZOUT1pYcEN, 'P', 'Uz')
 obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT0pYcEN, 'P', 'Uz')
 obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT1pYcEN, 'P', 'Uz')
 
-"""
+
 
 obj = Windkessel(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep)
 obj.Clustering(obj.oUT, obj.position_oUT)
@@ -57,3 +58,5 @@ obj.AddDataFrame('oUT4cEN', ['oUT4', 'cEN'])
 obj.Visualise_TimeSeries(obj.oUT4cEN, 'P', 'Uz')
 obj.Compare_Scatter(Qratios)
 Qratios.to_csv('figures/Qratios.csv', index=False)
+
+"""
