@@ -215,7 +215,7 @@ class InputOutput():
         elif self.type_oUT == 'windkessel':
             outlets = root.find('outlets')
             geometry = param_oUT['geometry']
-            maxGL = self.FindMaxGL(geometry, outlets)
+            maxLK = self.FindMaxLK(geometry, outlets)
             flowRateRatios = param_oUT['flowRateRatios']
             ratios = self.CalResistanceRatios(flowRateRatios)
             Wo = param_iN['Wo']  # from the inlet
@@ -223,7 +223,7 @@ class InputOutput():
             idx = 0
             for elm in outlets.iter('outlet'):
                 condition = elm.find('condition')
-                self.SetParam_Windkessel(condition, idx, param_oUT, maxGL, ratios, Wo)
+                self.SetParam_Windkessel(condition, idx, param_oUT, maxLK, ratios, Wo)
                 idx = idx + 1
 
     def SetParam_Velocity(self, condition, idx, param_iN):
@@ -245,7 +245,7 @@ class InputOutput():
             self.CompressibilityErrorCheck(Umax)
             condition.find('maximum').set('value', '{:0.5e}'.format(Umax))
 
-    def SetParam_Windkessel(self, condition, idx, param_oUT, maxGL, resistanceRatios, Wo):
+    def SetParam_Windkessel(self, condition, idx, param_oUT, maxLK, resistanceRatios, Wo):
         subtype = condition.attrib['subtype']
         if subtype != param_oUT['subtype']:
             if subtype == 'fileGKmodel' and param_oUT['subtype'] == 'GKmodel':
@@ -262,7 +262,7 @@ class InputOutput():
             radius = np.sqrt(area / PI)
 
         # Find resistance
-        resistance = param_oUT['gamma_R'] * resistanceRatios[idx] * maxGL
+        resistance = param_oUT['gamma_R'] * resistanceRatios[idx] * maxLK
 
         # Find capacitance
         omega = self.AngularFrequency(radius, Wo)
@@ -337,7 +337,7 @@ class InputOutput():
         print('resistanceRatios', resistanceRatios)
         return resistanceRatios
 
-    def FindMaxGL(self, geometry, outlets):
+    def FindMaxLK(self, geometry, outlets):
         # Expedient solution
         if geometry == 'FiveExit_2e-4': # radii=2e-4
             lengths = np.array([9.7e-4, 9.7e-4, 1.94e-3, 9.7e-4, 9.7e-4])
@@ -351,7 +351,7 @@ class InputOutput():
             print('This geometry is not registered!')
 
         idx = 0
-        maxGL = 0
+        maxLK = 0
         for elm in outlets.iter('outlet'):
             condition = elm.find('condition')
             if condition.attrib['subtype'] == 'GKmodel':
@@ -359,9 +359,9 @@ class InputOutput():
             elif condition.attrib['subtype'] == 'fileGKmodel':
                 area = self.area_oUT[idx]
                 radius = np.sqrt(area / PI)
-            G = 8 * mu / (PI * radius**4)
-            GL = G * lengths[idx]
-            if GL > maxGL:
-                maxGL = GL
+            K = 8 * mu / (PI * radius**4)
+            LK = lengths[idx] * K
+            if LK > maxLK:
+                maxLK = LK
             idx = idx + 1
-        return maxGL
+        return maxLK
