@@ -126,12 +126,14 @@ class InputOutput():
             for elm in root.find('outlets').iter('outlet'):
                 condition = elm.find('condition')
 
-                value = condition.find('radius').attrib['value']
-                self.radius_oUT = np.append(self.radius_oUT, float(value))
-
-                if condition.find('area') != None:
+                if condition.find('area') == None:
+                    value = condition.find('radius').attrib['value']
+                    self.radius_oUT = np.append(self.radius_oUT, float(value))
+                else:
                     value = condition.find('area').attrib['value']
                     self.area_oUT = np.append(self.area_oUT, float(value))
+                    # Calculate equivalent radius
+                    self.radius_oUT = np.append(self.radius_oUT, np.sqrt(float(value)/PI))
 
                 if condition.find('R') != None:
                     value = condition.find('R').attrib['value']
@@ -215,9 +217,8 @@ class InputOutput():
         elif self.type_oUT == 'windkessel':
             outlets = root.find('outlets')
             geometry = param_oUT['geometry']
-            maxLK = self.FindMaxLK(geometry, outlets)
-            flowRateRatios = param_oUT['flowRateRatios']
-            ratios = self.CalResistanceRatios(flowRateRatios)
+            maxLK = self.FindMaxLK(geometry)
+            ratios = self.CalResistanceRatios(param_oUT)
             Wo = param_iN['Wo']  # from the inlet
 
             idx = 0
@@ -254,17 +255,11 @@ class InputOutput():
                 condition.remove(condition.find('path'))
                 condition.remove(condition.find('area'))
 
-        # Find radius of the pipe
-        if subtype == 'GKmodel':
-            radius = self.radius_oUT[idx]
-        elif subtype == 'fileGKmodel':
-            area = self.area_oUT[idx]
-            radius = np.sqrt(area / PI)
-
         # Find resistance
         resistance = param_oUT['gamma_R'] * resistanceRatios[idx] * maxLK
 
         # Find capacitance
+        radius = self.radius_oUT[idx]
         omega = self.AngularFrequency(radius, Wo)
         RC = 1 / omega
         capacitance = param_oUT['gamma_C'] * RC / resistance
@@ -306,7 +301,7 @@ class InputOutput():
             sys.exit('Error: Ma2 = %.3f exceeds 0.1' %(Ma2))
         elif Ma2 > 0.01:
             print('Warning: Ma2 = %.3f exceeds 0.01!' %(Ma2))
-        #print('Ma2', Ma2)
+        print('Ma2', Ma2)
 
     def WriteInletProfile(self, radius, Re, Wo, epsilon, fileName):
         Umean = self.CentralVelocity(radius, Re)
@@ -323,21 +318,23 @@ class InputOutput():
             for i in range(len(time)):
                 f.write(str(time[i]) + ' ' + str(vel[i]) + '\n')
 
-    def CalResistanceRatios(self, flowRateRatios):
+    def CalResistanceRatios(self, param_oUT):
+        flowRateRatios = param_oUT['flowRateRatios']
         if type(flowRateRatios) == list:
             pass
         elif flowRateRatios == 'Murray':
+            n = 2 + param_oUT['beta']
             sumRadiusCube = 0
             for radius in self.radius_oUT:
-                sumRadiusCube = sumRadiusCube + float(radius)**3
-            flowRateRatios = self.radius_oUT**3 / sumRadiusCube
+                sumRadiusCube = sumRadiusCube + float(radius)**n
+            flowRateRatios = self.radius_oUT**n / sumRadiusCube
         else:
             print('flowRateRatios does not admit this option!')
         resistanceRatios = np.amax(flowRateRatios) / flowRateRatios
         print('resistanceRatios', resistanceRatios)
         return resistanceRatios
 
-    def FindMaxLK(self, geometry, outlets):
+    def FindMaxLK(self, geometry):
         # Expedient solution
         if geometry == 'FiveExit_2e-4': # radii=2e-4
             lengths = np.array([9.7e-4, 9.7e-4, 1.94e-3, 9.7e-4, 9.7e-4])
@@ -350,18 +347,11 @@ class InputOutput():
         else:
             print('This geometry is not registered!')
 
-        idx = 0
         maxLK = 0
-        for elm in outlets.iter('outlet'):
-            condition = elm.find('condition')
-            if condition.attrib['subtype'] == 'GKmodel':
-                radius = self.radius_oUT[idx]
-            elif condition.attrib['subtype'] == 'fileGKmodel':
-                area = self.area_oUT[idx]
-                radius = np.sqrt(area / PI)
+        for idx in range(len(self.radius_oUT)):
+            radius = self.radius_oUT[idx]
             K = 8 * mu / (PI * radius**4)
             LK = lengths[idx] * K
             if LK > maxLK:
                 maxLK = LK
-            idx = idx + 1
         return maxLK
