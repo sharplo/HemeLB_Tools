@@ -42,6 +42,8 @@ obj.Clustering(obj.oUT, obj.position_oUT)
 Q_oUT = obj.CalFlowRate(obj.oUT, range(10), obj.normal_oUT)
 Qratios = obj.CalFlowRateRatios(Q_oUT)
 
+# Check implementations and assumptions
+obj.Check_Clustering(obj.oUT)
 Q_mag = obj.CalFlowRate(obj.oUT, range(10))
 obj.CheckNormalAssumption(Q_mag, Q_oUT, range(10))
 obj.CheckPressureAssumption(obj.oUT)
