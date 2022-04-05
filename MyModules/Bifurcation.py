@@ -13,4 +13,4 @@ class Bifurcation(PipeFlow):
         self.x_max = self.iN['grid_x'].max() # (m)
 
     def DeriveParams(self):
-        self.R = 0.5 * (self.x_max - self.x_min + self.dx) # radius of pipe (m)
+        self.radius = 0.5 * (self.x_max - self.x_min + self.dx)

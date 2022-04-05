@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib
 matplotlib.use('Agg') # disable Xwindows backend
 from matplotlib import pyplot as plt
+from mpl_toolkits import mplot3d # for 3D plotting
 
 class Visual(object):
     def __init__(self, dfDict):
@@ -18,36 +19,46 @@ class Visual(object):
         self.dfDict = dfDict
 
     def Visualise_1D(self, df, grid, var1, var2=None, kwargs1={}, kwargs2={}):
-        df_last = df[df['step'] == df['step'].max()]
+        view = df[df['step'] == df['step'].max()]
 
         fig, ax1 = plt.subplots()
-        ax1.plot(df_last[grid], df_last[var1], '.', markersize=2, color=self.color[0], **kwargs1)
+        ax1.plot(view[grid], view[var1], '.', markersize=2, color=self.color[0], **kwargs1)
+        ax1.grid(axis='both')
+        ax1.minorticks_on()
+        ax1.ticklabel_format(axis='x', style='sci', scilimits=(0,3), useMathText=True)
         ax1.set_xlabel(grid)
-        ax1.set_ylabel(var1, color=self.color[0])
+        ax1.set_ylabel(var1)
         fileName = df.name + '_' + var1 + '-' + grid + '.pdf'
 
         if var2 != None:
-            # Plot var2 on the right axis
-            ax2 = ax1.twinx()
-            ax2.plot(df_last[grid], df_last[var2], '.', markersize=2, color=self.color[1], **kwargs2)
-            ax2.set_ylabel(var2, color=self.color[1])
-            ax2.yaxis.set_label_position('right')
-            ax2.yaxis.tick_right()
+            if var2 == 'exSol_' + var1:
+                # Plot var2 on the same axis
+                ax1.plot(view[grid], view[var2], '.', markersize=2, color=self.color[1], **kwargs2)
+            else:
+                # Plot var2 on the right axis
+                ax2 = ax1.twinx()
+                ax2.plot(view[grid], view[var2], '.', markersize=2, color=self.color[1], **kwargs2)
+                ax2.yaxis.set_label_position('right')
+                ax2.yaxis.tick_right()
+                ax2.minorticks_on()
+                ax2.set_ylabel(var2)
+                ax1.grid(axis='y') # turn off grid line on y-axis
+            plt.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=2)
             fileName = df.name + '_' + var1 + '&' + var2 + '-' + grid + '.pdf'
         
         fig.savefig(self.outDir + fileName, bbox_inches='tight')
         plt.close()
 
     def Visualise_2D(self, df, grid_1, grid_2, var1, var2=None):
-        df_last = df[df['step'] == df['step'].max()]
+        view = df[df['step'] == df['step'].max()]
 
         # Make mesh for contour plot
-        X_unique = np.sort(df_last[grid_1].unique())
-        Y_unique = np.sort(df_last[grid_2].unique())
+        X_unique = np.sort(view[grid_1].unique())
+        Y_unique = np.sort(view[grid_2].unique())
         X, Y = np.meshgrid(X_unique, Y_unique)
 
         # Make plots
-        Z1 = df_last.pivot_table(columns=grid_1, index=grid_2, values=var1, fill_value=0)
+        Z1 = view.pivot_table(columns=grid_1, index=grid_2, values=var1, fill_value=0)
 
         fig, ax1 = plt.subplots()
         im1 = ax1.contourf(X, Y, Z1)
@@ -58,7 +69,7 @@ class Visual(object):
 
         if var2 != None:
             # Plot var2 on the 2nd row
-            Z2 = df_last.pivot_table(columns=grid_1, index=grid_2, values=var2, fill_value=0)
+            Z2 = view.pivot_table(columns=grid_1, index=grid_2, values=var2, fill_value=0)
 
             fig, (ax1, ax2) = plt.subplots(nrows=2, sharex=True)
             im1 = ax1.contourf(X, Y, Z1)
@@ -78,7 +89,7 @@ class Visual(object):
     def Visualise_TimeSeries(self, df, var1, var2=None):
         fig, ax1 = plt.subplots()
         h1, = ax1.plot(df['step'], df[var1], '-', color=self.color[0])
-        ax1.grid(axis='x')
+        ax1.grid(axis='both')
         ax1.minorticks_on()
         ax1.ticklabel_format(axis='x', style='sci', scilimits=(0,3), useMathText=True)
         ax1.set_xlabel('Time step')
@@ -93,6 +104,7 @@ class Visual(object):
             ax2.yaxis.tick_right()
             ax2.minorticks_on()
             ax2.set_ylabel(var2)
+            ax1.grid(axis='y') # turn off grid line on y-axis
             plt.legend([h1, h2], [var1, var2], \
                 bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=2)
             fileName = df.name + '_' + var1 + '&' + var2 + '-timeSeries.pdf'
@@ -104,7 +116,7 @@ class Visual(object):
         fig, ax1 = plt.subplots()
         h1, = ax1.plot(df1['step'], df1[var1], '-', color=self.color[0])
         h2, = ax1.plot(df2['step'], df2[var1], '^-', markersize=6, color=self.color[0])
-        ax1.grid(axis='x')
+        ax1.grid(axis='both')
         ax1.minorticks_on()
         ax1.ticklabel_format(axis='x', style='sci', scilimits=(0,3), useMathText=True)
         ax1.set_xlabel('Time step')
@@ -121,6 +133,7 @@ class Visual(object):
             ax2.yaxis.tick_right()
             ax2.minorticks_on()
             ax2.set_ylabel(var2)
+            ax1.grid(axis='y') # turn off grid line on y-axis
             plt.legend([h1, h2, h3, h4], \
                 [var1 + ' in ' + df1.name, var1 + ' in ' + df2.name, \
                 var2 + ' in ' + df1.name, var2 + ' in ' + df2.name], \
@@ -128,6 +141,18 @@ class Visual(object):
             fileName = df1.name + '_vs_' + df2.name + '-' + var1 + '&' + var2 + '-timeSeries.pdf'
 
         fig.savefig(self.outDir + fileName, bbox_inches='tight')
+        plt.close()
+
+    def Check_Clustering(self, df):
+        view = df[df['step'] == df['step'].max()]
+        ax = plt.axes(projection='3d')
+        ax.scatter3D(view['grid_x'], view['grid_y'], view['grid_z'], \
+            c=view['cluster'], cmap='tab20')
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+        ax.set_zlabel('z')
+        fileName = df.name + '_check-clustering.pdf'
+        plt.savefig(self.outDir + fileName, bbox_inches='tight')
         plt.close()
 
     def Visualise_Clusters(self, df, var, clusters):
