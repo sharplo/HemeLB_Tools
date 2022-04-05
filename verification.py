@@ -7,7 +7,7 @@ from MyModules.Windkessel import *
 
 inFile=sys.argv[1]
 dataDir=sys.argv[2]
-outDir=sys.argv[3] + 'figures/'
+outDir=sys.argv[3]
 shotBeg=int(sys.argv[4])
 shotEnd=int(sys.argv[5])
 shotStep=int(sys.argv[6])

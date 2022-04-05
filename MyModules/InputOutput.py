@@ -309,7 +309,7 @@ class InputOutput():
         self.CompressibilityErrorCheck(Umax)
         omega = self.AngularFrequency(radius, Wo)
         #print('Umean', Umean)
-        #print('omega', omega)
+        print('omega', omega)
 
         time = np.linspace(0, self.dt * self.timeSteps, self.timeSteps)
         vel = Umean * (1 + epsilon * np.cos(omega * time))
@@ -323,7 +323,7 @@ class InputOutput():
         if type(flowRateRatios) == list:
             pass
         elif flowRateRatios == 'Murray':
-            n = 2 + param_oUT['beta']
+            n = param_oUT['power']
             sumRadiusCube = 0
             for radius in self.radius_oUT:
                 sumRadiusCube = sumRadiusCube + float(radius)**n
@@ -344,6 +344,8 @@ class InputOutput():
             lengths = [0.02297]*38
         elif geometry == 'ProfundaFemoris_2e-3': # inlet radius=1.88e-3
             lengths = [0.00874]*10
+        elif geometry == 'ProfundaFemoris2_2e-3': # version 2
+            lengths = [0.0198]*10
         else:
             print('This geometry is not registered!')
 
