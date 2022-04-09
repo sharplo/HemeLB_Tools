@@ -33,7 +33,7 @@ from MyModules.InputOutput import *
 
 ## Series of experiments
 #--------------------------------------------------------------------------------------
-CaseName = 'ProfundaFemoris2_coarse'
+CaseName = 'ProfundaFemoris2_fine'
 Exp = pd.read_csv(CaseName + '/experiments.csv')
 InFile = CaseName + '/input_VfWKf.xml'
 OutFilePrefix = '/input_'

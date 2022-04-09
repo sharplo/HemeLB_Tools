@@ -8,8 +8,8 @@ class Windkessel(PipeFlow):
         PipeFlow.__init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict)
 
         # Reference outlet
-        self.ref = np.argsort(self.resistance)[len(self.resistance) // 2]
-        #self.ref = np.argmin(self.resistance)
+        #self.ref = np.argsort(self.resistance)[len(self.resistance) // 2]
+        self.ref = np.argmin(self.resistance)
         print('Reference outlet:', self.ref)
 
     def CalFlowRate(self, df, clusters, normal=None):

@@ -1,0 +1,165 @@
+<?xml version="1.0"?>
+<hemelbsettings version="3">
+  <simulation>
+    <step_length units="s" value="5.1041666666666656e-05"/>
+    <steps units="lattice" value="CHANGE"/>
+    <stresstype value="1"/>
+    <voxel_size units="m" value="3.5e-05"/>
+    <origin units="m" value="(0.0,0.0,0.0)"/>
+  </simulation>
+ <geometry>
+    <datafile path="ProfundaFemoris2.gmy"/>
+  </geometry>
+  <initialconditions>
+    <pressure>
+      <uniform units="mmHg" value="0.0"/>
+    </pressure>
+  </initialconditions>
+  <monitoring>
+    <incompressibility/>
+  </monitoring>
+
+  <inlets>
+    <inlet>
+      <!-- index value=0-->
+      <condition type="velocity" subtype="file">
+        <path value="MESHX_INLET0_VELOCITY.txt"/>
+        <radius value="0.00187807" units="m"/>
+        <area value="8.81206e-06" units="m^2"/>
+       <!-- <maximum value="CHANGE (Coupled only)" units="m/s"/> -->
+      </condition>
+      <normal units="dimensionless" value="(0.28291,-0.331556,-0.900018)"/>
+      <position units="lattice" value="(227.874,1919.62,5025.29)"/>
+    </inlet>
+  </inlets>
+  <outlets>
+    <outlet>
+      <!-- index value=0 -->
+      <condition subtype="fileGKmodel" type="windkessel">
+        <path value="OUTLET0_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <radius value="0.000554688" units="m"/>
+        <area value="9.17748e-07" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(0.915621,0.133715,-0.379154)"/>
+      <position units="lattice" value="(9.55115,1095.39,3735.25)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=1 -->
+      <condition subtype="fileGKmodel" type="windkessel">
+        <path value="OUTLET1_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <radius value="0.000778151" units="m"/>
+        <area value="1.93893e-06" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(0.615132,0.480759,0.624887)"/>
+      <position units="lattice" value="(30.9296,919.477,3422.78)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=2 -->
+      <condition subtype="fileGKmodel" type="windkessel">
+        <path value="OUTLET2_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <radius value="0.000620659" units="m"/>
+        <area value="1.22626e-06" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(0.303803,0.180373,0.935505)"/>
+      <position units="lattice" value="(287.298,1681.22,2955.78)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=3 -->
+      <condition subtype="fileGKmodel" type="windkessel">
+        <path value="OUTLET3_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <radius value="0.000583612" units="m"/>
+        <area value="1.09924e-06" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(0.590767,0.806127,-0.033963)"/>
+      <position units="lattice" value="(307.875,525.663,2367.46)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=4 -->
+      <condition subtype="fileGKmodel" type="windkessel">
+        <path value="OUTLET4_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <radius value="0.00051869" units="m"/>
+        <area value="8.23816e-07" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.0718327,0.282563,0.956555)"/>
+      <position units="lattice" value="(621.102,1700.93,3604.52)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=5 -->
+      <condition subtype="fileGKmodel" type="windkessel">
+        <path value="OUTLET5_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <radius value="0.00114339" units="m"/>
+        <area value="3.97448e-06" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.630512,-0.10313,-0.769298)"/>
+      <position units="lattice" value="(748.102,1777.69,4744.44)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=6 -->
+      <condition subtype="fileGKmodel" type="windkessel">
+        <path value="OUTLET6_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <radius value="0.000780368" units="m"/>
+        <area value="1.75146e-06" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.410735,0.0419056,0.910791)"/>
+      <position units="lattice" value="(953.604,720.501,1264.82)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=7 -->
+      <condition subtype="fileGKmodel" type="windkessel">
+        <path value="OUTLET7_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <radius value="0.000677813" units="m"/>
+        <area value="1.3181e-06" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.0583918,-0.0659157,0.996115)"/>
+      <position units="lattice" value="(1429.09,43.7038,4.53802)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=8 -->
+      <condition subtype="fileGKmodel" type="windkessel">
+        <path value="OUTLET8_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <radius value="0.000984514" units="m"/>
+        <area value="2.42976e-06" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.0671256,-0.026547,0.997391)"/>
+      <position units="lattice" value="(1479.34,515.503,3136.73)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=9 -->
+      <condition subtype="fileGKmodel" type="windkessel">
+        <path value="OUTLET9_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <radius value="0.000743708" units="m"/>
+        <area value="1.46284e-06" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.979887,0.198538,0.0201166)"/>
+      <position units="lattice" value="(1767.37,415.794,3725.7)"/>
+    </outlet>
+  </outlets>
+
+  <properties>
+   <propertyoutput file="inlet.dat" period="2000">
+     <geometry type="inlet" />
+     <field type="velocity" />
+     <field type="pressure" />
+   </propertyoutput>
+   <propertyoutput file="outlet.dat" period="2000">
+     <geometry type="outlet" />
+     <field type="velocity" />
+     <field type="pressure" />
+   </propertyoutput>
+   <propertyoutput file="whole.dat" period="668000">
+     <geometry type="whole" />
+     <field type="velocity" />
+     <field type="pressure" />
+   </propertyoutput>
+  </properties>
+</hemelbsettings>

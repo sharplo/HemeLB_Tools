@@ -109,7 +109,7 @@ fig.savefig(figDir + 'stability.pdf', bbox_inches='tight')
 
 # Compare measured and desired value of Q-ratios
 CompareMeasuredDesired(exp, dataDir, [i for i in range(1,50,7)], 'gamma_C', figDir + 'err-R1.pdf')
-CompareMeasuredDesired(exp, dataDir, [43,44,45,46], 'gamma_R', figDir + 'err-C8.pdf')
+CompareMeasuredDesired(exp, dataDir, [i for i in range(22,47,8)], 'gamma_R', figDir + 'err-C1.pdf')
 
 # ===========================================================================
 # FiveExit_medium
@@ -125,7 +125,7 @@ fig, ax = StabilityMap(exp, dataDir, [i for i in range(1,92)])
 fig.savefig(figDir + 'stability.pdf', bbox_inches='tight')
 
 # Compare measured and desired value of Q-ratios
-CompareMeasuredDesired(exp, dataDir, [43,44,45,46], 'gamma_R', figDir + 'err-C8.pdf')
+CompareMeasuredDesired(exp, dataDir, [i for i in range(22,47,8)], 'gamma_R', figDir + 'err-C1.pdf')
 
 # ===========================================================================
 # FiveExit_fine
@@ -142,14 +142,15 @@ fig.savefig(figDir + 'stability.pdf', bbox_inches='tight')
 
 # Compare measured and desired value of Q-ratios
 CompareMeasuredDesired(exp, dataDir, [i for i in range(1,50,7)], 'gamma_C', figDir + 'err-R1.pdf')
-CompareMeasuredDesired(exp, dataDir, [43,44,45,46], 'gamma_R', figDir + 'err-C8.pdf')
+CompareMeasuredDesired(exp, dataDir, [i for i in range(22,47,8)], 'gamma_R', figDir + 'err-C1.pdf')
 
 # ===========================================================================
-# ProfundaFemoris_coarse
+# ProfundaFemoris2_coarse
 # ===========================================================================
-dataDir = '/hppfs/work/pn72qu/di46kes/ProfundaFemoris_coarse/ProfundaFemoris_'
-exp = pd.read_csv('ProfundaFemoris_coarse/experiments.csv')
-figDir = 'ProfundaFemoris_coarse/figures/'
+#dataDir = '/hppfs/work/pn72qu/di46kes/ProfundaFemoris2_coarse/case_'
+dataDir = '/hppfs/work/pn72qu/di46kes/ProfundaFemoris2_coarse/case_'
+exp = pd.read_csv('ProfundaFemoris2_coarse/experiments.csv')
+figDir = 'ProfundaFemoris2_coarse/figures/'
 if not os.path.exists(figDir):
     os.mkdir(figDir)
 
@@ -159,15 +160,15 @@ ax.plot([-0.3,10.3], [4.7,15.3], color='tab:blue')
 fig.savefig(figDir + 'stability.pdf', bbox_inches='tight')
 
 # Compare measured and desired value of Q-ratios
-CompareMeasuredDesired(exp, dataDir, [i for i in range(25,61,7)], 'gamma_R', figDir + 'err-opt.pdf')
+CompareMeasuredDesired(exp, dataDir, [i for i in range(39,61,7)], 'gamma_R', figDir + 'err-C64.pdf')
 CompareMeasuredDesired(exp, dataDir, [53,61,62,63,59], 'gamma_C', figDir + 'err-R256.pdf')
 
 # ===========================================================================
-# ProfundaFemoris_medium
+# ProfundaFemoris2_medium
 # ===========================================================================
-dataDir = '/hppfs/work/pn72qu/di46kes/ProfundaFemoris_medium/ProfundaFemoris_'
-exp = pd.read_csv('ProfundaFemoris_fine/experiments.csv') # trick to avoid decimal R in exp 61-78
-figDir = 'ProfundaFemoris_medium/figures/'
+dataDir = '/hppfs/work/pn72qu/di46kes/ProfundaFemoris2_medium/case_'
+exp = pd.read_csv('ProfundaFemoris2_medium/experiments.csv')
+figDir = 'ProfundaFemoris2_medium/figures/'
 if not os.path.exists(figDir):
     os.mkdir(figDir)
 
@@ -177,14 +178,15 @@ ax.plot([-0.3,10.3], [4.7,15.3], color='tab:blue')
 fig.savefig(figDir + 'stability.pdf', bbox_inches='tight')
 
 # Compare measured and desired value of Q-ratios
-CompareMeasuredDesired(exp, dataDir, [i for i in range(25,61,7)], 'gamma_R', figDir + 'err-opt.pdf')
+CompareMeasuredDesired(exp, dataDir, [53,61,62,63,59], 'gamma_C', figDir + 'err-R256.pdf')
+
 
 # ===========================================================================
-# ProfundaFemoris_fine
+# ProfundaFemoris2_fine
 # ===========================================================================
-dataDir = '/hppfs/work/pn72qu/di46kes/ProfundaFemoris_fine/ProfundaFemoris_'
-exp = pd.read_csv('ProfundaFemoris_fine/experiments.csv')
-figDir = 'ProfundaFemoris_fine/figures/'
+dataDir = '/hppfs/work/pn72qu/di46kes/ProfundaFemoris2_fine/case_'
+exp = pd.read_csv('ProfundaFemoris2_fine/experiments.csv')
+figDir = 'ProfundaFemoris2_fine/figures/'
 if not os.path.exists(figDir):
     os.mkdir(figDir)
 
