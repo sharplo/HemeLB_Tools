@@ -1,4 +1,4 @@
-caseNum,timeSteps,gamma_R,gamma_C
+caseNum,timeSteps,gamma_R,gamma_RC
 1,305000,1,0.125
 2,305000,2,0.125
 3,305000,4,0.125

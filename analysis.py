@@ -40,23 +40,23 @@ def StabilityMap(exp, dir, caseNum):
     unstable = view[view['stable'] == False]
 
     fig, ax = plt.subplots()
-    ax.plot(np.log2(stable['gamma_R']), np.log2(stable['gamma_C']), \
+    ax.plot(np.log2(stable['gamma_R']), np.log2(stable['gamma_RC']), \
         '.', color='tab:green', label='stable', markersize=15)
-    ax.plot(np.log2(unstable['gamma_R']), np.log2(unstable['gamma_C']), \
+    ax.plot(np.log2(unstable['gamma_R']), np.log2(unstable['gamma_RC']), \
         'x', color='tab:red', label='unstable', markersize=15)
 
     ax.minorticks_on()
     ax.tick_params(labelsize=18)
     ax.set_xlabel(r'$\log_2 \gamma_R$', fontsize=20)
-    ax.set_ylabel(r'$\log_2 \gamma_C$', fontsize=20)
+    ax.set_ylabel(r'$\log_2 \gamma_{RC}$', fontsize=20)
     ax.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=3, fontsize=20)
     return fig, ax
 
 def CompareMeasuredDesired(exp, dir, caseNum, param, outFile):
     if param == 'gamma_R':
         tex = r'$\gamma_R$'
-    elif param == 'gamma_C':
-        tex = r'$\gamma_C$'
+    elif param == 'gamma_RC':
+        tex = r'$\gamma_{RC}$'
     tendency = np.linspace(0.85, 0.15, len(caseNum))
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
@@ -108,7 +108,7 @@ fig, ax = StabilityMap(exp, dataDir, [i for i in range(1,92)])
 fig.savefig(figDir + 'stability.pdf', bbox_inches='tight')
 
 # Compare measured and desired value of Q-ratios
-CompareMeasuredDesired(exp, dataDir, [i for i in range(1,50,7)], 'gamma_C', figDir + 'err-R1.pdf')
+CompareMeasuredDesired(exp, dataDir, [i for i in range(1,50,7)], 'gamma_RC', figDir + 'err-R1.pdf')
 CompareMeasuredDesired(exp, dataDir, [i for i in range(22,47,8)], 'gamma_R', figDir + 'err-C1.pdf')
 
 # ===========================================================================
@@ -141,7 +141,7 @@ fig, ax = StabilityMap(exp, dataDir, [i for i in range(1,92)])
 fig.savefig(figDir + 'stability.pdf', bbox_inches='tight')
 
 # Compare measured and desired value of Q-ratios
-CompareMeasuredDesired(exp, dataDir, [i for i in range(1,50,7)], 'gamma_C', figDir + 'err-R1.pdf')
+CompareMeasuredDesired(exp, dataDir, [i for i in range(1,50,7)], 'gamma_RC', figDir + 'err-R1.pdf')
 CompareMeasuredDesired(exp, dataDir, [i for i in range(22,47,8)], 'gamma_R', figDir + 'err-C1.pdf')
 
 # ===========================================================================
@@ -161,7 +161,7 @@ fig.savefig(figDir + 'stability.pdf', bbox_inches='tight')
 
 # Compare measured and desired value of Q-ratios
 CompareMeasuredDesired(exp, dataDir, [i for i in range(39,61,7)], 'gamma_R', figDir + 'err-C64.pdf')
-CompareMeasuredDesired(exp, dataDir, [53,61,62,63,59], 'gamma_C', figDir + 'err-R256.pdf')
+CompareMeasuredDesired(exp, dataDir, [53,61,62,63,59], 'gamma_RC', figDir + 'err-R256.pdf')
 
 # ===========================================================================
 # ProfundaFemoris2_medium
@@ -178,7 +178,7 @@ ax.plot([-0.3,10.3], [4.7,15.3], color='tab:blue')
 fig.savefig(figDir + 'stability.pdf', bbox_inches='tight')
 
 # Compare measured and desired value of Q-ratios
-CompareMeasuredDesired(exp, dataDir, [53,61,62,63,59], 'gamma_C', figDir + 'err-R256.pdf')
+CompareMeasuredDesired(exp, dataDir, [53,61,62,63,59], 'gamma_RC', figDir + 'err-R256.pdf')
 
 
 # ===========================================================================

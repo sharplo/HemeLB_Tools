@@ -262,7 +262,7 @@ class InputOutput():
         radius = self.radius_oUT[idx]
         omega = self.AngularFrequency(radius, Wo)
         RC = 1 / omega
-        capacitance = param_oUT['gamma_C'] * RC / resistance
+        capacitance = param_oUT['gamma_RC'] * RC / resistance
 
         # Set R and C
         if condition.find('R') == None:

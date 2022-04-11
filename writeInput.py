@@ -17,12 +17,12 @@ from MyModules.InputOutput import *
 # FiveExit
 #param_iN = {'type':'velocity', 'subtype':'file', 'Re':10, 'Wo':2, 'epsilon':0.1}
 #param_oUT = {'type':'windkessel', 'subtype':'GKmodel', 'geometry':'FiveExit_1e-3', \
-#    'flowRateRatios':[3,4,5,6,7], 'gamma_R':1, 'gamma_C':1}
+#    'flowRateRatios':[3,4,5,6,7], 'gamma_R':1, 'gamma_RC':1}
 
 # ProfundaFemoris
 #param_iN = {'type':'velocity', 'subtype':'file', 'Re':10, 'Wo':2, 'epsilon':0.1}
 #param_oUT = {'type':'windkessel', 'subtype':'fileGKmodel', 'geometry':'ProfundaFemoris2_2e-3', \
-#    'flowRateRatios':'Murray', 'power':3, 'gamma_R':1, 'gamma_C':1}
+#    'flowRateRatios':'Murray', 'power':3, 'gamma_R':1, 'gamma_RC':1}
 
 #InOut.ChangeParam(param_sim, param_iN=param_iN, param_oUT=param_oUT)
 #InOut.WriteInput(sys.argv[3])
@@ -44,7 +44,7 @@ for row in Exp.itertuples(index=False):
     param_sim = {'tau':0.9082, 'timeSteps':row.timeSteps}
     param_iN = {'type':'velocity', 'subtype':'file', 'Re':10, 'Wo':2, 'epsilon':0.1}
     param_oUT = {'type':'windkessel', 'subtype':'fileGKmodel', 'geometry':'ProfundaFemoris2_2e-3', \
-    'flowRateRatios':'Murray', 'power':3, 'gamma_R':row.gamma_R, 'gamma_C':row.gamma_C}
+    'flowRateRatios':'Murray', 'power':3, 'gamma_R':row.gamma_R, 'gamma_RC':row.gamma_RC}
     InOut.ChangeParam(param_sim, param_iN=param_iN, param_oUT=param_oUT)
     InOut.WriteInput(OutFilePrefix + str(row.caseNum) + '.xml')
 
