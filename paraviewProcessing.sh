@@ -11,8 +11,8 @@ pushd $DIR
 # Make a new directory to avoid acidentally changing other files
 mkdir $VAR && cd $VAR
 
-# Translate into readable format
-hemeXtract -X ../$FILE -o $OUT_ALL
+# Translate into readable format using submodule hemeXtract
+submodules/hemeXtract/hemeXtract -X ../$FILE -o $OUT_ALL
 
 # Delete the first 2 lines
 sed -i '1,2d' $OUT_ALL
