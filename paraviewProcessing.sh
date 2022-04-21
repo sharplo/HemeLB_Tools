@@ -11,8 +11,11 @@ pushd $DIR
 # Make a new directory to avoid acidentally changing other files
 mkdir $VAR && cd $VAR
 
+# Find the full directory name of this script
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 # Translate into readable format using submodule hemeXtract
-submodules/hemeXtract/hemeXtract -X ../$FILE -o $OUT_ALL
+$SCRIPT_DIR/submodules/hemeXtract/hemeXtract -X ../$FILE -o $OUT_ALL
 
 # Delete the first 2 lines
 sed -i '1,2d' $OUT_ALL
