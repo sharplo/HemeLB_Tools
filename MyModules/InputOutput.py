@@ -108,14 +108,14 @@ class InputOutput():
         #print('area_iN', self.area_iN)
 
         # Find pressure of inlets
-        if self.type_iN == 'pressure':
+        if self.type_iN == 'pressure' or self.type_iN == 'yangpressure':
             for elm in root.find('inlets').iter('inlet'):
                 value = elm.find('condition').find('mean').attrib['value']
                 self.P_iN = np.append(self.P_iN, float(value))
         #print('P_iN', self.P_iN)
 
         # Find pressure of outlets
-        if self.type_oUT == 'pressure':
+        if self.type_oUT == 'pressure' or self.type_oUT == 'yangpressure':
             for elm in root.find('outlets').iter('outlet'):
                 value = elm.find('condition').find('mean').attrib['value']
                 self.P_oUT = np.append(self.P_oUT, float(value))

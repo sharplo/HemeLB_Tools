@@ -20,28 +20,32 @@ class Poiseuille(PipeFlow):
     def ExtractParams(self):
         self.P_ref = self.iN['P'].max() # default value
         self.z_ref = self.iN['grid_z'].mean() # default value
-        self.x_cEN = np.rint(self.position_iN[0,1]) * self.dx # x-ord of centre
+        self.x_cEN = self.position_iN[0,0] * self.dx # x-ord of centre
         self.radius = self.x_cEN - 3 * self.dx # padding of 3 lattice units
 
     def DeriveParams(self):
         # If the inlet is imposed with pressure condition
         if self.P_iN.size > 0:
             P_max = self.P_iN[0]
+            z_max = self.position_iN[0,2] * self.dx
             self.P_ref = P_max
-            self.z_ref = np.rint(self.position_iN[0,2]) * self.dx
+            self.z_ref = z_max
         else:
-            P_max = self.iN['P'].max()
+            P_max = self.iN['P'].mean()
+            z_max = self.iN['grid_z'].mean()
 
         # If the outlet is imposed with pressure condition
         if self.P_oUT.size > 0:
             P_min = self.P_oUT[0]
+            z_min = self.position_oUT[0,2] * self.dx
             self.P_ref = P_min
-            self.z_ref = np.rint(self.position_oUT[0,2]) * self.dx
+            self.z_ref = z_min
         else:
-            P_min = self.oUT['P'].min()
+            P_min = self.oUT['P'].mean()
+            z_min = self.oUT['grid_z'].mean()
         
-        dz = np.rint(self.position_oUT[0,2] - self.position_iN[0,2]) * self.dx
-        self.dPdz = (P_min - P_max) / dz # pressure gradient (mmHg/m)
+        # Calculate the pressure gradient (mmHg/m)
+        self.dPdz = (P_min - P_max) / (z_min - z_max)
 
     def AddRadialDistance(self, df):
         df['r'] = np.sqrt((df['grid_x'] - self.x_cEN)**2 + (df['grid_y'] - self.x_cEN)**2)
@@ -54,7 +58,7 @@ class Poiseuille(PipeFlow):
             G = - self.dPdz * mmHg # need SI unit (Pa/m)
             exSol = lambda r: G / (4 * mu) * (self.radius**2 - r**2)
             df['exSol_Uz'] = exSol(df['r'])
-        df['err_' + var] = df[var] - df['exSol_' + var]
+        df['err_' + var] = (df[var] - df['exSol_' + var]) / df['exSol_' + var]
 
     def CompareExSol_1D(self, df, grid, var1, kwargs1=..., kwargs2=...):
         return super().Visualise_1D(df, grid, var1, 'exSol_' + var1, kwargs1={'label':'appSol'}, kwargs2={'label':'exSol'})
