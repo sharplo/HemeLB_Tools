@@ -3,7 +3,7 @@ from MyModules.PipeFlow import *
 class Poiseuille(PipeFlow):
     # Assumptions:
     # 1) the pipe is cylindrical and has constant cross-section
-    # 2) the cylindrical axis is the z-axis
+    # 2) the cylindrical axis is in the z direction
 
     def __init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict=None):
         if dfDict == None:
@@ -18,7 +18,7 @@ class Poiseuille(PipeFlow):
         self.CalExact(self.pZ, 'Uz')
 
     def ExtractParams(self):
-        self.P_ref = self.iN['P'].max() # default value
+        self.P_ref = self.iN['P'].mean() # default value
         self.z_ref = self.iN['grid_z'].mean() # default value
         self.x_cEN = self.position_iN[0,0] * self.dx # x-ord of centre
         self.radius = self.x_cEN - 3 * self.dx # padding of 3 lattice units
@@ -58,7 +58,8 @@ class Poiseuille(PipeFlow):
             G = - self.dPdz * mmHg # need SI unit (Pa/m)
             exSol = lambda r: G / (4 * mu) * (self.radius**2 - r**2)
             df['exSol_Uz'] = exSol(df['r'])
-        df['err_' + var] = (df[var] - df['exSol_' + var]) / df['exSol_' + var]
+        # Use absolute error to avoid division by 0
+        df['err_' + var] = df[var] - df['exSol_' + var]
 
     def CompareExSol_1D(self, df, grid, var1, kwargs1=..., kwargs2=...):
         return super().Visualise_1D(df, grid, var1, 'exSol_' + var1, kwargs1={'label':'appSol'}, kwargs2={'label':'exSol'})

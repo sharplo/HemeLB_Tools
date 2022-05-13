@@ -10,8 +10,8 @@ class DiscError(object):
     def WriteDiscErr(self, df, var):
         # Calculate error norms
         L1, L2, L8 = self.CalErrNorms(df['err_' + var])
-        print('Relative errors of', var, 'in base e:')
-        print('dt: %f, L1: %f, L2: %f, L8: %f' %(np.log(self.dt), np.log(L1), np.log(L2), np.log(L8)))
+        print('Absolute errors of', var, 'in base 10:')
+        print('dt:%f, L1:%f, L2:%f, L8:%f' %(np.log10(self.dt), np.log10(L1), np.log10(L2), np.log10(L8)))
 
         # Write heading if file does not exist
         fileName = self.outDir + 'discErr_' + var + '.dat'
@@ -25,4 +25,4 @@ class DiscError(object):
 
         # Write results
         with open(fileName, 'a') as f:
-            f.write("%f %f %f %f\n" %(np.log(self.dt), np.log(L1), np.log(L2), np.log(L8)))
+            f.write("%f %f %f %f\n" %(np.log10(self.dt), np.log10(L1), np.log10(L2), np.log10(L8)))

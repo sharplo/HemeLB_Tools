@@ -5,14 +5,14 @@ from MyModules.InputOutput import *
 
 ## Single experiment
 #--------------------------------------------------------------------------------------
-#InOut = InputOutput(sys.argv[1], sys.argv[2])
+InOut = InputOutput(sys.argv[1], sys.argv[2])
 
 # General
-#param_sim = {'tau':0.9082, 'timeSteps':340000}
+param_sim = {'tau':0.93, 'timeSteps':1250}
 
 # Pipe
 #param_iN = {'type':'velocity', 'subtype':'parabolic', 'Re':10}
-#param_oUT = {'type':'pressure'}
+param_oUT = {'type':'yangpressure'}
 
 # FiveExit
 #param_iN = {'type':'velocity', 'subtype':'file', 'Re':10, 'Wo':2, 'epsilon':0.1}
@@ -24,12 +24,13 @@ from MyModules.InputOutput import *
 #param_oUT = {'type':'windkessel', 'subtype':'fileGKmodel', 'geometry':'ProfundaFemoris2_2e-3', \
 #    'flowRateRatios':'Murray', 'power':3, 'gamma_R':1, 'gamma_RC':1}
 
-#InOut.ChangeParam(param_sim, param_iN=param_iN, param_oUT=param_oUT)
-#InOut.WriteInput(sys.argv[3])
+#InOut.RescaleSize(1e-3)
+InOut.ChangeParam(param_sim, param_iN=param_oUT, param_oUT=param_oUT)
+InOut.WriteInput(sys.argv[3])
 
 #--------------------------------------------------------------------------------------
 
-
+"""
 
 ## Series of experiments
 #--------------------------------------------------------------------------------------
@@ -48,3 +49,4 @@ for row in Exp.itertuples(index=False):
     InOut.ChangeParam(param_sim, param_iN=param_iN, param_oUT=param_oUT)
     InOut.WriteInput(OutFilePrefix + str(row.caseNum) + '.xml')
 
+"""

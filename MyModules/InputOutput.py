@@ -161,19 +161,19 @@ class InputOutput():
 
         # Rescale voxel size
         value = self.dx * scale
-        root.find('simulation').find('voxel_size').set('value', '{:0.5e}'.format(value))
+        root.find('simulation').find('voxel_size').set('value', '{:0.15e}'.format(value))
 
         # Rescale radii
         for elm in root.iter('radius'):
             value = float(elm.attrib['value'])
             value = value * scale
-            elm.set('value', '{:0.5e}'.format(value))
+            elm.set('value', '{:0.15e}'.format(value))
         
         # Rescale areas
         for elm in root.iter('area'):
             value = float(elm.attrib['value'])
             value = value * scale**2
-            elm.set('value', '{:0.5e}'.format(value))
+            elm.set('value', '{:0.15e}'.format(value))
 
     def ChangeParam(self, param_sim, param_iN, param_oUT):
         root = self.tree.getroot()
@@ -198,7 +198,7 @@ class InputOutput():
             sys.exit('Error: time and timeSteps should not be specified simultaneously!')
 
         elm = root.find('simulation')
-        elm.find('step_length').set('value', '{:0.5e}'.format(self.dt))
+        elm.find('step_length').set('value', '{:0.15e}'.format(self.dt))
         elm.find('steps').set('value', str(self.timeSteps))
 
         # Change parameters in inlets
@@ -244,7 +244,7 @@ class InputOutput():
         elif subtype == 'parabolic':
             Umax = self.CentralVelocity(radius, Re)
             self.CompressibilityErrorCheck(Umax)
-            condition.find('maximum').set('value', '{:0.5e}'.format(Umax))
+            condition.find('maximum').set('value', '{:0.15e}'.format(Umax))
 
     def SetParam_Windkessel(self, condition, idx, param_oUT, maxLK, resistanceRatios, Wo):
         subtype = condition.attrib['subtype']
@@ -266,18 +266,18 @@ class InputOutput():
 
         # Set R and C
         if condition.find('R') == None:
-            elm = ET.Element('R', {'units':'kg/m^4*s', 'value':'{:0.5e}'.format(resistance)})
+            elm = ET.Element('R', {'units':'kg/m^4*s', 'value':'{:0.15e}'.format(resistance)})
             elm.tail = "\n" + 4 * "  "
             condition.insert(1, elm)
         else:
-            condition.find('R').set('value', '{:0.5e}'.format(resistance))
+            condition.find('R').set('value', '{:0.15e}'.format(resistance))
 
         if condition.find('C') == None:
-            elm = ET.Element('C', {'units':'m^4*s^2/kg', 'value':'{:0.5e}'.format(capacitance)})
+            elm = ET.Element('C', {'units':'m^4*s^2/kg', 'value':'{:0.15e}'.format(capacitance)})
             elm.tail = "\n" + 4 * "  "
             condition.insert(2, elm)
         else:
-            condition.find('C').set('value', '{:0.5e}'.format(capacitance))
+            condition.find('C').set('value', '{:0.15e}'.format(capacitance))
 
     def AngularFrequency(self, radius, Wo):
         return (Wo / radius)**2 * nu
