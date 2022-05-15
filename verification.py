@@ -18,15 +18,15 @@ if not os.path.exists(outDir):
 
 
 obj = Poiseuille(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep)
-obj.CompareExSol_1D(obj.cL, 'grid_z', 'Uz')
+obj.CompareExSol_1D(obj.cL, 'grid_z', 'Un')
 obj.CompareExSol_1D(obj.cL, 'grid_z', 'P')
 obj.Visualise_1D(obj.cL, 'grid_z', 'err_P')
 obj.WriteDiscErr(obj.cL, 'P')
-obj.CompareExSol_1D(obj.pZ, 'grid_x', 'Uz')
-obj.CompareExSol_2D(obj.pZ, 'grid_x', 'grid_y', 'Uz')
-obj.Visualise_1D(obj.pZ, 'grid_x', 'err_Uz')
-obj.Visualise_2D(obj.pZ, 'grid_x', 'grid_y', 'err_Uz')
-obj.WriteDiscErr(obj.pZ, 'Uz')
+obj.CompareExSol_1D(obj.pN, 'grid_x', 'Un')
+obj.CompareExSol_2D(obj.pN, 'grid_x', 'grid_y', 'Un')
+obj.Visualise_1D(obj.pN, 'grid_x', 'err_Un')
+obj.Visualise_2D(obj.pN, 'grid_x', 'grid_y', 'err_Un')
+obj.WriteDiscErr(obj.pN, 'Un')
 
 """
 
