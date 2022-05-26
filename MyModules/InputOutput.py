@@ -22,7 +22,9 @@ class CommentedTreeBuilder(ET.TreeBuilder):
 class InputOutput():
     def __init__(self, inFile, outDir):
         self.type_iN = None # type of boundary condition in inlets
+        self.subtype_iN = None # subtype of boundary condition in inlets
         self.type_oUT = None # type of boundary condition in outlets
+        self.subtype_oUT = None # subtype of boundary condition in outlets
 
         self.dt = None # step_length (s)
         self.dx = None # voxel_size (m)
@@ -87,13 +89,17 @@ class InputOutput():
         #print('normal_oUT', self.normal_oUT)
         #print('position_oUT', self.position_oUT)
 
-        # Find the type of boundary conditions
+        # Find the type and subtype of boundary conditions
         self.type_iN = root.find('inlets').find('inlet').find('condition').attrib['type']
+        self.subtype_iN = root.find('inlets').find('inlet').find('condition').attrib['subtype']
         self.type_oUT = root.find('outlets').find('outlet').find('condition').attrib['type']
+        self.subtype_oUT = root.find('outlets').find('outlet').find('condition').attrib['subtype']
         #print('type_iN', self.type_iN)
+        #print('subtype_iN', self.subtype_iN)
         #print('type_oUT', self.type_oUT)
+        #print('subtype_oUT', self.subtype_oUT)
 
-        # Find radius and area of inlets
+        # Find the radius and area of inlets
         if self.type_iN == 'velocity':
             for elm in root.find('inlets').iter('inlet'):
                 condition = elm.find('condition')
@@ -107,51 +113,48 @@ class InputOutput():
         #print('radius_iN', self.radius_iN)
         #print('area_iN', self.area_iN)
 
-        # Find pressure of inlets
+        # Find the pressure of inlets
         if self.type_iN == 'pressure' or self.type_iN == 'yangpressure':
             for elm in root.find('inlets').iter('inlet'):
                 value = elm.find('condition').find('mean').attrib['value']
                 self.P_iN = np.append(self.P_iN, float(value))
         #print('P_iN', self.P_iN)
 
-        # Find pressure of outlets
+        # Find the parmeters in the pressure condition for outlets
         if self.type_oUT == 'pressure' or self.type_oUT == 'yangpressure':
-            for elm in root.find('outlets').iter('outlet'):
-                value = elm.find('condition').find('mean').attrib['value']
-                self.P_oUT = np.append(self.P_oUT, float(value))
-        #sprint('P_oUT', self.P_oUT)
-
-        # Find parameters of the Windkessel model
-        if self.type_oUT == 'windkessel':
             for elm in root.find('outlets').iter('outlet'):
                 condition = elm.find('condition')
 
-                if condition.find('area') == None:
-                    value = condition.find('radius').attrib['value']
-                    self.radius_oUT = np.append(self.radius_oUT, float(value))
-                else:
-                    value = condition.find('area').attrib['value']
-                    self.area_oUT = np.append(self.area_oUT, float(value))
-                    # Calculate equivalent radius
-                    self.radius_oUT = np.append(self.radius_oUT, np.sqrt(float(value)/PI))
+                if self.subtype_oUT == 'cosine' or self.subtype_oUT == 'file':
+                    value = condition.find('mean').attrib['value']
+                    self.P_oUT = np.append(self.P_oUT, float(value))
+                elif self.subtype_oUT == 'WK' or self.subtype_oUT == 'fileWK':
 
-                if condition.find('R') != None:
                     value = condition.find('R').attrib['value']
                     if value == 'CHANGE':
                         self.resistance = np.append(self.resistance, None)
                     else:
                         self.resistance = np.append(self.resistance, float(value))
-
-                if condition.find('C') != None:
+                    
                     value = condition.find('C').attrib['value']
                     if value == 'CHANGE':
                         self.capacitance = np.append(self.capacitance, None)
                     else:
                         self.capacitance = np.append(self.capacitance, float(value))
-        #print('radius_oUT', self.radius_oUT)
-        #print('area_oUT', self.area_oUT)
+                    
+                    if condition.find('area') == None:
+                        value = condition.find('radius').attrib['value']
+                        self.radius_oUT = np.append(self.radius_oUT, float(value))
+                    else:
+                        value = condition.find('area').attrib['value']
+                        self.area_oUT = np.append(self.area_oUT, float(value))
+                        # Calculate equivalent radius
+                        self.radius_oUT = np.append(self.radius_oUT, np.sqrt(float(value)/PI))
+        #print('P_oUT', self.P_oUT)
         #print('resistance', self.resistance)
         #print('capacitance', self.capacitance)
+        #print('radius_oUT', self.radius_oUT)
+        #print('area_oUT', self.area_oUT)
 
     def WriteInput(self, fileName):
         self.tree.write(self.outDir + fileName, encoding='utf-8', xml_declaration=True)
@@ -214,17 +217,19 @@ class InputOutput():
         # Change parameters in outlets
         if self.type_oUT != param_oUT['type']:
             sys.exit('Error: Outlet types are different!')
-        elif self.type_oUT == 'windkessel':
-            outlets = root.find('outlets')
-            geometry = param_oUT['geometry']
-            maxLK = self.FindMaxLK(geometry)
-            ratios = self.CalResistanceRatios(param_oUT)
-            Wo = param_iN['Wo']  # from the inlet
-
+        elif self.type_oUT == 'pressure':
+            # Obtain values used in common
+            if self.subtype_oUT == 'WK' or self.subtype_oUT == 'fileWK':
+                geometry = param_oUT['geometry']
+                maxLK = self.FindMaxLK(geometry)
+                ratios = self.CalResistanceRatios(param_oUT)
+                Wo = param_iN['Wo']  # from the inlet
+            
             idx = 0
-            for elm in outlets.iter('outlet'):
+            for elm in root.find('outlets').iter('outlet'):
                 condition = elm.find('condition')
-                self.SetParam_Windkessel(condition, idx, param_oUT, maxLK, ratios, Wo)
+                if self.subtype_oUT == 'WK' or self.subtype_oUT == 'fileWK':
+                    self.SetParam_Windkessel(condition, idx, param_oUT, maxLK, ratios, Wo)
                 idx = idx + 1
 
     def SetParam_Velocity(self, condition, idx, param_iN):
@@ -248,12 +253,11 @@ class InputOutput():
 
     def SetParam_Windkessel(self, condition, idx, param_oUT, maxLK, resistanceRatios, Wo):
         subtype = condition.attrib['subtype']
-        if subtype != param_oUT['subtype']:
-            if subtype == 'fileGKmodel' and param_oUT['subtype'] == 'GKmodel':
-                # Change from fileGKmodel to GKmodel
-                condition.set('subtype', 'GKmodel')
-                condition.remove(condition.find('path'))
-                condition.remove(condition.find('area'))
+        if subtype == 'fileWK' and param_oUT['subtype'] == 'WK':
+            # Change from fileWK to WK
+            condition.set('subtype', 'WK')
+            condition.remove(condition.find('path'))
+            condition.remove(condition.find('area'))
 
         # Find resistance
         resistance = param_oUT['gamma_R'] * resistanceRatios[idx] * maxLK
