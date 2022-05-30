@@ -8,24 +8,24 @@ from MyModules.InputOutput import *
 InOut = InputOutput(sys.argv[1], sys.argv[2])
 
 # General
-param_sim = {'tau':0.93, 'timeSteps':1250}
+param_sim = {'tau':0.809, 'timeSteps':30000}
 
 # Pipe
-#param_iN = {'type':'velocity', 'subtype':'parabolic', 'Re':10}
-param_oUT = {'type':'yangpressure'}
+param_iN = {'type':'velocity', 'subtype':'womersley', 'Re':1, 'Wo':3}
+param_oUT = {'type':'pressure', 'subtype':'cosine'}
 
 # FiveExit
 #param_iN = {'type':'velocity', 'subtype':'file', 'Re':10, 'Wo':2, 'epsilon':0.1}
-#param_oUT = {'type':'windkessel', 'subtype':'GKmodel', 'geometry':'FiveExit_1e-3', \
-#    'flowRateRatios':[3,4,5,6,7], 'gamma_R':1, 'gamma_RC':1}
+#param_oUT = {'type':'pressure', 'subtype':'fileWK', 'geometry':'FiveExit_1e-3', \
+#    'flowRateRatios':[3,4,5,6,7], 'gamma_R':4, 'gamma_RC':4}
 
 # ProfundaFemoris
 #param_iN = {'type':'velocity', 'subtype':'file', 'Re':10, 'Wo':2, 'epsilon':0.1}
-#param_oUT = {'type':'windkessel', 'subtype':'fileGKmodel', 'geometry':'ProfundaFemoris2_2e-3', \
+#param_oUT = {'type':'pressure', 'subtype':'fileWK', 'geometry':'ProfundaFemoris2_2e-3', \
 #    'flowRateRatios':'Murray', 'power':3, 'gamma_R':1, 'gamma_RC':1}
 
 #InOut.RescaleSize(1e-3)
-InOut.ChangeParam(param_sim, param_iN=param_oUT, param_oUT=param_oUT)
+InOut.ChangeParam(param_sim, param_iN=param_iN, param_oUT=param_oUT)
 InOut.WriteInput(sys.argv[3])
 
 #--------------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ for row in Exp.itertuples(index=False):
     InOut = InputOutput(InFile, CaseName + '/')
     param_sim = {'tau':0.9082, 'timeSteps':row.timeSteps}
     param_iN = {'type':'velocity', 'subtype':'file', 'Re':10, 'Wo':2, 'epsilon':0.1}
-    param_oUT = {'type':'windkessel', 'subtype':'fileGKmodel', 'geometry':'ProfundaFemoris2_2e-3', \
+    param_oUT = {'type':'pressure', 'subtype':'fileWK', 'geometry':'ProfundaFemoris2_2e-3', \
     'flowRateRatios':'Murray', 'power':3, 'gamma_R':row.gamma_R, 'gamma_RC':row.gamma_RC}
     InOut.ChangeParam(param_sim, param_iN=param_iN, param_oUT=param_oUT)
     InOut.WriteInput(OutFilePrefix + str(row.caseNum) + '.xml')

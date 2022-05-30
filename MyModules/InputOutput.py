@@ -207,16 +207,25 @@ class InputOutput():
         # Change parameters in inlets
         if self.type_iN != param_iN['type']:
             sys.exit('Error: Inlet types are different!')
+        elif self.subtype_iN != param_iN['subtype']:
+            sys.exit('Error: Inlet subtypes are different!')
         elif self.type_iN == 'velocity':
             idx = 0
             for elm in root.find('inlets').iter('inlet'):
                 condition = elm.find('condition')
-                self.SetParam_Velocity(condition, idx, param_iN)
+                if self.subtype_iN == 'file':
+                    self.SetParam_FileVelocity(condition, idx, param_iN)
+                elif self.subtype_iN == 'parabolic':
+                    self.SetParam_ParabolicVelocity(condition, idx, param_iN)
+                elif self.subtype_iN == 'womersley':
+                    self.SetParam_WomersleyVelocity(condition, idx, param_iN)
                 idx = idx + 1
 
         # Change parameters in outlets
         if self.type_oUT != param_oUT['type']:
             sys.exit('Error: Outlet types are different!')
+        elif self.subtype_oUT != param_oUT['subtype']:
+            sys.exit('Error: Outlet subtypes are different!')
         elif self.type_oUT == 'pressure':
             # Obtain values used in common
             if self.subtype_oUT == 'WK' or self.subtype_oUT == 'fileWK':
@@ -232,24 +241,33 @@ class InputOutput():
                     self.SetParam_Windkessel(condition, idx, param_oUT, maxLK, ratios, Wo)
                 idx = idx + 1
 
-    def SetParam_Velocity(self, condition, idx, param_iN):
+    def SetParam_FileVelocity(self, condition, idx, param_iN):
         radius = self.radius_iN[idx]
         Re = param_iN['Re']
+        Wo = param_iN['Wo']
+        epsilon = param_iN['epsilon']
+        fileName = 'INLET' + str(idx) + '_VELOCITY.txt'
+        condition.find('path').set('value', fileName)
+        self.WriteInletProfile(radius, Re, Wo, epsilon, fileName)
 
-        subtype = condition.attrib['subtype']
-        if subtype != param_iN['subtype']:
-            print('Error: Subtypes are different at inlet %d!' %(idx))
-            sys.exit()
-        elif subtype == 'file':
-            Wo = param_iN['Wo']
-            epsilon = param_iN['epsilon']
-            fileName = 'INLET' + str(idx) + '_VELOCITY.txt'
-            condition.find('path').set('value', fileName)
-            self.WriteInletProfile(radius, Re, Wo, epsilon, fileName)
-        elif subtype == 'parabolic':
-            Umax = self.CentralVelocity(radius, Re)
-            self.CompressibilityErrorCheck(Umax)
-            condition.find('maximum').set('value', '{:0.15e}'.format(Umax))
+    def SetParam_ParabolicVelocity(self, condition, idx, param_iN):
+        radius = self.radius_iN[idx]
+        Re = param_iN['Re']
+        Umax = self.CentralVelocity(radius, Re)
+        self.CompressibilityErrorCheck(Umax)
+        condition.find('maximum').set('value', '{:0.15e}'.format(Umax))
+
+    def SetParam_WomersleyVelocity(self, condition, idx, param_iN):
+        radius = self.radius_iN[idx]
+        Re = param_iN['Re']
+        Wo = param_iN['Wo']
+        Umax = self.CentralVelocity(radius, Re)
+        self.CompressibilityErrorCheck(Umax)
+        G = self.PressureGradient(radius, Umax)
+        period = self.OscillationPeriod(radius, Wo)
+        condition.find('pressure_gradient_amplitude').set('value', '{:0.15e}'.format(G / mmHg))
+        condition.find('period').set('value', '{:0.15e}'.format(period))
+        condition.find('womersley_number').set('value', '{:0.15e}'.format(Wo))
 
     def SetParam_Windkessel(self, condition, idx, param_oUT, maxLK, resistanceRatios, Wo):
         subtype = condition.attrib['subtype']
@@ -284,10 +302,18 @@ class InputOutput():
             condition.find('C').set('value', '{:0.15e}'.format(capacitance))
 
     def AngularFrequency(self, radius, Wo):
-        return (Wo / radius)**2 * nu
+        omega = (Wo / radius)**2 * nu
+        print('omega', omega)
+        return omega
+
+    def OscillationPeriod(self, radius, Wo):
+        return 2 * PI / self.AngularFrequency(radius, Wo)
 
     def CentralVelocity(self, radius, Re):
         return Re * nu / (2 * radius)
+
+    def PressureGradient(self, radius, Umax):
+        return 4 * mu * Umax / (radius * radius)
 
     def RelaxationTimeCheck(self):
         tau = nu * self.dt / (cs2 * self.dx**2) + 0.5
@@ -313,7 +339,6 @@ class InputOutput():
         self.CompressibilityErrorCheck(Umax)
         omega = self.AngularFrequency(radius, Wo)
         #print('Umean', Umean)
-        print('omega', omega)
 
         time = np.linspace(0, self.dt * self.timeSteps, self.timeSteps)
         vel = Umean * (1 + epsilon * np.cos(omega * time))
