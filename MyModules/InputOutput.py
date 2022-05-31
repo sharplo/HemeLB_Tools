@@ -8,6 +8,8 @@ mmHg = 133.3223874 # Pa
 cs2 = 1.0 / 3.0 # speed of sound squared (lattice unit)
 mu = 0.004 # dynamic viscosity (Pa*s)
 rho = 1000 # fluid density (kg/m^3)
+PoissonsRatio = 0.5 # Poisson's ratio of blood vessels (dimensionless)
+WallToLumenRatio = 0.1 # wall-to-lumen ratio of blood vessels (dimensionless)
 
 # Derived constants
 nu = mu / rho # kinematic viscosity
@@ -182,27 +184,11 @@ class InputOutput():
         root = self.tree.getroot()
 
         # Change parameters in simulation
-        if param_sim.get('dt') == None:
-            tau = param_sim['tau']
-            self.dt = cs2 * (tau - 0.5) * self.dx**2 / nu
-        elif param_sim.get('tau') == None:
-            self.dt = param_sim['dt']
-            self.RelaxationTimeCheck()
-        else:
-            sys.exit('Error: dt and tau should not be specified simultaneously!')
-
-        if param_sim.get('time') == None:
-            self.timeSteps = param_sim['timeSteps']
-        elif param_sim.get('timeSteps') == None:
-            time = param_sim['time']
-            self.timeSteps = int(np.ceil(time / self.dt))
-            print('Physical end time will be', self.timeSteps * self.dt)
-        else:
-            sys.exit('Error: time and timeSteps should not be specified simultaneously!')
-
         elm = root.find('simulation')
-        elm.find('step_length').set('value', '{:0.15e}'.format(self.dt))
-        elm.find('steps').set('value', str(self.timeSteps))
+        self.SetParam_Time(elm, param_sim)
+        if param_sim.get('YoungsModulus') != None \
+            and param_sim.get('BoundaryVelocityRatio') != None:
+            self.SetParam_ElasticWall(elm, param_sim)
 
         # Change parameters in inlets
         if self.type_iN != param_iN['type']:
@@ -240,6 +226,50 @@ class InputOutput():
                 if self.subtype_oUT == 'WK' or self.subtype_oUT == 'fileWK':
                     self.SetParam_Windkessel(condition, idx, param_oUT, maxLK, ratios, Wo)
                 idx = idx + 1
+
+    def SetParam_Time(self, elm, param_sim):
+        if param_sim.get('dt') == None:
+            tau = param_sim['tau']
+            self.dt = cs2 * (tau - 0.5) * self.dx**2 / nu
+        elif param_sim.get('tau') == None:
+            self.dt = param_sim['dt']
+            self.RelaxationTimeCheck()
+        else:
+            sys.exit('Error: dt and tau should not be specified simultaneously!')
+
+        if param_sim.get('time') == None:
+            self.timeSteps = param_sim['timeSteps']
+        elif param_sim.get('timeSteps') == None:
+            time = param_sim['time']
+            self.timeSteps = int(np.ceil(time / self.dt))
+            print('Physical end time will be', self.timeSteps * self.dt)
+        else:
+            sys.exit('Error: time and timeSteps should not be specified simultaneously!')
+
+        elm.find('step_length').set('value', '{:0.15e}'.format(self.dt))
+        elm.find('steps').set('value', str(self.timeSteps))
+
+    def SetParam_ElasticWall(self, elm, param_sim):
+        E = param_sim['YoungsModulus']
+        stiffness = E * WallToLumenRatio / (1 - PoissonsRatio**2) / self.radius_iN[0]
+        stiffness = stiffness * self.dt**2 / (rho * self.dx)
+        F = param_sim['BoundaryVelocityRatio']
+
+        # Set elastic wall stiffness
+        if elm.find('elastic_wall_stiffness') == None:
+            value = ET.Element('elastic_wall_stiffness', {'units':'lattice', 'value':'{:0.15e}'.format(stiffness)})
+            value.tail = "\n" + 2 * "  "
+            elm.insert(3, value)
+        else:
+            elm.find('elastic_wall_stiffness').set('value', '{:0.15e}'.format(stiffness))
+
+        # Set boundary velocity ratio
+        if elm.find('boundary_velocity_ratio') == None:
+            value = ET.Element('boundary_velocity_ratio', {'units':'lattice', 'value':'{:0.15e}'.format(F)})
+            value.tail = "\n" + 2 * "  "
+            elm.insert(4, value)
+        else:
+            elm.find('boundary_velocity_ratio').set('value', '{:0.15e}'.format(F))
 
     def SetParam_FileVelocity(self, condition, idx, param_iN):
         radius = self.radius_iN[idx]
