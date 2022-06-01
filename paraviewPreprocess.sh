@@ -17,21 +17,30 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # Translate into readable format using submodule hemeXtract
 $SCRIPT_DIR/submodules/hemeXtract/hemeXtract -X ../$FILE -o $OUT_ALL
 
-# Delete the first 2 lines
-sed -i '1,2d' $OUT_ALL
+# Replace "| " with "" and "# step" with "step" in the first 30 lines and save
+HEADER=$(sed -n '1,30s/| //g;1,30s/# step/step/p' $OUT_ALL)
 
 # Delete all empty lines
 sed -i '/^$/d' $OUT_ALL
 
 # Separate time series into individual files
-awk -v out=$VAR -F ' ' 'BEGIN{N=-2; last_step=-1}{if(last_step != $1) {N++; print>out N".txt"; last_step=$1;} else {print>>out N".txt"}}' $OUT_ALL
-
-# Insert headers to the 1st line:
-# search for "| " in the first few lines in file A,
-# replace them with "", and insert them in file B
-sed -i "1e sed -n '1,30s/| //pg' $OUT_ALL" $VAR*
-# remove "# " on the 1st line
-sed -i "1s/# //" $VAR*
+awk -v var=$VAR -v header="$HEADER" -F ' ' \
+'
+    BEGIN{N=-2; last_step=-1}
+    {
+        if(last_step != $1)
+        {
+            N++;
+            print header > var N".txt";
+            print >> var N".txt";
+            last_step=$1;
+        }
+        else
+        {
+            print >> var N".txt"
+        }
+    }
+' $OUT_ALL
 
 # Go back to the original directory
 popd
