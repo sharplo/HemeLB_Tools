@@ -18,11 +18,14 @@ class Visual(object):
         self.color = ['tab:blue', 'tab:orange', 'tab:gray']
         self.dfDict = dfDict
 
-    def Visualise_1D(self, df, grid, var1, var2=None, kwargs1={}, kwargs2={}):
-        view = df[df['step'] == df['step'].max()]
+    def Visualise_1D(self, df, grid, var1, var2=None, steps=None, kwargs1={}, kwargs2={}):
+        if steps == None:
+            view = df[df['step'] == df['step'].max()]
+        else:
+            view = df[df['step'].isin(steps)]
 
         fig, ax1 = plt.subplots()
-        ax1.plot(view[grid], view[var1], '.', markersize=2, color=self.color[0], **kwargs1)
+        h1, = ax1.plot(view[grid], view[var1], 'o', markersize=2, color=self.color[0], **kwargs1)
         ax1.grid(axis='both')
         ax1.minorticks_on()
         ax1.ticklabel_format(axis='x', style='sci', scilimits=(0,3), useMathText=True)
@@ -33,24 +36,29 @@ class Visual(object):
         if var2 != None:
             if var2 == 'exSol_' + var1:
                 # Plot var2 on the same axis
-                ax1.plot(view[grid], view[var2], '.', markersize=2, color=self.color[1], **kwargs2)
+                ax1.plot(view[grid], view[var2], 'o', markersize=2, color=self.color[1], **kwargs2)
+                plt.legend(bbox_to_anchor=(0, 1.03, 1, 0), loc="lower left", mode="expand", ncol=2)
             else:
                 # Plot var2 on the right axis
                 ax2 = ax1.twinx()
-                ax2.plot(view[grid], view[var2], '.', markersize=2, color=self.color[1], **kwargs2)
+                h2, = ax2.plot(view[grid], view[var2], 'o', markersize=2, color=self.color[1], **kwargs2)
                 ax2.yaxis.set_label_position('right')
                 ax2.yaxis.tick_right()
                 ax2.minorticks_on()
                 ax2.set_ylabel(var2)
                 ax1.grid(axis='y') # turn off grid line on y-axis
-            plt.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=2)
+                plt.legend([h1, h2], [var1, var2], \
+                    bbox_to_anchor=(0, 1.03, 1, 0), loc="lower left", mode="expand", ncol=2)
             fileName = df.name + '_' + var1 + '&' + var2 + '-' + grid + '.pdf'
         
         fig.savefig(self.outDir + fileName, bbox_inches='tight')
         plt.close()
 
-    def Visualise_2D(self, df, grid_1, grid_2, var1, var2=None):
-        view = df[df['step'] == df['step'].max()]
+    def Visualise_2D(self, df, grid_1, grid_2, var1, var2=None, steps=None):
+        if steps == None:
+            view = df[df['step'] == df['step'].max()]
+        else:
+            view = df[df['step'].isin(steps)]
 
         # Make mesh for contour plot
         X_unique = np.sort(view[grid_1].unique())
@@ -87,30 +95,8 @@ class Visual(object):
         plt.close()
 
     def Visualise_TimeSeries(self, df, var1, var2=None):
-        fig, ax1 = plt.subplots()
-        h1, = ax1.plot(df['step'], df[var1], '-', color=self.color[0])
-        ax1.grid(axis='both')
-        ax1.minorticks_on()
-        ax1.ticklabel_format(axis='x', style='sci', scilimits=(0,3), useMathText=True)
-        ax1.set_xlabel('Time step')
-        ax1.set_ylabel(var1)
-        fileName = df.name + '_' + var1 + '-timeSeries.pdf'
-
-        if var2 != None:
-            # Plot var2 on the right axis
-            ax2 = ax1.twinx()
-            h2, = ax2.plot(df['step'], df[var2], '--', color=self.color[1])
-            ax2.yaxis.set_label_position('right')
-            ax2.yaxis.tick_right()
-            ax2.minorticks_on()
-            ax2.set_ylabel(var2)
-            ax1.grid(axis='y') # turn off grid line on y-axis
-            plt.legend([h1, h2], [var1, var2], \
-                bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=2)
-            fileName = df.name + '_' + var1 + '&' + var2 + '-timeSeries.pdf'
-
-        fig.savefig(self.outDir + fileName, bbox_inches='tight')
-        plt.close()
+        return self.Visualise_1D(df, 'step', var1, var2=var2, steps=range(int(df['step'].max())), \
+            kwargs1={'linestyle':'-'}, kwargs2={'linestyle':'--'})
 
     def Compare_TimeSeries(self, df1, df2, var1, var2=None):
         fig, ax1 = plt.subplots()
@@ -137,7 +123,7 @@ class Visual(object):
             plt.legend([h1, h2, h3, h4], \
                 [var1 + ' in ' + df1.name, var1 + ' in ' + df2.name, \
                 var2 + ' in ' + df1.name, var2 + ' in ' + df2.name], \
-                bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=2)
+                bbox_to_anchor=(0, 1.03, 1, 0), loc="lower left", mode="expand", ncol=2)
             fileName = df1.name + '_vs_' + df2.name + '-' + var1 + '&' + var2 + '-timeSeries.pdf'
 
         fig.savefig(self.outDir + fileName, bbox_inches='tight')
@@ -164,7 +150,7 @@ class Visual(object):
         plt.ticklabel_format(axis='x', style='sci', scilimits=(0,3), useMathText=True)
         plt.xlabel('Time step')
         plt.ylabel(var)
-        plt.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=3)
+        plt.legend(bbox_to_anchor=(0, 1.03, 1, 0), loc="lower left", mode="expand", ncol=3)
         fileName = df.name + '_' + var + '-clusters.pdf'
         plt.savefig(self.outDir + fileName, bbox_inches='tight')
         plt.close()
@@ -190,7 +176,7 @@ class Visual(object):
         plt.ticklabel_format(axis='x', style='sci', scilimits=(0,3), useMathText=True)
         plt.xlabel('Time step')
         plt.ylabel(var + ' ratios with respect to ' + self.dfDict[df.name] + ' ' + str(ref))
-        plt.legend(bbox_to_anchor=(0, 1, 1, 0), loc="lower left", mode="expand", ncol=3)
+        plt.legend(bbox_to_anchor=(0, 1.03, 1, 0), loc="lower left", mode="expand", ncol=3)
         fileName = df.name + '_' + var + '-ratios.pdf'
         plt.savefig(self.outDir + fileName, bbox_inches='tight')
         plt.close()
