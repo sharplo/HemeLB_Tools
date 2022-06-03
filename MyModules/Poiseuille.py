@@ -55,7 +55,7 @@ class Poiseuille(PipeFlow):
         df['r'] = np.linalg.norm(dist, axis=1)
 
     def AddNormalVelocity(self, df):
-        df['Un'] = df[['Ux', 'Uy', 'Uz']].dot(self.normal_iN[0,:])
+        df['Un'] = self.NormalVelocity(df, self.normal_iN[0,:])
 
     def CalExact(self, df, var):
         if (var == 'P'):
@@ -69,7 +69,7 @@ class Poiseuille(PipeFlow):
         df['err_' + var] = df[var] - df['exSol_' + var]
 
     def CompareExSol_1D(self, df, grid, var1, kwargs1=..., kwargs2=...):
-        return super().Visualise_1D(df, grid, var1, 'exSol_' + var1, kwargs1={'label':'appSol'}, kwargs2={'label':'exSol'})
+        self.Visualise_1D(df, grid, var1, 'exSol_' + var1, kwargs1={'label':'appSol'}, kwargs2={'label':'exSol'})
 
     def CompareExSol_2D(self, df, grid_1, grid_2, var1, var2=None):
-        return super().Visualise_2D(df, grid_1, grid_2, var1, var2='exSol_' + var1)
+        self.Visualise_2D(df, grid_1, grid_2, var1, var2='exSol_' + var1)

@@ -5,6 +5,12 @@ class ElasticPipe(PipeFlow):
     def __init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict):
         PipeFlow.__init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict)
 
+        for key in self.dfDict.keys():
+            self.AddNormalVelocity(getattr(self, key))
+
+    def AddNormalVelocity(self, df):
+        df['Un'] = self.NormalVelocity(df)
+
     def CalPulseWaveVelocity(self, df1, steps1, df2, steps2, var, distance):
         view1 = df1[df1['step'].isin(steps1)]
         view2 = df2[df2['step'].isin(steps2)]

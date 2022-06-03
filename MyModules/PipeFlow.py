@@ -71,6 +71,12 @@ class PipeFlow(InputOutput, Visual, DiscError):
                         'velocity(2)':'Uz',
                         'pressure':'P',}, inplace=True)
 
+    def NormalVelocity(self, df, normal=None):
+        if normal is None:
+            return np.linalg.norm(df[['Ux', 'Uy', 'Uz']], axis=1)
+        else:
+            return df[['Ux', 'Uy', 'Uz']].dot(normal)
+
     def ExtractParams(self):
         pass # defined in each daughter calss
 

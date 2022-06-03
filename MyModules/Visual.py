@@ -19,7 +19,7 @@ class Visual(object):
         self.dfDict = dfDict
 
     def Visualise_1D(self, df, grid, var1, var2=None, steps=None, kwargs1={}, kwargs2={}):
-        if steps == None:
+        if steps is None:
             view = df[df['step'] == df['step'].max()]
         else:
             view = df[df['step'].isin(steps)]
@@ -55,7 +55,7 @@ class Visual(object):
         plt.close()
 
     def Visualise_2D(self, df, grid_1, grid_2, var1, var2=None, steps=None):
-        if steps == None:
+        if steps is None:
             view = df[df['step'] == df['step'].max()]
         else:
             view = df[df['step'].isin(steps)]

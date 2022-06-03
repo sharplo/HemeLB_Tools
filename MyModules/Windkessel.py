@@ -18,9 +18,9 @@ class Windkessel(PipeFlow):
             # Calculate the local flow rate of ith cluster
             new = df[df['cluster'] == i].copy()
             if normal is None:
-                new['Q'] = np.sqrt(new['Ux'] * new['Ux'] + new['Uy'] * new['Uy'] + new['Uz'] * new['Uz'])
+                new['Q'] = self.NormalVelocity(new)
             else:
-                new['Q'] = new['Ux'] * normal[i,0] + new['Uy'] * normal[i,1] + new['Uz'] * normal[i,2]
+                new['Q'] = self.NormalVelocity(new, normal[i,:])
             # Aggregate the flow rates and find the average (area is the same for each lattice)
             new = new.groupby(['step', 'cluster'], as_index=False)['Q'].mean()
             # Concatenate results from different clusters
