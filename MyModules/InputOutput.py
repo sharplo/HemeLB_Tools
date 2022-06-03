@@ -369,6 +369,7 @@ class InputOutput():
         self.CompressibilityErrorCheck(Umax)
         omega = self.AngularFrequency(radius, Wo)
         #print('Umean', Umean)
+        print('Umax', Umax)
 
         time = np.linspace(0, self.dt * self.timeSteps, self.timeSteps)
         vel = Umean * (1 + epsilon * np.cos(omega * time))
