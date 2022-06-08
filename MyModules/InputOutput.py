@@ -1,6 +1,8 @@
 import sys
 import xml.etree.ElementTree as ET
 import numpy as np
+import pandas as pd
+from scipy.interpolate import interp1d
 
 # Constants
 PI = 3.14159265358979323846264338327950288
@@ -272,13 +274,31 @@ class InputOutput():
             elm.find('boundary_velocity_ratio').set('value', '{:0.15e}'.format(F))
 
     def SetParam_FileVelocity(self, condition, idx, param_iN):
+        fileName = 'INLET' + str(idx) + '_VELOCITY.txt'
+        condition.find('path').set('value', fileName)
+        
         radius = self.radius_iN[idx]
         Re = param_iN['Re']
         Wo = param_iN['Wo']
         epsilon = param_iN['epsilon']
-        fileName = 'INLET' + str(idx) + '_VELOCITY.txt'
-        condition.find('path').set('value', fileName)
-        self.WriteInletProfile(radius, Re, Wo, epsilon, fileName)
+
+        Umean = self.CentralVelocity(radius, Re)
+        Umax = Umean * (1 + epsilon)
+        self.CompressibilityErrorCheck(Umax)
+        omega = self.AngularFrequency(radius, Wo)
+        time = np.linspace(0, self.dt * self.timeSteps, self.timeSteps)
+        #print('Umean', Umean)
+        #print('Umax', Umax)
+
+        if param_iN['profile'] != None:
+            profile = param_iN['profile']
+            vel = self.Heartbeat(profile, Umax, time)
+        else:
+            vel = self.SinusoidalWave(Umean, epsilon, omega, time)
+        
+        with open(self.outDir + fileName, 'w') as f:
+            for i in range(len(time)):
+                f.write(str(time[i]) + ' ' + str(vel[i]) + '\n')
 
     def SetParam_ParabolicVelocity(self, condition, idx, param_iN):
         radius = self.radius_iN[idx]
@@ -363,20 +383,22 @@ class InputOutput():
             print('Warning: Ma2 = %.3f exceeds 0.01!' %(Ma2))
         print('Ma2', Ma2)
 
-    def WriteInletProfile(self, radius, Re, Wo, epsilon, fileName):
-        Umean = self.CentralVelocity(radius, Re)
-        Umax = Umean * (1 + epsilon)
-        self.CompressibilityErrorCheck(Umax)
-        omega = self.AngularFrequency(radius, Wo)
-        #print('Umean', Umean)
-        print('Umax', Umax)
+    def SinusoidalWave(self, Umean, epsilon, omega, time):
+        return Umean * (1 + epsilon * np.cos(omega * time))
 
-        time = np.linspace(0, self.dt * self.timeSteps, self.timeSteps)
-        vel = Umean * (1 + epsilon * np.cos(omega * time))
-
-        with open(self.outDir + fileName, 'w') as f:
-            for i in range(len(time)):
-                f.write(str(time[i]) + ' ' + str(vel[i]) + '\n')
+    def Heartbeat(self, profile, Umax, time):
+        df = pd.read_table(profile, sep=' ', header=None, names=['time', 'Umax'])
+        # Scale the waveform to match the required Umax
+        df['Umax'] = df['Umax'] * Umax / df['Umax'].max()
+        # Roll the waveform such that it starts in the diastolic period
+        df['Umax'] = np.roll(df['Umax'], int(df.shape[0] / 4))
+        # Construct an interpolation function
+        func = interp1d(df['time'], df['Umax'], 'cubic')
+        # Calculate the equivalent time in the cardiac cycle
+        eqTime = time % df['time'].iloc[-1]
+        # Interpolate the velocity at the equivalent time
+        vel = func(eqTime)
+        return vel
 
     def CalResistanceRatios(self, param_oUT):
         flowRateRatios = param_oUT['flowRateRatios']
