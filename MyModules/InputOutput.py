@@ -285,16 +285,17 @@ class InputOutput():
         Umean = self.CentralVelocity(radius, Re)
         Umax = Umean * (1 + epsilon)
         self.CompressibilityErrorCheck(Umax)
-        omega = self.AngularFrequency(radius, Wo)
         time = np.linspace(0, self.dt * self.timeSteps, self.timeSteps)
         #print('Umean', Umean)
         #print('Umax', Umax)
 
-        if param_iN['profile'] != None:
-            profile = param_iN['profile']
-            vel = self.Heartbeat(profile, Umax, time)
-        else:
+        if param_iN.get('profile') == None:
+            omega = self.AngularFrequency(radius, Wo)
             vel = self.SinusoidalWave(Umean, epsilon, omega, time)
+        else:
+            profile = param_iN['profile']
+            period = self.OscillationPeriod(radius, Wo)
+            vel = self.Heartbeat(profile, period, Umax, time)
         
         with open(self.outDir + fileName, 'w') as f:
             for i in range(len(time)):
@@ -386,8 +387,10 @@ class InputOutput():
     def SinusoidalWave(self, Umean, epsilon, omega, time):
         return Umean * (1 + epsilon * np.cos(omega * time))
 
-    def Heartbeat(self, profile, Umax, time):
+    def Heartbeat(self, profile, period, Umax, time):
         df = pd.read_table(profile, sep=' ', header=None, names=['time', 'Umax'])
+        # Scale the waveform to match the required period
+        df['time'] = df['time'] * period / df['time'].iloc[-1]
         # Scale the waveform to match the required Umax
         df['Umax'] = df['Umax'] * Umax / df['Umax'].max()
         # Roll the waveform such that it starts in the diastolic period
