@@ -214,7 +214,7 @@ class InputOutput():
             sys.exit('Error: Outlet types are different!')
         elif self.subtype_oUT != param_oUT['subtype']:
             sys.exit('Error: Outlet subtypes are different!')
-        elif self.type_oUT == 'pressure':
+        elif self.type_oUT == 'pressure' or self.type_oUT == 'yangpressure':
             # Obtain values used in common
             if self.subtype_oUT == 'WK' or self.subtype_oUT == 'fileWK':
                 geometry = param_oUT['geometry']
@@ -322,7 +322,7 @@ class InputOutput():
 
     def SetParam_Windkessel(self, condition, idx, param_oUT, maxLK, resistanceRatios, Wo):
         subtype = condition.attrib['subtype']
-        if subtype == 'fileWK' and param_oUT['subtype'] == 'WK':
+        if param_oUT['subtype'] == 'WK':
             # Change from fileWK to WK
             condition.set('subtype', 'WK')
             condition.remove(condition.find('path'))
