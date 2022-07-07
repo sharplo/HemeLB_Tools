@@ -134,17 +134,23 @@ class InputOutput():
                     self.P_oUT = np.append(self.P_oUT, float(value))
                 elif self.subtype_oUT == 'WK' or self.subtype_oUT == 'fileWK':
 
-                    value = condition.find('R').attrib['value']
-                    if value == 'CHANGE':
+                    if condition.find('R') == None:
                         self.resistance = np.append(self.resistance, None)
                     else:
-                        self.resistance = np.append(self.resistance, float(value))
+                        value = condition.find('R').attrib['value']
+                        if value == 'CHANGE':
+                            self.resistance = np.append(self.resistance, None)
+                        else:
+                            self.resistance = np.append(self.resistance, float(value))
                     
-                    value = condition.find('C').attrib['value']
-                    if value == 'CHANGE':
+                    if condition.find('C') == None:
                         self.capacitance = np.append(self.capacitance, None)
                     else:
-                        self.capacitance = np.append(self.capacitance, float(value))
+                        value = condition.find('C').attrib['value']
+                        if value == 'CHANGE':
+                            self.capacitance = np.append(self.capacitance, None)
+                        else:
+                            self.capacitance = np.append(self.capacitance, float(value))
                     
                     if condition.find('area') == None:
                         value = condition.find('radius').attrib['value']
@@ -220,13 +226,13 @@ class InputOutput():
                 geometry = param_oUT['geometry']
                 maxLK = self.FindMaxLK(geometry)
                 ratios = self.CalResistanceRatios(param_oUT)
-                Wo = param_iN['Wo']  # from the inlet
+                omega = self.AngularFrequency(self.radius_iN[0], param_iN['Wo']) # from the inlet
             
             idx = 0
             for elm in root.find('outlets').iter('outlet'):
                 condition = elm.find('condition')
                 if self.subtype_oUT == 'WK' or self.subtype_oUT == 'fileWK':
-                    self.SetParam_Windkessel(condition, idx, param_oUT, maxLK, ratios, Wo)
+                    self.SetParam_Windkessel(condition, idx, param_oUT, maxLK, ratios, omega)
                 idx = idx + 1
 
     def SetParam_Time(self, elm, param_sim):
@@ -320,8 +326,7 @@ class InputOutput():
         condition.find('period').set('value', '{:0.15e}'.format(period))
         condition.find('womersley_number').set('value', '{:0.15e}'.format(Wo))
 
-    def SetParam_Windkessel(self, condition, idx, param_oUT, maxLK, resistanceRatios, Wo):
-        subtype = condition.attrib['subtype']
+    def SetParam_Windkessel(self, condition, idx, param_oUT, maxLK, resistanceRatios, omega):
         if param_oUT['subtype'] == 'WK':
             # Change from fileWK to WK
             condition.set('subtype', 'WK')
@@ -332,8 +337,6 @@ class InputOutput():
         resistance = param_oUT['gamma_R'] * resistanceRatios[idx] * maxLK
 
         # Find capacitance
-        radius = self.radius_oUT[idx]
-        omega = self.AngularFrequency(radius, Wo)
         RC = 1 / omega
         capacitance = param_oUT['gamma_RC'] * RC / resistance
 
@@ -431,6 +434,8 @@ class InputOutput():
             lengths = [0.00874]*10
         elif geometry == 'ProfundaFemoris2_2e-3': # version 2
             lengths = [0.0198]*10
+        elif geometry == 'AortaElastic_5e-3': # inlet radius=5.47e-3
+            lengths = [0.00853]*4
         else:
             print('This geometry is not registered!')
 
