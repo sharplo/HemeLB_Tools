@@ -38,17 +38,17 @@ obj.Visualise_TimeSeries(obj.pZOUT1pYcEN, 'P', 'Uz')
 obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT0pYcEN, 'P', 'Uz')
 obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT1pYcEN, 'P', 'Uz')
 
-
+"""
 
 obj = Windkessel(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep)
 obj.Clustering(obj.oUT, obj.position_oUT)
-Q_oUT = obj.CalFlowRate(obj.oUT, range(10), obj.normal_oUT)
+Q_oUT = obj.CalFlowRate(obj.oUT, range(4), obj.normal_oUT)
 Qratios = obj.CalFlowRateRatios(Q_oUT)
 
 # Check implementations and assumptions
 obj.Check_Clustering(obj.oUT)
-Q_mag = obj.CalFlowRate(obj.oUT, range(10))
-obj.CheckNormalAssumption(Q_mag, Q_oUT, range(10))
+Q_mag = obj.CalFlowRate(obj.oUT, range(4))
+obj.CheckNormalAssumption(Q_mag, Q_oUT, range(4))
 obj.CheckPressureAssumption(obj.oUT)
 obj.EmpiricalMurrayPower(Qratios['Measured'].to_numpy())
 
@@ -56,8 +56,8 @@ obj.Compare_Scatter(Qratios)
 Qratios.to_csv(outDir + 'Qratios.csv', index=False)
 obj.AddDataFrame('iNcEN', ['iN', 'cEN'])
 obj.Visualise_TimeSeries(obj.iNcEN, 'P', 'Uz')
-obj.Visualise_Clusters(Q_oUT, 'Q', range(10))
-obj.Visualise_Ratios(Q_oUT, 'Q', range(10))
+obj.Visualise_Clusters(Q_oUT, 'Q', range(4))
+obj.Visualise_Ratios(Q_oUT, 'Q', range(4))
 obj.AddDataFrame('oUT0cEN', ['oUT0', 'cEN'])
 obj.Visualise_TimeSeries(obj.oUT0cEN, 'P', 'Uz')
 obj.AddDataFrame('oUT1cEN', ['oUT1', 'cEN'])
@@ -66,8 +66,6 @@ obj.AddDataFrame('oUT2cEN', ['oUT2', 'cEN'])
 obj.Visualise_TimeSeries(obj.oUT2cEN, 'P', 'Uz')
 obj.AddDataFrame('oUT3cEN', ['oUT3', 'cEN'])
 obj.Visualise_TimeSeries(obj.oUT3cEN, 'P', 'Uz')
-obj.AddDataFrame('oUT4cEN', ['oUT4', 'cEN'])
-obj.Visualise_TimeSeries(obj.oUT4cEN, 'P', 'Uz')
 
 """
 
@@ -90,3 +88,5 @@ obj.Visualise_1D(obj.pNcEN, 'step', 'P', 'Uz', steps=rng2)
 pwv_P = obj.CalPulseWaveVelocity(obj.iNcEN, rng1, obj.pNcEN, rng2, 'P', 5e-3)
 pwv_Uz = obj.CalPulseWaveVelocity(obj.iNcEN, rng1, obj.pNcEN, rng2, 'Uz', 5e-3)
 print('pwv_P', pwv_P, 'pwv_Uz', pwv_Uz)
+
+"""

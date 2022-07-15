@@ -288,12 +288,12 @@ class InputOutput():
         Wo = param_iN['Wo']
         epsilon = param_iN['epsilon']
 
-        Umean = self.CentralVelocity(radius, Re)
-        Umax = Umean * (1 + epsilon)
+        Umax = self.CentralVelocity(radius, Re)
+        Umean = Umax / (1 + epsilon)
         self.CompressibilityErrorCheck(Umax)
         time = np.linspace(0, self.dt * self.timeSteps, self.timeSteps)
-        #print('Umean', Umean)
         #print('Umax', Umax)
+        #print('Umean', Umean)
 
         if param_iN.get('profile') == None:
             omega = self.AngularFrequency(radius, Wo)
@@ -391,10 +391,10 @@ class InputOutput():
         print('Ma2', Ma2)
 
     def SinusoidalWave(self, Umean, epsilon, omega, time):
-        return Umean * (1 + epsilon * np.cos(omega * time))
+        return Umean * (1 - epsilon * np.cos(omega * time))
 
     def Heartbeat(self, profile, period, Umax, time):
-        df = pd.read_table(profile, sep=' ', header=None, names=['time', 'Umax'])
+        df = pd.read_csv(profile, sep=' ', header=None, names=['time', 'Umax'])
         # Scale the waveform to match the required period
         df['time'] = df['time'] * period / df['time'].iloc[-1]
         # Scale the waveform to match the required Umax
@@ -439,6 +439,10 @@ class InputOutput():
             lengths = [0.0198]*10
         elif geometry == 'AortaElastic_5e-3': # inlet radius=5.47e-3
             lengths = [0.00853]*4
+        elif geometry == '0130_0000_9e-3': # inlet radius=9.28e-3
+            lengths = [0.0191]*4
+        elif geometry == '0003_0001_8e-3': # inlet radius=8.40e-3
+            lengths = [0.0462]*17
         else:
             print('This geometry is not registered!')
 
