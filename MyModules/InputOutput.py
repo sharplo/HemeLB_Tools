@@ -226,13 +226,13 @@ class InputOutput():
                 geometry = param_oUT['geometry']
                 maxLK = self.FindMaxLK(geometry)
                 ratios = self.CalResistanceRatios(param_oUT)
-                omega = self.AngularFrequency(self.radius_iN[0], param_iN['Wo']) # from the inlet
+                Wo = param_iN['Wo'] # from the inlet
             
             idx = 0
             for elm in root.find('outlets').iter('outlet'):
                 condition = elm.find('condition')
                 if self.subtype_oUT == 'WK' or self.subtype_oUT == 'fileWK':
-                    self.SetParam_Windkessel(condition, idx, param_oUT, maxLK, ratios, omega)
+                    self.SetParam_Windkessel(condition, idx, param_oUT, maxLK, ratios, Wo)
                 idx = idx + 1
 
     def SetParam_Time(self, elm, param_sim):
@@ -326,7 +326,7 @@ class InputOutput():
         condition.find('period').set('value', '{:0.15e}'.format(period))
         condition.find('womersley_number').set('value', '{:0.15e}'.format(Wo))
 
-    def SetParam_Windkessel(self, condition, idx, param_oUT, maxLK, resistanceRatios, omega):
+    def SetParam_Windkessel(self, condition, idx, param_oUT, maxLK, resistanceRatios, Wo):
         if param_oUT['subtype'] == 'WK':
             # Change from fileWK to WK
             condition.set('subtype', 'WK')
@@ -337,6 +337,9 @@ class InputOutput():
         resistance = param_oUT['gamma_R'] * resistanceRatios[idx] * maxLK
 
         # Find capacitance
+        # Note: it is crucial to use the same Wo as the inlet instead of omega
+        radius = self.radius_oUT[idx]
+        omega = self.AngularFrequency(radius, Wo)
         RC = 1 / omega
         capacitance = param_oUT['gamma_RC'] * RC / resistance
 
