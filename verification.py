@@ -41,12 +41,15 @@ obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT1pYcEN, 'P', 'Uz')
 """
 
 obj = Windkessel(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep)
+obj.Clustering(obj.iN, obj.position_iN)
 obj.Clustering(obj.oUT, obj.position_oUT)
+Q_iN = obj.CalFlowRate(obj.iN, range(1), obj.normal_iN)
 Q_oUT = obj.CalFlowRate(obj.oUT, range(4), obj.normal_oUT)
 Qratios = obj.CalFlowRateRatios(Q_oUT)
 
 # Check implementations and assumptions
 obj.Check_Clustering(obj.oUT)
+obj.CheckMassConservation(Q_iN, Q_oUT)
 Q_mag = obj.CalFlowRate(obj.oUT, range(4))
 obj.CheckNormalAssumption(Q_mag, Q_oUT, range(4))
 obj.CheckPressureAssumption(obj.oUT)
