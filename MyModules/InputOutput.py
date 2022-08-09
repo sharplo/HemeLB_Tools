@@ -338,10 +338,7 @@ class InputOutput():
 
     def SetParam_Windkessel(self, condition, idx, param_oUT, maxLK, resistanceRatios, Wo):
         if param_oUT['subtype'] == 'WK':
-            # Change from fileWK to WK
-            condition.set('subtype', 'WK')
             condition.remove(condition.find('path'))
-            condition.remove(condition.find('area'))
 
         # Find resistance
         resistance = param_oUT['gamma_R'] * resistanceRatios[idx] * maxLK
