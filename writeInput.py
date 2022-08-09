@@ -8,7 +8,7 @@ from MyModules.InputOutput import *
 InOut = InputOutput(sys.argv[1], sys.argv[2])
 
 # General
-param_sim = {'tau':0.809, 'timeSteps':200000}
+param_sim = {'tau':0.809, 'timeSteps':400000}
 
 # Cylinder
 #param_iN = {'type':'velocity', 'subtype':'womersley', 'Re':1, 'Wo':3}
@@ -25,10 +25,9 @@ param_sim = {'tau':0.809, 'timeSteps':200000}
 #    'flowRateRatios':'Murray', 'power':3, 'gamma_R':1, 'gamma_RC':1}
 
 # Aorta
-param_iN = {'type':'velocity', 'subtype':'file', 'Re':10, 'Wo':3, 'epsilon':0.1}
-#param_oUT = {'type':'pressure', 'subtype':'cosine'}
+param_iN = {'type':'velocity', 'subtype':'file', 'Re':10, 'Wo':1, 'warmUpPeriod':4, 'profile':'ESM_File2_Q_a1.txt'}
 param_oUT = {'type':'pressure', 'subtype':'fileWK', 'geometry':'0130_0000_9e-3', \
-    'flowRateRatios':'Murray', 'power':3,'gamma_R':1e4, 'gamma_RC':1e7}
+    'flowRateRatios':[69.1, 6.4, 5.2, 19.3], 'gamma_R':1e3, 'gamma_RC':1e4}
 
 #InOut.RescaleSize(1e-3)
 InOut.ChangeParam(param_sim, param_iN=param_iN, param_oUT=param_oUT)

@@ -286,22 +286,32 @@ class InputOutput():
         radius = self.radius_iN[idx]
         Re = param_iN['Re']
         Wo = param_iN['Wo']
-        epsilon = param_iN['epsilon']
 
         Umax = self.CentralVelocity(radius, Re)
-        Umean = Umax / (1 + epsilon)
         self.CompressibilityErrorCheck(Umax)
-        time = np.linspace(0, self.dt * self.timeSteps, self.timeSteps)
         #print('Umax', Umax)
-        #print('Umean', Umean)
 
         if param_iN.get('profile') == None:
+            epsilon = param_iN['epsilon']
+            Umean = Umax / (1 + epsilon)
             omega = self.AngularFrequency(radius, Wo)
+            time = np.linspace(0, self.dt * self.timeSteps, self.timeSteps)
             vel = self.SinusoidalWave(Umean, epsilon, omega, time)
         else:
+            # Construct a heartbeat profile from the given profile
             profile = param_iN['profile']
             period = self.OscillationPeriod(radius, Wo)
+            timeSteps = min(self.timeSteps, 800000) # reduce the effort of initialisation
+            time = np.linspace(0, self.dt * self.timeSteps, timeSteps)
             vel = self.Heartbeat(profile, period, Umax, time)
+
+            # Replace the first few periods with a warm-up profile
+            warmUpPeriod = param_iN['warmUpPeriod']
+            warmUpTimeSteps = warmUpPeriod * period / self.dt
+            warmUpTimeSteps = warmUpTimeSteps * timeSteps / self.timeSteps
+            warmUpTimeSteps = min(np.floor(warmUpTimeSteps).astype(int), timeSteps)
+            warmUpVel = self.WarmUp(Umax, period, warmUpPeriod, warmUpTimeSteps)
+            vel[0:warmUpTimeSteps] = warmUpVel
         
         with open(self.outDir + fileName, 'w') as f:
             for i in range(len(time)):
@@ -364,7 +374,9 @@ class InputOutput():
         return omega
 
     def OscillationPeriod(self, radius, Wo):
-        return 2 * PI / self.AngularFrequency(radius, Wo)
+        period = 2 * PI / self.AngularFrequency(radius, Wo)
+        print('period', period)
+        return period
 
     def CentralVelocity(self, radius, Re):
         return Re * nu / (2 * radius)
@@ -392,6 +404,11 @@ class InputOutput():
 
     def SinusoidalWave(self, Umean, epsilon, omega, time):
         return Umean * (1 - epsilon * np.cos(omega * time))
+
+    def WarmUp(self, Umax, period, warmUpPeriod, timeSteps):
+        omega = 2 * PI / period
+        time = np.linspace(0, warmUpPeriod * period, timeSteps)
+        return self.SinusoidalWave(Umax / 2, 1, omega * 1, time)
 
     def Heartbeat(self, profile, period, Umax, time):
         df = pd.read_csv(profile, sep=' ', header=None, names=['time', 'Umax'])
@@ -422,6 +439,7 @@ class InputOutput():
         else:
             print('flowRateRatios does not admit this option!')
         resistanceRatios = np.amax(flowRateRatios) / flowRateRatios
+        print('flowRateRatios', flowRateRatios)
         print('resistanceRatios', resistanceRatios)
         return resistanceRatios
 
