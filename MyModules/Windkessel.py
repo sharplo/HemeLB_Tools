@@ -12,7 +12,7 @@ class Windkessel(PipeFlow):
         #self.ref = np.argmin(self.resistance)
         print('Reference outlet:', self.ref)
 
-    def CalFlowRate(self, df, clusters, normal=None):
+    def CalAverageFlowRates(self, df, clusters, normal=None, avgSteps=1):
         result = pd.DataFrame()
         for i in clusters:
             # Calculate the local flow rate of ith cluster
@@ -21,8 +21,10 @@ class Windkessel(PipeFlow):
                 new['Q'] = self.NormalVelocity(new)
             else:
                 new['Q'] = self.NormalVelocity(new, normal[i,:])
-            # Aggregate the flow rates and find the average (area is the same for each lattice)
+            # Calculate the spatial average assuming area is the same for each lattice
             new = new.groupby(['step', 'cluster'], as_index=False)['Q'].mean()
+            # Calculate the temporal average over the given period
+            new = new.groupby([new.index // avgSteps, 'cluster'], as_index=False).mean()
             # Concatenate results from different clusters
             result = pd.concat([result, new])
         result.name = df.name
