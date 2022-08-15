@@ -17,8 +17,8 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # Translate into readable format using submodule hemeXtract
 $SCRIPT_DIR/submodules/hemeXtract/hemeXtract -X ../$FILE -o $OUT_ALL
 
-# Replace "| " with "" and "# step" with "step" in the first 30 lines and save
-HEADER=$(sed -n '1,30s/| //g;1,30s/# step/step/p' $OUT_ALL)
+# Replace "| " with "" and "# step" with "step" in the first 50 lines and save
+HEADER=$(sed -n '1,50s/| //g;1,50s/# step/step/p' $OUT_ALL)
 
 # Delete all empty lines
 sed -i '/^$/d' $OUT_ALL
