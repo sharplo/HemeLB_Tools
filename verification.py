@@ -41,36 +41,34 @@ obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT1pYcEN, 'P', 'Uz')
 """
 
 obj = Windkessel(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep)
-period = 55
-obj.Clustering(obj.iN, obj.position_iN)
-obj.Clustering(obj.oUT, obj.position_oUT)
-Q_iN = obj.CalAverageFlowRates(obj.iN, range(1), obj.normal_iN)
-Q_oUT = obj.CalAverageFlowRates(obj.oUT, range(4), obj.normal_oUT)
+period = 13
+Q_iN = obj.CalAverageFlowRates(obj.iN, range(obj.numInlets), obj.normal_iN)
+Q_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets), obj.normal_oUT)
 Qratios = obj.CalFlowRateRatios(Q_oUT)
 
 # Check implementations and assumptions
 obj.Check_Clustering(obj.oUT)
 obj.CheckMassConservation(Q_iN, Q_oUT)
-Q_mag = obj.CalAverageFlowRates(obj.oUT, range(4))
-obj.CheckNormalAssumption(Q_mag, Q_oUT, range(4))
+Q_mag = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets))
+obj.CheckNormalAssumption(Q_mag, Q_oUT, range(obj.numOutlets))
 obj.CheckPressureAssumption(obj.oUT)
 obj.EmpiricalMurrayPower(Qratios['Measured'].to_numpy())
 
 obj.Compare_Scatter(Qratios)
 Qratios.to_csv(outDir + 'Qratios.csv', index=False)
 obj.AddDataFrame('iNcEN', ['iN', 'cEN'])
-obj.Visualise_TimeSeries(obj.iNcEN, 'P', 'Uz')
-obj.Visualise_Clusters(Q_oUT, 'Q', range(4))
-Qavg_oUT = obj.CalAverageFlowRates(obj.oUT, range(4), obj.normal_oUT, avgSteps=period)
-obj.Visualise_Ratios(Qavg_oUT, 'Q', range(4))
+obj.Visualise_TimeSeries(obj.iNcEN, 'P', 'Un')
+obj.Visualise_Clusters(Q_oUT, 'Q', range(obj.numOutlets))
+Qavg_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets), obj.normal_oUT, avgSteps=period)
+obj.Visualise_Ratios(Qavg_oUT, 'Q', range(obj.numOutlets))
 obj.AddDataFrame('oUT0cEN', ['oUT0', 'cEN'])
-obj.Visualise_TimeSeries(obj.oUT0cEN, 'P', 'Uz')
+obj.Visualise_TimeSeries(obj.oUT0cEN, 'P', 'Un')
 obj.AddDataFrame('oUT1cEN', ['oUT1', 'cEN'])
-obj.Visualise_TimeSeries(obj.oUT1cEN, 'P', 'Uz')
+obj.Visualise_TimeSeries(obj.oUT1cEN, 'P', 'Un')
 obj.AddDataFrame('oUT2cEN', ['oUT2', 'cEN'])
-obj.Visualise_TimeSeries(obj.oUT2cEN, 'P', 'Uz')
+obj.Visualise_TimeSeries(obj.oUT2cEN, 'P', 'Un')
 obj.AddDataFrame('oUT3cEN', ['oUT3', 'cEN'])
-obj.Visualise_TimeSeries(obj.oUT3cEN, 'P', 'Uz')
+obj.Visualise_TimeSeries(obj.oUT3cEN, 'P', 'Un')
 
 """
 

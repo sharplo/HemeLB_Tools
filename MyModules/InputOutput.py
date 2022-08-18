@@ -458,6 +458,8 @@ class InputOutput():
             lengths = [0.0191]*4
         elif geometry == '0003_0001_8e-3': # inlet radius=8.40e-3
             lengths = [0.0462]*17
+        elif geometry == '0149_1001_7e-3': # inlet radius=7.38e-3
+            lengths = [0.0268]*10
         else:
             print('This geometry is not registered!')
 

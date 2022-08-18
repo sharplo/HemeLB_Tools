@@ -7,10 +7,23 @@ class Windkessel(PipeFlow):
             dfDict = {'iN':'inlet', 'oUT':'outlet'}
         PipeFlow.__init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict)
 
-        # Reference outlet
-        self.ref = np.argsort(self.resistance)[len(self.resistance) // 2]
+        self.AddNormalVelocity()
+        self.Clustering(self.iN, self.position_iN)
+        self.Clustering(self.oUT, self.position_oUT)
+
+    def DeriveParams(self):
+        self.numInlets = len(self.position_iN)
+        self.numOutlets = len(self.position_oUT)
+        
+        # Determine the reference outlet
+        self.ref = np.argsort(self.resistance)[self.numOutlets // 2]
         #self.ref = np.argmin(self.resistance)
-        print('Reference outlet:', self.ref)
+
+    def AddNormalVelocity(self):
+        for i in range(self.numInlets):
+            self.iN['Un'] = self.NormalVelocity(self.iN, self.normal_iN[i,:])
+        for i in range(self.numOutlets):
+            self.oUT['Un'] = self.NormalVelocity(self.oUT, self.normal_oUT[i,:])
 
     def CalAverageFlowRates(self, df, clusters, normal=None, avgSteps=1):
         result = pd.DataFrame()
