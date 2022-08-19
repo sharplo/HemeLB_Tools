@@ -94,6 +94,21 @@ class Visual(object):
         fig.savefig(self.outDir + fileName, bbox_inches='tight')
         plt.close()
 
+    def Visualise_3D(self, df, var, kwargs={}):
+        view = df[df['step'] == df['step'].max()]
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        img = ax.scatter3D(view['grid_x'], view['grid_y'], view['grid_z'], \
+            c=view[var], **kwargs)
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+        ax.set_zlabel('z')
+        cbaxes = fig.add_axes([0.2, 0.9, 0.8, 0.03])
+        fig.colorbar(img, label=var, orientation='horizontal', cax=cbaxes)
+        fileName = df.name + '_' + var + '-3D' + '.pdf'
+        fig.savefig(self.outDir + fileName, bbox_inches='tight')
+        plt.close()
+
     def Visualise_TimeSeries(self, df, var1, var2=None):
         return self.Visualise_1D(df, 'step', var1, var2=var2, steps=range(int(df['step'].max())), \
             kwargs1={'linestyle':'-'}, kwargs2={'linestyle':'--'})
@@ -130,16 +145,7 @@ class Visual(object):
         plt.close()
 
     def Check_Clustering(self, df):
-        view = df[df['step'] == df['step'].max()]
-        ax = plt.axes(projection='3d')
-        ax.scatter3D(view['grid_x'], view['grid_y'], view['grid_z'], \
-            c=view['cluster'], cmap='tab20')
-        ax.set_xlabel('x')
-        ax.set_ylabel('y')
-        ax.set_zlabel('z')
-        fileName = df.name + '_check-clustering.pdf'
-        plt.savefig(self.outDir + fileName, bbox_inches='tight')
-        plt.close()
+        return self.Visualise_3D(df, 'cluster', {'cmap':'tab20'})
 
     def Visualise_Clusters(self, df, var, clusters):
         plt.figure()
