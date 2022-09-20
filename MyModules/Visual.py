@@ -25,10 +25,10 @@ class Visual(object):
             view = df[df['step'].isin(steps)]
 
         fig, ax1 = plt.subplots()
-        h1, = ax1.plot(view[grid], view[var1], 'o', markersize=2, color=self.color[0], **kwargs1)
+        h1, = ax1.plot(view[grid], view[var1], 'o', markersize=3, color=self.color[0], **kwargs1)
         ax1.grid(axis='both')
         ax1.minorticks_on()
-        ax1.ticklabel_format(axis='x', style='sci', scilimits=(0,3), useMathText=True)
+        ax1.ticklabel_format(style='sci', scilimits=(0,3), useMathText=True)
         ax1.set_xlabel(grid)
         ax1.set_ylabel(var1)
         fileName = df.name + '_' + var1 + '-' + grid + '.pdf'
@@ -36,19 +36,19 @@ class Visual(object):
         if var2 != None:
             if var2 == 'exSol_' + var1:
                 # Plot var2 on the same axis
-                ax1.plot(view[grid], view[var2], 'o', markersize=2, color=self.color[1], **kwargs2)
-                plt.legend(bbox_to_anchor=(0, 1.03, 1, 0), loc="lower left", mode="expand", ncol=2)
+                ax1.plot(view[grid], view[var2], 'x', markersize=3, color=self.color[1], **kwargs2)
+                plt.legend(bbox_to_anchor=(0, 1.04, 1, 0), loc="lower left", mode="expand", ncol=2)
             else:
                 # Plot var2 on the right axis
                 ax2 = ax1.twinx()
-                h2, = ax2.plot(view[grid], view[var2], 'o', markersize=2, color=self.color[1], **kwargs2)
+                h2, = ax2.plot(view[grid], view[var2], 'o', markersize=3, color=self.color[1], **kwargs2)
                 ax2.yaxis.set_label_position('right')
                 ax2.yaxis.tick_right()
                 ax2.minorticks_on()
                 ax2.set_ylabel(var2)
                 ax1.grid(axis='y') # turn off grid line on y-axis
                 plt.legend([h1, h2], [var1, var2], \
-                    bbox_to_anchor=(0, 1.03, 1, 0), loc="lower left", mode="expand", ncol=2)
+                    bbox_to_anchor=(0, 1.04, 1, 0), loc="lower left", mode="expand", ncol=2)
             fileName = df.name + '_' + var1 + '&' + var2 + '-' + grid + '.pdf'
         
         fig.savefig(self.outDir + fileName, bbox_inches='tight')
@@ -119,7 +119,7 @@ class Visual(object):
         h2, = ax1.plot(df2['step'], df2[var1], '^-', markersize=6, color=self.color[0])
         ax1.grid(axis='both')
         ax1.minorticks_on()
-        ax1.ticklabel_format(axis='x', style='sci', scilimits=(0,3), useMathText=True)
+        ax1.ticklabel_format(style='sci', scilimits=(0,3), useMathText=True)
         ax1.set_xlabel('Time step')
         ax1.set_ylabel(var1)
         fileName = df1.name + '_vs_' + df2.name + '-' + var1 + '-timeSeries.pdf'
@@ -138,7 +138,7 @@ class Visual(object):
             plt.legend([h1, h2, h3, h4], \
                 [var1 + ' in ' + df1.name, var1 + ' in ' + df2.name, \
                 var2 + ' in ' + df1.name, var2 + ' in ' + df2.name], \
-                bbox_to_anchor=(0, 1.03, 1, 0), loc="lower left", mode="expand", ncol=2)
+                bbox_to_anchor=(0, 1.04, 1, 0), loc="lower left", mode="expand", ncol=2)
             fileName = df1.name + '_vs_' + df2.name + '-' + var1 + '&' + var2 + '-timeSeries.pdf'
 
         fig.savefig(self.outDir + fileName, bbox_inches='tight')
@@ -153,10 +153,10 @@ class Visual(object):
             view = df[df['cluster'] == i]
             plt.plot(view['step'], view[var], label=self.dfDict[df.name] + ' ' + str(i))
         plt.minorticks_on()
-        plt.ticklabel_format(axis='x', style='sci', scilimits=(0,3), useMathText=True)
+        plt.ticklabel_format(style='sci', scilimits=(0,3), useMathText=True)
         plt.xlabel('Time step')
         plt.ylabel(var)
-        plt.legend(bbox_to_anchor=(0, 1.03, 1, 0), loc="lower left", mode="expand", ncol=3)
+        plt.legend(bbox_to_anchor=(0, 1.04, 1, 0), loc="lower left", mode="expand", ncol=3)
         fileName = df.name + '_' + var + '-clusters.pdf'
         plt.savefig(self.outDir + fileName, bbox_inches='tight')
         plt.close()
@@ -179,10 +179,10 @@ class Visual(object):
         
         plt.ylim(np.min(desired) - 0.1, np.max(desired) + 0.1)
         plt.minorticks_on()
-        plt.ticklabel_format(axis='x', style='sci', scilimits=(0,3), useMathText=True)
+        plt.ticklabel_format(style='sci', scilimits=(0,3), useMathText=True)
         plt.xlabel('Time step')
         plt.ylabel(var + ' ratios with respect to ' + self.dfDict[df.name] + ' ' + str(ref))
-        plt.legend(bbox_to_anchor=(0, 1.03, 1, 0), loc="lower left", mode="expand", ncol=3)
+        plt.legend(bbox_to_anchor=(0, 1.04, 1, 0), loc="lower left", mode="expand", ncol=3)
         fileName = df.name + '_' + var + '-ratios.pdf'
         plt.savefig(self.outDir + fileName, bbox_inches='tight')
         plt.close()

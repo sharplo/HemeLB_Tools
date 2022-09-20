@@ -69,7 +69,7 @@ class Poiseuille(PipeFlow):
         df['err_' + var] = df[var] - df['exSol_' + var]
 
     def CompareExSol_1D(self, df, grid, var1, kwargs1=..., kwargs2=...):
-        self.Visualise_1D(df, grid, var1, 'exSol_' + var1, kwargs1={'label':'appSol'}, kwargs2={'label':'exSol'})
+        self.Visualise_1D(df, grid, var1, 'exSol_' + var1, kwargs1={'label':'approximate'}, kwargs2={'label':'exact'})
 
     def CompareExSol_2D(self, df, grid_1, grid_2, var1, var2=None):
         self.Visualise_2D(df, grid_1, grid_2, var1, var2='exSol_' + var1)
