@@ -1,0 +1,7 @@
+Domain,tau,Wo,Re,epsilon,flowRateRatios,power
+FiveExit_coarse,0.8,2,10,0.1,"[3,4,5,6,7]",
+FiveExit_medium,0.9082,2,10,0.1,"[3,4,5,6,7]",
+FiveExit_fine,0.9082,2,10,0.1,"[3,4,5,6,7]",
+ProfundaFemoris2_coarse,0.9082,2,10,0.1,'Murray’,3
+ProfundaFemoris2_medium,0.9082,2,10,0.1,'Murray’,3
+ProfundaFemoris2_fine,0.9082,2,10,0.1,'Murray’,3
