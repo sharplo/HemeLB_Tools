@@ -25,6 +25,7 @@ class CommentedTreeBuilder(ET.TreeBuilder):
 
 class InputOutput():
     def __init__(self, inFile, outDir):
+        self.kernel = None # collision operator
         self.type_iN = None # type of boundary condition in inlets
         self.subtype_iN = None # subtype of boundary condition in inlets
         self.type_oUT = None # type of boundary condition in outlets
@@ -193,7 +194,9 @@ class InputOutput():
 
         # Change parameters in simulation
         elm = root.find('simulation')
-        self.SetParam_Time(elm, param_sim)
+        Re = param_iN['Re'] # from inlet
+        self.SetParam_Time(elm, param_sim, Re)
+        self.SetParam_RelaxationParameter(elm, param_sim)
         if param_sim.get('YoungsModulus') != None \
             and param_sim.get('BoundaryVelocityRatio') != None:
             self.SetParam_ElasticWall(elm, param_sim)
@@ -235,15 +238,25 @@ class InputOutput():
                     self.SetParam_Windkessel(condition, idx, param_oUT, maxLK, ratios, Wo)
                 idx = idx + 1
 
-    def SetParam_Time(self, elm, param_sim):
-        if param_sim.get('dt') == None:
-            tau = param_sim['tau']
-            self.dt = cs2 * (tau - 0.5) * self.dx**2 / nu
-        elif param_sim.get('tau') == None:
-            self.dt = param_sim['dt']
-            self.RelaxationTimeCheck()
+    def SetParam_Time(self, elm, param_sim, Re):
+        self.kernel = param_sim['kernel']
+        if self.kernel == 'LBGK' or self.kernel == 'TRT':
+            if param_sim.get('dt') == None:
+                tau = param_sim['tau']
+                self.dt = cs2 * (tau - 0.5) * self.dx**2 / nu
+            elif param_sim.get('tau') == None:
+                self.dt = param_sim['dt']
+                self.RelaxationTimeCheck()
+            else:
+                sys.exit('Error: dt and tau should not be specified simultaneously!')
+        elif self.kernel == 'MRT':
+            # Find the characteristic velocity in the physical unit
+            radius = self.radius_iN[0] # assuming inlet 0 is in the largest vessel
+            Umax = self.CentralVelocity(radius, Re)
+            # Calculate the time step size such that the maximum Ma2 is 0.002
+            self.dt = np.sqrt(0.002 * cs2) * self.dx / Umax
         else:
-            sys.exit('Error: dt and tau should not be specified simultaneously!')
+            sys.exit('Error: The prescribed kernel is not registered!')
 
         if param_sim.get('time') == None:
             self.timeSteps = param_sim['timeSteps']
@@ -256,6 +269,30 @@ class InputOutput():
 
         elm.find('step_length').set('value', '{:0.15e}'.format(self.dt))
         elm.find('steps').set('value', str(self.timeSteps))
+
+    def SetParam_RelaxationParameter(self, elm, param_sim):
+        self.kernel = param_sim['kernel']
+        if self.kernel == 'LBGK':
+            return
+        elif self.kernel == 'TRT':
+            if param_sim.get('relaxationParameter') != None:
+                relaxationParameter = param_sim['relaxationParameter']
+            else:
+                relaxationParameter = 3 / 16
+                print('Warning: The relaxation parameter is set to the default value.')
+        elif self.kernel == 'MRT':
+            relaxationParameter = nu * self.dt / (cs2 * self.dx**2) + 0.5
+            relaxationParameter = 1 / relaxationParameter
+        else:
+            sys.exit('Error: The prescribed kernel is not registered!')
+
+        # Set relaxation parameter
+        if elm.find('relaxation_parameter') == None:
+            value = ET.Element('relaxation_parameter', {'units':'lattice', 'value':'{:0.15e}'.format(relaxationParameter)})
+            value.tail = "\n" + 2 * "  "
+            elm.insert(2, value)
+        else:
+            elm.find('relaxation_parameter').set('value', '{:0.15e}'.format(relaxationParameter))
 
     def SetParam_ElasticWall(self, elm, param_sim):
         E = param_sim['YoungsModulus']
@@ -461,7 +498,7 @@ class InputOutput():
         elif geometry == '0149_1001_7e-3': # inlet radius=7.38e-3
             lengths = [0.0268]*10
         else:
-            print('This geometry is not registered!')
+            sys.exit('Error: The prescribed geometry is not registered!')
 
         maxLK = 0
         for idx in range(len(self.radius_oUT)):

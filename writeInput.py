@@ -8,11 +8,11 @@ from MyModules.InputOutput import *
 InOut = InputOutput(sys.argv[1], sys.argv[2])
 
 # General
-param_sim = {'tau':0.809, 'timeSteps':400000}
+param_sim = {'kernel':'MRT', 'tau':0.8, 'time':1.25}
 
 # Cylinder
-#param_iN = {'type':'velocity', 'subtype':'womersley', 'Re':1, 'Wo':3}
-#param_oUT = {'type':'pressure', 'subtype':'cosine'}
+param_iN = {'type':'velocity', 'subtype':'parabolic', 'Re':10}
+param_oUT = {'type':'pressure', 'subtype':'cosine'}
 
 # FiveExit
 #param_iN = {'type':'velocity', 'subtype':'file', 'Re':10, 'Wo':2, 'epsilon':0.1}
