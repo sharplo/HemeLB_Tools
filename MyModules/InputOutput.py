@@ -250,11 +250,14 @@ class InputOutput():
             else:
                 sys.exit('Error: dt and tau should not be specified simultaneously!')
         elif self.kernel == 'MRT':
-            # Find the characteristic velocity in the physical unit
-            radius = self.radius_iN[0] # assuming inlet 0 is in the largest vessel
-            Umax = self.CentralVelocity(radius, Re)
-            # Calculate the time step size such that the maximum Ma2 is 0.002
-            self.dt = np.sqrt(0.002 * cs2) * self.dx / Umax
+            if self.type_iN == 'velocity':
+                # Find the characteristic velocity in the physical unit
+                radius = self.radius_iN[0] # assuming inlet 0 is in the largest vessel
+                Umax = self.CentralVelocity(radius, Re)
+                # Calculate the time step size such that the maximum Ma2 is 0.002
+                self.dt = np.sqrt(0.002 * cs2) * self.dx / Umax
+            else:
+                sys.exit('Error: Please use the velocity BC for the inlet along with MRT.')
         else:
             sys.exit('Error: The prescribed kernel is not registered!')
 
