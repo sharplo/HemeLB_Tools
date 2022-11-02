@@ -3,12 +3,16 @@ import pandas as pd
 from MyModules.InputOutput import *
 from MyModules.Visual import *
 from MyModules.DiscError import *
+from MyModules.WallStress import *
 
-class PipeFlow(InputOutput, Visual, DiscError):
+pd.set_option("display.precision", 10)
+
+class PipeFlow(InputOutput, Visual, DiscError, WallStress):
     def __init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict):
         InputOutput.__init__(self, inFile, outDir)
         Visual.__init__(self, dfDict)
         DiscError.__init__(self)
+        WallStress.__init__(self)
 
         self.dataDir = dataDir # directory where data reside
         self.shotBeg = shotBeg # first file to be read
@@ -66,10 +70,20 @@ class PipeFlow(InputOutput, Visual, DiscError):
 
     def RenameCol(self, df):
         df.rename(columns={
-                        'velocity(0)':'Ux',
-                        'velocity(1)':'Uy',
-                        'velocity(2)':'Uz',
-                        'pressure':'P',}, inplace=True)
+                'velocity(0)':'Ux',
+                'velocity(1)':'Uy',
+                'velocity(2)':'Uz',
+                'pressure':'P',
+                'tangentialprojectiontraction(0)':'WSS_x', # wall shear stress vector
+                'tangentialprojectiontraction(1)':'WSS_y',
+                'tangentialprojectiontraction(2)':'WSS_z',
+                'normalprojectiontraction(0)':'WNS_x', # wall normal stress vector
+                'normalprojectiontraction(1)':'WNS_y',
+                'normalprojectiontraction(2)':'WNS_z',
+                'shearstress':'WSS', # wall shear stress
+                'vonmisesstress':'vMS'
+            }, inplace=True
+        )
 
     def NormalVelocity(self, df, normal=None):
         if normal is None:

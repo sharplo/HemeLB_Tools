@@ -95,7 +95,10 @@ class Visual(object):
         plt.close()
 
     def Visualise_3D(self, df, var, kwargs={}):
-        view = df[df['step'] == df['step'].max()]
+        if 'step' in df.columns:
+            view = df[df['step'] == df['step'].max()]
+        else:
+            view = df
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
         img = ax.scatter3D(view['grid_x'], view['grid_y'], view['grid_z'], \

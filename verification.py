@@ -38,7 +38,7 @@ obj.Visualise_TimeSeries(obj.pZOUT1pYcEN, 'P', 'Uz')
 obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT0pYcEN, 'P', 'Uz')
 obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT1pYcEN, 'P', 'Uz')
 
-"""
+
 
 obj = Windkessel(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep)
 period = 13
@@ -73,7 +73,7 @@ obj.Visualise_TimeSeries(obj.oUT1cEN, 'P', 'Un')
 obj.Visualise_TimeSeries(obj.oUT2cEN, 'P', 'Un')
 obj.Visualise_TimeSeries(obj.oUT3cEN, 'P', 'Un')
 
-"""
+
 
 dfDict = {'iN':'inlet', 'oUT':'outlet', 'pN':'planeN'}
 rng1 = range(12000, 15500)
@@ -96,3 +96,13 @@ pwv_Uz = obj.CalPulseWaveVelocity(obj.iNcEN, rng1, obj.pNcEN, rng2, 'Uz', 5e-3)
 print('pwv_P', pwv_P, 'pwv_Uz', pwv_Uz)
 
 """
+
+dfDict = {'iN':'inlet', 'oUT':'outlet', 'sF':'surface'}
+obj = PipeFlow(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict)
+rng = range(0,600)
+riskFactors = obj.AneurysmsRiskFactors(obj.sF, rng)
+obj.Visualise_3D(obj.sF, 'WSS')
+obj.Visualise_3D(riskFactors, 'TAWSS')
+obj.Visualise_3D(riskFactors, 'OSI')
+obj.Visualise_3D(riskFactors, 'ECAP')
+obj.Visualise_3D(riskFactors, 'MNS')
