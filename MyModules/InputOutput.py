@@ -377,9 +377,6 @@ class InputOutput():
         condition.find('womersley_number').set('value', '{:0.15e}'.format(Wo))
 
     def SetParam_Windkessel(self, condition, idx, param_oUT, maxLK, resistanceRatios, Wo):
-        if param_oUT['subtype'] == 'WK':
-            condition.remove(condition.find('path'))
-
         # Find resistance
         resistance = param_oUT['gamma_R'] * resistanceRatios[idx] * maxLK
 
