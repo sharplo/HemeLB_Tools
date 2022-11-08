@@ -1,0 +1,116 @@
+<?xml version='1.0' encoding='utf-8'?>
+<hemelbsettings version="3">
+  <simulation>
+    <step_length units="s" value="1.000000000000000e-03" />
+    <steps units="lattice" value="1000" />
+    <stresstype value="1" />
+    <voxel_size units="m" value="0.0002" />
+    <origin units="m" value="(0.0,0.0,0.0)" />
+  </simulation>
+ <geometry>
+    <datafile path="/net/storeptr1/heme/SharpLoWork/HemePure_Jon/cases/SixBranch_r5/SixBranch.gmy" />
+  </geometry>
+  <initialconditions>
+    <pressure>
+      <uniform units="mmHg" value="0.0" />
+    </pressure>
+  </initialconditions>
+  <monitoring>
+    <incompressibility />
+  </monitoring>
+
+  <inlets>
+    <inlet>
+      <!-- index value=0-->
+      <condition type="velocity" subtype="file">
+        <path value="INLET0_VELOCITY.txt" />
+        <radius value="0.00104" units="m" />
+        <area value="3.081597087551657e-06" units="m^2" />
+       <!-- <maximum value="CHANGE (Coupled only)" units="m/s"/> -->
+      </condition>
+      <normal units="dimensionless" value="(0.8660254137729451,-1.099073462393644e-10,-0.4999999826993991)" />
+      <position units="lattice" value="(5.483992252388965,7.967982769938464,62.61937256644063)" />
+    </inlet>
+  </inlets>
+  <outlets>
+    <outlet>
+      <!-- index value=0 -->
+      <condition subtype="WK" type="pressure">
+        <R value="4.094818485602984e+08" units="kg/m^4*s" />
+        <C value="5.988682786446857e-10" units="m^4*s^2/kg" />
+        <radius value="0.0009935964697905771" units="m" />
+        <area value="3.081596901981958e-06" units="m^2" />
+      </condition>
+      <normal units="dimensionless" value="(0.8660253962971823,-1.099607605675359e-10,0.500000012968308)" />
+      <position units="lattice" value="(5.483992300098061,7.967982769945311,37.77586292479892)" />
+    </outlet>
+    <outlet>
+      <!-- index value=1 -->
+      <condition subtype="WK" type="pressure">
+        <R value="4.094818096351122e+08" units="kg/m^4*s" />
+        <C value="5.988683735250093e-10" units="m^4*s^2/kg" />
+        <radius value="0.0009935965274981853" units="m" />
+        <area value="3.081597097272246e-06" units="m^2" />
+      </condition>
+      <normal units="dimensionless" value="(8.619421283765068e-11,-1.013205533020183e-09,-1)" />
+      <position units="lattice" value="(26.99910294376023,7.967982769741512,75.04112748179382)" />
+    </outlet>
+    <outlet>
+      <!-- index value=2 -->
+      <condition subtype="WK" type="pressure">
+        <R value="4.094818123557048e+08" units="kg/m^4*s" />
+        <C value="5.988683668935514e-10" units="m^4*s^2/kg" />
+        <radius value="0.0009935965265585574" units="m" />
+        <area value="3.081597083622849e-06" units="m^2" />
+      </condition>
+      <normal units="dimensionless" value="(-3.190225454612316e-12,-2.715484705718902e-11,1)" />
+      <position units="lattice" value="(26.99910297544927,7.967982785063671,3.000000013479291)" />
+    </outlet>
+    <outlet>
+      <!-- index value=3 -->
+      <condition subtype="WK" type="pressure">
+        <R value="4.094818036439466e+08" units="kg/m^4*s" />
+        <C value="5.988683881285057e-10" units="m^4*s^2/kg" />
+        <radius value="0.0009935965369388558" units="m" />
+        <area value="3.081597127330331e-06" units="m^2" />
+      </condition>
+      <normal units="dimensionless" value="(-0.8660254025036334,-1.098194601629478e-10,-0.50000000221842)" />
+      <position units="lattice" value="(48.51421355534865,7.967982769943857,62.61937264905849)" />
+    </outlet>
+    <outlet>
+      <!-- index value=4 -->
+      <condition subtype="WK" type="pressure">
+        <R value="4.094818406318260e+08" units="kg/m^4*s" />
+        <C value="5.988682979703722e-10" units="m^4*s^2/kg" />
+        <radius value="0.0009935965113972286" units="m" />
+        <area value="3.081596941759637e-06" units="m^2" />
+      </condition>
+      <normal units="dimensionless" value="(-0.8660253852107771,-1.096466130435682e-10,0.5000000321705241)" />
+      <position units="lattice" value="(48.51421360304667,7.967982769946188,37.77586300743075)" />
+    </outlet>
+  </outlets>
+
+  <properties>
+   <propertyoutput file="inlet.dat" period="100">
+     <geometry type="inlet" />
+     <field type="velocity" />
+     <field type="pressure" />
+   </propertyoutput>
+   <propertyoutput file="outlet.dat" period="100">
+     <geometry type="outlet" />
+     <field type="velocity" />
+     <field type="pressure" />
+   </propertyoutput>
+   <propertyoutput file="whole.dat" period="1000">
+     <geometry type="whole" />
+     <field type="velocity" />
+     <field type="pressure" />
+   </propertyoutput>
+   <propertyoutput file="surface.dat" period="100">
+     <geometry type="surface" />
+     <field type="tangentialprojectiontraction" />
+     <field type="normalprojectiontraction" />
+     <field type="shearstress" />
+   </propertyoutput>
+  </properties>
+</hemelbsettings>
