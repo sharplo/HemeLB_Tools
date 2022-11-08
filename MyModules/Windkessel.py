@@ -3,7 +3,7 @@ from MyModules.PipeFlow import *
 
 class Windkessel(PipeFlow):
     def __init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict=None):
-        if dfDict == None:
+        if dfDict is None:
             dfDict = {'iN':'inlet', 'oUT':'outlet'}
         PipeFlow.__init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict)
 

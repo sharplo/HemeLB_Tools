@@ -8,7 +8,7 @@ class Poiseuille(PipeFlow):
     # 3) the cylindrical axis lies on the y-z plane
 
     def __init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict=None):
-        if dfDict == None:
+        if dfDict is None:
             dfDict = {'iN':'inlet', 'oUT':'outlet', 'cL':'centreLine', 'pN':'planeN'}
         PipeFlow.__init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict)
 

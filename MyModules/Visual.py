@@ -33,7 +33,7 @@ class Visual(object):
         ax1.set_ylabel(var1)
         fileName = df.name + '_' + var1 + '-' + grid + '.pdf'
 
-        if var2 != None:
+        if var2 is not None:
             if var2 == 'exSol_' + var1:
                 # Plot var2 on the same axis
                 ax1.plot(view[grid], view[var2], 'x', markersize=3, color=self.color[1], **kwargs2)
@@ -75,7 +75,7 @@ class Visual(object):
         ax1.set_ylabel(grid_2)
         fileName = df.name + '_' + var1 + '-' + grid_1 + '&' + grid_2 + '.pdf'
 
-        if var2 != None:
+        if var2 is not None:
             # Plot var2 on the 2nd row
             Z2 = view.pivot_table(columns=grid_1, index=grid_2, values=var2, fill_value=0)
 
@@ -127,7 +127,7 @@ class Visual(object):
         ax1.set_ylabel(var1)
         fileName = df1.name + '_vs_' + df2.name + '-' + var1 + '-timeSeries.pdf'
 
-        if var2 != None:
+        if var2 is not None:
             # Plot var2 on the right axis
             ax2 = ax1.twinx()
             h3, = ax2.plot(df1['step'], df1[var2], '--', color=self.color[1])

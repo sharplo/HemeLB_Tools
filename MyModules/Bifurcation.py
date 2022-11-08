@@ -2,7 +2,7 @@ from MyModules.PipeFlow import *
 
 class Bifurcation(PipeFlow):
     def __init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict=None):
-        if dfDict == None:
+        if dfDict is None:
             dfDict = {'iN':'inlet', 'pY':'planeY', 'pZOUT0':'planeZ_out0', \
                 'pZOUT1':'planeZ_out1', 'iNpYcEN':['iN', 'pY', 'cEN'], \
                 'pZOUT0pYcEN':['pZOUT0', 'pY', 'cEN'], 'pZOUT1pYcEN':['pZOUT1', 'pY', 'cEN']}

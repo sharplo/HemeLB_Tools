@@ -112,7 +112,7 @@ class InputOutput():
                 value = condition.find('radius').attrib['value']
                 self.radius_iN = np.append(self.radius_iN, float(value))
 
-                if condition.find('area') != None:
+                if condition.find('area') is not None:
                     value = condition.find('area').attrib['value']
                     self.area_iN = np.append(self.area_iN, float(value))
         #print('radius_iN', self.radius_iN)
@@ -135,7 +135,7 @@ class InputOutput():
                     self.P_oUT = np.append(self.P_oUT, float(value))
                 elif self.subtype_oUT == 'WK' or self.subtype_oUT == 'fileWK':
 
-                    if condition.find('R') == None:
+                    if condition.find('R') is None:
                         self.resistance = np.append(self.resistance, None)
                     else:
                         value = condition.find('R').attrib['value']
@@ -144,7 +144,7 @@ class InputOutput():
                         else:
                             self.resistance = np.append(self.resistance, float(value))
                     
-                    if condition.find('C') == None:
+                    if condition.find('C') is None:
                         self.capacitance = np.append(self.capacitance, None)
                     else:
                         value = condition.find('C').attrib['value']
@@ -153,7 +153,7 @@ class InputOutput():
                         else:
                             self.capacitance = np.append(self.capacitance, float(value))
                     
-                    if condition.find('area') == None:
+                    if condition.find('area') is None:
                         value = condition.find('radius').attrib['value']
                         self.radius_oUT = np.append(self.radius_oUT, float(value))
                     else:
@@ -197,8 +197,8 @@ class InputOutput():
         Re = param_iN['Re'] # from inlet
         self.SetParam_Time(elm, param_sim, Re)
         self.SetParam_RelaxationParameter(elm, param_sim)
-        if param_sim.get('YoungsModulus') != None \
-            and param_sim.get('BoundaryVelocityRatio') != None:
+        if param_sim.get('YoungsModulus') is not None \
+            and param_sim.get('BoundaryVelocityRatio') is not None:
             self.SetParam_ElasticWall(elm, param_sim)
 
         # Change parameters in inlets
@@ -241,10 +241,10 @@ class InputOutput():
     def SetParam_Time(self, elm, param_sim, Re):
         self.kernel = param_sim['kernel']
         if self.kernel == 'LBGK' or self.kernel == 'TRT':
-            if param_sim.get('dt') == None:
+            if param_sim.get('dt') is None:
                 tau = param_sim['tau']
                 self.dt = cs2 * (tau - 0.5) * self.dx**2 / nu
-            elif param_sim.get('tau') == None:
+            elif param_sim.get('tau') is None:
                 self.dt = param_sim['dt']
                 self.RelaxationTimeCheck()
             else:
@@ -261,9 +261,9 @@ class InputOutput():
         else:
             sys.exit('Error: The prescribed kernel is not registered!')
 
-        if param_sim.get('time') == None:
+        if param_sim.get('time') is None:
             self.timeSteps = param_sim['timeSteps']
-        elif param_sim.get('timeSteps') == None:
+        elif param_sim.get('timeSteps') is None:
             time = param_sim['time']
             self.timeSteps = int(np.ceil(time / self.dt))
             print('Physical end time will be', self.timeSteps * self.dt)
@@ -278,7 +278,7 @@ class InputOutput():
         if self.kernel == 'LBGK':
             return
         elif self.kernel == 'TRT':
-            if param_sim.get('relaxationParameter') != None:
+            if param_sim.get('relaxationParameter') is not None:
                 relaxationParameter = param_sim['relaxationParameter']
             else:
                 relaxationParameter = 3 / 16
@@ -290,7 +290,7 @@ class InputOutput():
             sys.exit('Error: The prescribed kernel is not registered!')
 
         # Set relaxation parameter
-        if elm.find('relaxation_parameter') == None:
+        if elm.find('relaxation_parameter') is None:
             value = ET.Element('relaxation_parameter', {'units':'lattice', 'value':'{:0.15e}'.format(relaxationParameter)})
             value.tail = "\n" + 2 * "  "
             elm.insert(2, value)
@@ -304,7 +304,7 @@ class InputOutput():
         F = param_sim['BoundaryVelocityRatio']
 
         # Set elastic wall stiffness
-        if elm.find('elastic_wall_stiffness') == None:
+        if elm.find('elastic_wall_stiffness') is None:
             value = ET.Element('elastic_wall_stiffness', {'units':'lattice', 'value':'{:0.15e}'.format(stiffness)})
             value.tail = "\n" + 2 * "  "
             elm.insert(3, value)
@@ -312,7 +312,7 @@ class InputOutput():
             elm.find('elastic_wall_stiffness').set('value', '{:0.15e}'.format(stiffness))
 
         # Set boundary velocity ratio
-        if elm.find('boundary_velocity_ratio') == None:
+        if elm.find('boundary_velocity_ratio') is None:
             value = ET.Element('boundary_velocity_ratio', {'units':'lattice', 'value':'{:0.15e}'.format(F)})
             value.tail = "\n" + 2 * "  "
             elm.insert(4, value)
@@ -331,7 +331,7 @@ class InputOutput():
         self.CompressibilityErrorCheck(Umax)
         #print('Umax', Umax)
 
-        if param_iN.get('profile') == None:
+        if param_iN.get('profile') is None:
             epsilon = param_iN['epsilon']
             Umean = Umax / (1 + epsilon)
             omega = self.AngularFrequency(radius, Wo)
@@ -391,14 +391,14 @@ class InputOutput():
         capacitance = param_oUT['gamma_RC'] * RC / resistance
 
         # Set R and C
-        if condition.find('R') == None:
+        if condition.find('R') is None:
             elm = ET.Element('R', {'units':'kg/m^4*s', 'value':'{:0.15e}'.format(resistance)})
             elm.tail = "\n" + 4 * "  "
             condition.insert(1, elm)
         else:
             condition.find('R').set('value', '{:0.15e}'.format(resistance))
 
-        if condition.find('C') == None:
+        if condition.find('C') is None:
             elm = ET.Element('C', {'units':'m^4*s^2/kg', 'value':'{:0.15e}'.format(capacitance)})
             elm.tail = "\n" + 4 * "  "
             condition.insert(2, elm)
