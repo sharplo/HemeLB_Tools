@@ -1,5 +1,5 @@
 # Supplementary Information
-This is part of the Supplementary Information for the paper titled "Parametric Analysis of an Efficient Boundary Condition to Control Outlet Flow Rates in Large Arterial Networks" by Sharp Chim Yui Lo, J. W. S. McCullough, and P. V. Coveney ([2022](https://doi.org/10.1038/s41598-022-21923-9)). The corresponding author is Prof. P. V. Coveney (p.v.coveney@ucl.ac.uk).
+This is part of Supplementary Information for the paper titled "Parametric Analysis of an Efficient Boundary Condition to Control Outlet Flow Rates in Large Arterial Networks" by Sharp C. Y. Lo, Jon W. S. McCullough, and Peter V. Coveney ([2022](https://doi.org/10.1038/s41598-022-21923-9)). The corresponding author is Prof. Peter V. Coveney (p.v.coveney@ucl.ac.uk).
 
 Here `FiveExit` and `ProfundaFemoris2` refer to the five-outlets model and the *profunda femoris* model described in the paper, respectively.
 
