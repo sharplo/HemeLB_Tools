@@ -1,9 +1,7 @@
-from turtle import width
 import numpy as np
 import matplotlib
 matplotlib.use('Agg') # disable Xwindows backend
 from matplotlib import pyplot as plt
-from mpl_toolkits import mplot3d # for 3D plotting
 
 class Visual(object):
     def __init__(self, dfDict):

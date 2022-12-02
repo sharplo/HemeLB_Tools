@@ -193,6 +193,7 @@ class InputOutput():
         root = self.tree.getroot()
 
         # Change parameters in simulation
+        print('\nSetting parameters in simulation...')
         elm = root.find('simulation')
         Re = param_iN['Re'] # from inlet
         self.SetParam_Time(elm, param_sim, Re)
@@ -202,6 +203,7 @@ class InputOutput():
             self.SetParam_ElasticWall(elm, param_sim)
 
         # Change parameters in inlets
+        print('\nSetting parameters in inlets...')
         if self.type_iN != param_iN['type']:
             sys.exit('Error: Inlet types are different!')
         elif self.subtype_iN != param_iN['subtype']:
@@ -219,6 +221,7 @@ class InputOutput():
                 idx = idx + 1
 
         # Change parameters in outlets
+        print('\nSetting parameters in outlets...')
         if self.type_oUT != param_oUT['type']:
             sys.exit('Error: Outlet types are different!')
         elif self.subtype_oUT != param_oUT['subtype']:
@@ -238,6 +241,18 @@ class InputOutput():
                     self.SetParam_Windkessel(condition, idx, param_oUT, maxLK, ratios, Wo)
                 idx = idx + 1
 
+        # Change parameters in properties
+        print('\nSetting parameters in properties...')
+        if param_iN['Wo'] is None:
+            freq = self.timeSteps
+        else:
+            period = self.OscillationPeriod(self.radius_iN[0], param_iN['Wo'])
+            freq = int(period / self.dt)
+            print('period %lf s (%d steps)' %(period, freq))
+
+        for elm in root.find('properties').iter('propertyoutput'):
+            self.SetPropertiesOutput(elm, freq)
+
     def SetParam_Time(self, elm, param_sim, Re):
         self.kernel = param_sim['kernel']
         if self.kernel == 'LBGK' or self.kernel == 'TRT':
@@ -251,6 +266,7 @@ class InputOutput():
                 sys.exit('Error: dt and tau should not be specified simultaneously!')
         elif self.kernel == 'MRT':
             if self.type_iN == 'velocity':
+                print('Note: since MRT is used, tau determines dt only.')
                 # Find the characteristic velocity in the physical unit
                 radius = self.radius_iN[0] # assuming inlet 0 is in the largest vessel
                 Umax = self.CentralVelocity(radius, Re)
@@ -402,14 +418,20 @@ class InputOutput():
         else:
             condition.find('C').set('value', '{:0.15e}'.format(capacitance))
 
+    def SetPropertiesOutput(self, elm, freq):
+        geometry = elm.find('geometry').attrib['type']
+        if geometry == 'whole':
+            elm.set('period', str(freq))
+        else:
+            elm.set('period', str(int(freq / 10)))
+
     def AngularFrequency(self, radius, Wo):
         omega = (Wo / radius)**2 * nu
-        print('omega', omega)
+        print('omega', omega, 'rad/s')
         return omega
 
     def OscillationPeriod(self, radius, Wo):
         period = 2 * PI / self.AngularFrequency(radius, Wo)
-        print('period', period)
         return period
 
     def CentralVelocity(self, radius, Re):
