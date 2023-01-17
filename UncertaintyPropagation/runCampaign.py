@@ -28,7 +28,10 @@ vary = {
 }
 
 # Create an encoder
-copy_encoder = uq.encoders.CopyEncoder('template_input.xml', 'template_input.xml')
+copy_encoder = uq.encoders.CopyEncoder(
+    'template_input.xml',
+    'template_input.xml'
+)
 generic_encoder = uq.encoders.GenericEncoder(
     template_fname="template_job.py",
     delimiter="$",
@@ -55,14 +58,31 @@ actions = Actions(CreateRunDirectory(root=os.path.join(cwd, 'run'), flatten=True
 campaign = uq.Campaign(name='UncertaintyPropagation', \
     db_location='sqlite:///' + os.path.join(cwd, 'run/campaign.db'), \
     work_dir=os.path.join(cwd, 'run'), params=params, actions=actions)
-campaign.set_sampler(uq.sampling.PCESampler(vary=vary, polynomial_order=1))
-campaign.draw_samples()
-print('Number of samples = %d' %(campaign.get_active_sampler().count))
+campaign.set_sampler(uq.sampling.PCESampler(vary=vary, polynomial_order=3, regression=True))
+campaign.draw_samples(mark_invalid=True)
+print('Number of samples = %d' %(campaign.get_active_sampler().n_samples))
 
 # Execute campaign
 print('Starting campaign...')
 try:
-    campaign.execute(sequential=True).collate()
+    from easyvvuq.actions import QCGPJPool
+    from easyvvuq.actions.execute_qcgpj import EasyVVUQParallelTemplate
+    from qcg.pilotjob.executor_api.qcgpj_executor import QCGPJExecutor
+    with QCGPJPool(
+            qcgpj_executor=QCGPJExecutor(
+                #resources='128,128', # local mode
+                reserve_core=False,
+                log_level='debug'
+            ),
+            template=EasyVVUQParallelTemplate(),
+            template_params={
+                'numCores':3,
+                'numNodes':1,
+                'venv':'/mnt/lustre/a2fs-work3/work/d137/d137/sharplo3/venv'
+            }
+        ) as qcgpj:
+        campaign.execute(pool=qcgpj).collate(progress_bar=True)
+
 except Exception as inst:
     print(inst)
 print('Finished campaign.')

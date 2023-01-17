@@ -3,9 +3,9 @@ import sys
 import os
 
 # Define paths
-DIR = '/net/storeptr1/heme/SharpLoWork/'
+DIR = '/work/d137/d137/sharplo3/'
 TOOLDIR = DIR + 'HemeLB_Tools/'
-EXE = DIR + 'HemePure_Jon/src/build_Ladd_Nash_BFL/hemepure'
+EXE = DIR + 'HemePure/src/build_Ladd_Nash_LBGK/hemepure'
 
 # Import MyModules in TOOLDIR
 sys.path.insert(1, TOOLDIR)
@@ -22,8 +22,8 @@ def execute(command):
 ## Make an input file of HemeLB
 # Define parameters in the normal condition
 InOut = InputOutput(inFile='template_input.xml', outDir='./')
-param_sim = {'kernel':'LBGK', 'tau':0.8, 'timeSteps':1000}
-param_iN = {'type':'velocity', 'subtype':'file', 'Re':1, 'Wo':2, 'epsilon':0.1}
+param_sim = {'kernel':'LBGK', 'tau':0.8, 'timeSteps':5000}
+param_iN = {'type':'velocity', 'subtype':'parabolic', 'Re':2.83, 'Wo':2, 'epsilon':0.1}
 param_oUT = {'type':'pressure', 'subtype':'WK', 'geometry':'FiveExit_1e-3', \
     'flowRateRatios':[3,4,5,6,7], 'power':3, 'gamma_R':4, 'gamma_RC':4}
 
@@ -42,7 +42,7 @@ InOut.ChangeParam(param_sim, param_iN, param_oUT)
 InOut.WriteInput(fileName='input.xml')
 
 # Run the simulation
-execute('mpirun -n 3 ' + EXE + ' -in input.xml -out sim_results')
+execute('srun --ntasks=3 --nodes=1 --mem=1G --cpus-per-task=1 --overlap ' + EXE + ' -in input.xml -out sim_results')
 
 # Post-process data
 data = ['inlet', 'outlet', 'surface']
