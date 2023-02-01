@@ -54,12 +54,13 @@ class Windkessel(PipeFlow):
         return result
 
     def CheckMassConservation(self, Q_iN, Q_oUT):
-        result = Q_iN.groupby(['step'], as_index=False)['Q'].sum()
-        result = result.rename(columns={'Q':'Q_iN'})
-        temp = Q_oUT.groupby(['step'], as_index=False)['Q'].sum()
-        result['Q_oUT'] = temp['Q']
-        result.name = Q_iN.name + Q_oUT.name
-        super().Visualise_TimeSeries(result, 'Q_iN', 'Q_oUT')
+        iN = Q_iN.groupby(['step'], as_index=False)['Q'].sum()
+        iN['Q'] = np.cumsum(iN['Q']) / self.numInlets
+        iN.name = Q_iN.name
+        oUT = Q_oUT.groupby(['step'], as_index=False)['Q'].sum()
+        oUT['Q'] = np.cumsum(oUT['Q']) / self.numOutlets
+        oUT.name = Q_oUT.name
+        super().Compare_TimeSeries(iN, oUT, 'Q')
 
     def CheckNormalAssumption(self, df_mag, df_norm, clusters):
         arr = np.array([])

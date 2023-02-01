@@ -43,6 +43,7 @@ class Visual(object):
                 ax2.yaxis.set_label_position('right')
                 ax2.yaxis.tick_right()
                 ax2.minorticks_on()
+                ax2.ticklabel_format(style='sci', scilimits=(0,3), useMathText=True)
                 ax2.set_ylabel(var2)
                 ax1.grid(axis='y') # turn off grid line on y-axis
                 plt.legend([h1, h2], [var1, var2], \
@@ -123,9 +124,12 @@ class Visual(object):
         ax1.ticklabel_format(style='sci', scilimits=(0,3), useMathText=True)
         ax1.set_xlabel('Time step')
         ax1.set_ylabel(var1)
-        fileName = df1.name + '_vs_' + df2.name + '-' + var1 + '-timeSeries.pdf'
 
-        if var2 is not None:
+        if var2 is None:
+            plt.legend([h1, h2], [df1.name, df2.name], \
+                bbox_to_anchor=(0, 1.04, 1, 0), loc="lower left", mode="expand", ncol=2)
+            fileName = df1.name + '_vs_' + df2.name + '-' + var1 + '-timeSeries.pdf'
+        else:
             # Plot var2 on the right axis
             ax2 = ax1.twinx()
             h3, = ax2.plot(df1['step'], df1[var2], '--', color=self.color[1])
@@ -134,6 +138,7 @@ class Visual(object):
             ax2.yaxis.set_label_position('right')
             ax2.yaxis.tick_right()
             ax2.minorticks_on()
+            ax2.ticklabel_format(style='sci', scilimits=(0,3), useMathText=True)
             ax2.set_ylabel(var2)
             ax1.grid(axis='y') # turn off grid line on y-axis
             plt.legend([h1, h2, h3, h4], \
