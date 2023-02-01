@@ -8,11 +8,16 @@ from MyModules.InputOutput import *
 InOut = InputOutput(sys.argv[1], sys.argv[2])
 
 # General
-param_sim = {'kernel':'MRT', 'tau':0.8, 'time':1.25}
+param_sim = {'kernel':'LBGK', 'tau':0.54, 'time':5}
 
 # Cylinder
-param_iN = {'type':'velocity', 'subtype':'parabolic', 'Re':10}
-param_oUT = {'type':'pressure', 'subtype':'cosine'}
+#param_iN = {'type':'velocity', 'subtype':'parabolic', 'Re':10}
+#param_oUT = {'type':'pressure', 'subtype':'cosine'}
+
+# bifurcation
+#param_iN = {'type':'velocity', 'subtype':'file', 'Re':400, 'Wo':5.9, 'epsilon':0.9}
+#param_oUT = {'type':'pressure', 'subtype':'WK', 'geometry':'bifurcation_1e-3', \
+#    'flowRateRatios':[1,2], 'gamma_R':1e3, 'gamma_RC':1e5}
 
 # FiveExit
 #param_iN = {'type':'velocity', 'subtype':'file', 'Re':10, 'Wo':2, 'epsilon':0.1}
@@ -25,9 +30,9 @@ param_oUT = {'type':'pressure', 'subtype':'cosine'}
 #    'flowRateRatios':'Murray', 'power':3, 'gamma_R':1, 'gamma_RC':1}
 
 # Aorta
-param_iN = {'type':'velocity', 'subtype':'file', 'Re':10, 'Wo':1, 'warmUpPeriod':4, 'profile':'ESM_File2_Q_a1.txt'}
-param_oUT = {'type':'pressure', 'subtype':'fileWK', 'geometry':'0130_0000_9e-3', \
-    'flowRateRatios':[69.1, 6.4, 5.2, 19.3], 'gamma_R':1e3, 'gamma_RC':1e4}
+param_iN = {'type':'velocity', 'subtype':'file', 'Re':309, 'Wo':11.2, 'profile':'ESM_File2_Q_d4.txt'}
+param_oUT = {'type':'pressure', 'subtype':'fileWK', 'geometry':'0149_1001_7e-3', \
+    'flowRateRatios':'Murray', 'power':3, 'gamma_R':1e3, 'gamma_RC':1e5}
 
 #InOut.RescaleSize(1e-3)
 InOut.ChangeParam(param_sim, param_iN=param_iN, param_oUT=param_oUT)

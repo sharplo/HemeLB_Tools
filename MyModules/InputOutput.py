@@ -354,20 +354,14 @@ class InputOutput():
             time = np.linspace(0, self.dt * self.timeSteps, self.timeSteps)
             vel = self.SinusoidalWave(Umean, epsilon, omega, time)
         else:
-            # Construct a heartbeat profile from the given profile
+            # Reconstruct the given profile and add a warm-up period
             profile = param_iN['profile']
             period = self.OscillationPeriod(radius, Wo)
-            timeSteps = min(self.timeSteps, 800000) # reduce the effort of initialisation
-            time = np.linspace(0, self.dt * self.timeSteps, timeSteps)
+            timeSteps = int(1000 * self.dt * self.timeSteps / period) # 1000 points per period
+            time = np.linspace(period, self.dt * self.timeSteps, timeSteps)
             vel = self.Heartbeat(profile, period, Umax, time)
-
-            # Replace the first few periods with a warm-up profile
-            warmUpPeriod = param_iN['warmUpPeriod']
-            warmUpTimeSteps = warmUpPeriod * period / self.dt
-            warmUpTimeSteps = warmUpTimeSteps * timeSteps / self.timeSteps
-            warmUpTimeSteps = min(np.floor(warmUpTimeSteps).astype(int), timeSteps)
-            warmUpVel = self.WarmUp(Umax, period, warmUpPeriod, warmUpTimeSteps)
-            vel[0:warmUpTimeSteps] = warmUpVel
+            time = np.insert(time, 0, [0, 0.618 * period]) # 0.618 is arbitrary
+            vel = np.insert(vel, 0, [0, vel[0]])
         
         with open(self.outDir + fileName, 'w') as f:
             for i in range(len(time)):
@@ -461,11 +455,6 @@ class InputOutput():
     def SinusoidalWave(self, Umean, epsilon, omega, time):
         return Umean * (1 - epsilon * np.cos(omega * time))
 
-    def WarmUp(self, Umax, period, warmUpPeriod, timeSteps):
-        omega = 2 * PI / period
-        time = np.linspace(0, warmUpPeriod * period, timeSteps)
-        return self.SinusoidalWave(Umax / 2, 1, omega * 1, time)
-
     def Heartbeat(self, profile, period, Umax, time):
         df = pd.read_csv(profile, sep=' ', header=None, names=['time', 'Umax'])
         # Scale the waveform to match the required period
@@ -501,7 +490,9 @@ class InputOutput():
 
     def FindMaxLK(self, geometry):
         # Expedient solution
-        if geometry == 'FiveExit_2e-4': # radii=2e-4
+        if geometry == 'bifurcation_1e-3': # radii=1e-3
+            lengths = np.array([4.87e-3, 4.87e-3])
+        elif geometry == 'FiveExit_2e-4': # radii=2e-4
             lengths = np.array([9.7e-4, 9.7e-4, 1.94e-3, 9.7e-4, 9.7e-4])
         elif geometry == 'FiveExit_1e-3': # radii=1e-3
             lengths = np.array([4.83e-3, 4.83e-3, 9.67e-3, 4.83e-3, 4.83e-3])
