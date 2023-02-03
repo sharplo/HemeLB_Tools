@@ -10,6 +10,7 @@ class Windkessel(PipeFlow):
         self.AddNormalVelocity()
         self.Clustering(self.iN, self.position_iN)
         self.Clustering(self.oUT, self.position_oUT)
+        self.AddCentreDataFrames()
 
     def DeriveParams(self):
         self.numInlets = len(self.position_iN)
@@ -18,6 +19,12 @@ class Windkessel(PipeFlow):
         # Determine the reference outlet
         self.ref = np.argsort(self.resistance)[self.numOutlets // 2]
         #self.ref = np.argmin(self.resistance)
+
+    def AddCentreDataFrames(self):
+        for i in range(self.numInlets):
+            super().AddDataFrame('iN' + str(i) + 'cEN', ['iN' + str(i), 'cEN'])
+        for i in range(self.numOutlets):
+            super().AddDataFrame('oUT' + str(i) + 'cEN', ['oUT' + str(i), 'cEN'])
 
     def AddNormalVelocity(self):
         for i in range(self.numInlets):
