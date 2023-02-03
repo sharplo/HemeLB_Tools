@@ -53,14 +53,18 @@ class Windkessel(PipeFlow):
         result.name = df.name + '_Qratios'
         return result
 
-    def CheckMassConservation(self, Q_iN, Q_oUT):
-        iN = Q_iN.groupby(['step'], as_index=False)['Q'].sum()
-        iN['Q'] = np.cumsum(iN['Q']) / self.numInlets
-        iN.name = Q_iN.name
-        oUT = Q_oUT.groupby(['step'], as_index=False)['Q'].sum()
-        oUT['Q'] = np.cumsum(oUT['Q']) / self.numOutlets
-        oUT.name = Q_oUT.name
-        super().Compare_TimeSeries(iN, oUT, 'Q')
+    def CheckMassConservation(self):
+        Q_iN = self.iN[['step', 'P', 'Un']].copy()
+        Q_iN['Q'] = Q_iN['P'] * Q_iN['Un']
+        Q_iN = Q_iN.groupby(['step'], as_index=False)['Q'].sum()
+        Q_iN['cum_Q'] = np.cumsum(Q_iN['Q'])
+        Q_iN.name = self.iN.name
+        Q_oUT = self.oUT[['step', 'P', 'Un']].copy()
+        Q_oUT['Q'] = Q_oUT['P'] * Q_oUT['Un']
+        Q_oUT = Q_oUT.groupby(['step'], as_index=False)['Q'].sum()
+        Q_oUT['cum_Q'] = np.cumsum(Q_oUT['Q'])
+        Q_oUT.name = self.oUT.name
+        super().Compare_TimeSeries(Q_iN, Q_oUT, 'cum_Q')
 
     def CheckNormalAssumption(self, df_mag, df_norm, clusters):
         arr = np.array([])

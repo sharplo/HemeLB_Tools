@@ -38,10 +38,10 @@ obj.Visualise_TimeSeries(obj.pZOUT1pYcEN, 'P', 'Uz')
 obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT0pYcEN, 'P', 'Uz')
 obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT1pYcEN, 'P', 'Uz')
 
-
+"""
 
 obj = Windkessel(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep)
-period = 13
+period = 10
 Q_iN = obj.CalAverageFlowRates(obj.iN, range(obj.numInlets), obj.normal_iN)
 Q_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets), obj.normal_oUT)
 Qavg_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets), obj.normal_oUT, avgSteps=period)
@@ -49,7 +49,7 @@ Qratios = obj.CalFlowRateRatios(Q_oUT)
 
 # Check implementations and assumptions
 obj.Check_Clustering(obj.oUT)
-obj.CheckMassConservation(Q_iN, Q_oUT)
+obj.CheckMassConservation()
 Q_mag = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets))
 obj.CheckNormalAssumption(Q_mag, Q_oUT, range(obj.numOutlets))
 obj.CheckPressureAssumption(obj.oUT)
@@ -67,13 +67,15 @@ obj.AddDataFrame('oUT0cEN', ['oUT0', 'cEN'])
 obj.AddDataFrame('oUT1cEN', ['oUT1', 'cEN'])
 obj.AddDataFrame('oUT2cEN', ['oUT2', 'cEN'])
 obj.AddDataFrame('oUT3cEN', ['oUT3', 'cEN'])
+obj.AddDataFrame('oUT4cEN', ['oUT4', 'cEN'])
 obj.Visualise_TimeSeries(obj.iNcEN, 'P', 'Un')
 obj.Visualise_TimeSeries(obj.oUT0cEN, 'P', 'Un')
 obj.Visualise_TimeSeries(obj.oUT1cEN, 'P', 'Un')
 obj.Visualise_TimeSeries(obj.oUT2cEN, 'P', 'Un')
 obj.Visualise_TimeSeries(obj.oUT3cEN, 'P', 'Un')
+obj.Visualise_TimeSeries(obj.oUT4cEN, 'P', 'Un')
 
-
+"""
 
 dfDict = {'iN':'inlet', 'oUT':'outlet', 'pN':'planeN'}
 rng1 = range(12000, 15500)
@@ -95,7 +97,7 @@ pwv_P = obj.CalPulseWaveVelocity(obj.iNcEN, rng1, obj.pNcEN, rng2, 'P', 5e-3)
 pwv_Uz = obj.CalPulseWaveVelocity(obj.iNcEN, rng1, obj.pNcEN, rng2, 'Uz', 5e-3)
 print('pwv_P', pwv_P, 'pwv_Uz', pwv_Uz)
 
-"""
+
 
 dfDict = {'iN':'inlet', 'oUT':'outlet', 'sF':'surface'}
 obj = PipeFlow(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict)
@@ -106,3 +108,5 @@ obj.Visualise_3D(riskFactors, 'TAWSS')
 obj.Visualise_3D(riskFactors, 'OSI')
 obj.Visualise_3D(riskFactors, 'ECAP')
 obj.Visualise_3D(riskFactors, 'MNS')
+
+"""
