@@ -34,8 +34,8 @@ class Windkessel(PipeFlow):
                 new['Q'] = self.NormalVelocity(new)
             else:
                 new['Q'] = self.NormalVelocity(new, normal[i,:])
-            # Calculate the spatial average assuming area is the same for each lattice
-            new = new.groupby(['step', 'cluster'], as_index=False)['Q'].mean()
+            # Calculate the spatial sum
+            new = new.groupby(['step', 'cluster'], as_index=False)['Q'].sum()
             # Calculate the temporal average over the given period
             new = new.groupby([new.index // avgSteps, 'cluster'], as_index=False).mean()
             # Concatenate results from different clusters
