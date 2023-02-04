@@ -7,10 +7,20 @@ class Windkessel(PipeFlow):
             dfDict = {'iN':'inlet', 'oUT':'outlet'}
         PipeFlow.__init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict)
 
-        self.AddNormalVelocity()
         self.Clustering(self.iN, self.position_iN)
         self.Clustering(self.oUT, self.position_oUT)
         self.AddCentreDataFrames()
+
+        # Add normal velocity to all data frames
+        for key in self.dfDict.keys():
+            values = self.dfDict[key]
+            if key[:2] == 'iN':
+                normal = getattr(self, 'normal_iN')
+            elif key[:3] == 'oUT':
+                normal = getattr(self, 'normal_oUT')
+            else:
+                normal = None
+            setattr(self, key, self.AddNormalVelocity(getattr(self, key), normal))
 
     def DeriveParams(self):
         self.numInlets = len(self.position_iN)
@@ -26,11 +36,14 @@ class Windkessel(PipeFlow):
         for i in range(self.numOutlets):
             super().AddDataFrame('oUT' + str(i) + 'cEN', ['oUT' + str(i), 'cEN'])
 
-    def AddNormalVelocity(self):
-        for i in range(self.numInlets):
-            self.iN['Un'] = self.NormalVelocity(self.iN, self.normal_iN[i,:])
-        for i in range(self.numOutlets):
-            self.oUT['Un'] = self.NormalVelocity(self.oUT, self.normal_oUT[i,:])
+    def AddNormalVelocity(self, df, normal):
+        result = pd.DataFrame()
+        for i in range(int(df['cluster'].max()) + 1):
+            new = df[df['cluster'] == i].copy()
+            new['Un'] = self.NormalVelocity(new, normal[i,:])
+            result = pd.concat([result, new])
+        result.name = df.name
+        return result
 
     def CalAverageFlowRates(self, df, clusters, normal=None, avgSteps=1):
         result = pd.DataFrame()
