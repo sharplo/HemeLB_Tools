@@ -42,9 +42,9 @@ obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT1pYcEN, 'P', 'Uz')
 
 obj = Windkessel(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep)
 period = 10
-Q_iN = obj.CalAverageFlowRates(obj.iN, range(obj.numInlets), obj.normal_iN)
-Q_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets), obj.normal_oUT)
-Qavg_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets), obj.normal_oUT, avgSteps=period)
+Q_iN = obj.CalAverageFlowRates(obj.iN, range(obj.numInlets))
+Q_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets))
+Qavg_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets), avgSteps=period)
 Qratios = obj.CalFlowRateRatios(Q_oUT)
 
 # Check implementations and assumptions
@@ -56,6 +56,7 @@ obj.CheckPressureAssumption(obj.oUT)
 obj.EmpiricalMurrayPower(Qratios['Measured'].to_numpy())
 
 # Collective analysis
+obj.Visualise_Clusters(Q_iN, 'Q', range(obj.numInlets))
 obj.Visualise_Clusters(Q_oUT, 'Q', range(obj.numOutlets))
 obj.Visualise_Ratios(Qavg_oUT, 'Q', range(obj.numOutlets))
 obj.Compare_Scatter(Qratios)

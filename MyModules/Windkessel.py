@@ -10,17 +10,15 @@ class Windkessel(PipeFlow):
         self.Clustering(self.iN, self.position_iN)
         self.Clustering(self.oUT, self.position_oUT)
         self.AddCentreDataFrames()
-
-        # Add normal velocity to all data frames
         for key in self.dfDict.keys():
-            values = self.dfDict[key]
             if key[:2] == 'iN':
                 normal = getattr(self, 'normal_iN')
             elif key[:3] == 'oUT':
                 normal = getattr(self, 'normal_oUT')
             else:
-                normal = None
+                sys.exit('Error: No normal vector is found for this data frame!')
             setattr(self, key, self.AddNormalVelocity(getattr(self, key), normal))
+            self.AddFlowRate(getattr(self, key), 'volume')
 
     def DeriveParams(self):
         self.numInlets = len(self.position_iN)
@@ -45,15 +43,20 @@ class Windkessel(PipeFlow):
         result.name = df.name
         return result
 
-    def CalAverageFlowRates(self, df, clusters, normal=None, avgSteps=1):
+    def AddFlowRate(self, df, type):
+        if type == 'volume':
+            density = 1
+        elif type == 'mass':
+            density = rho + df['P'] * mmHg / (cs2 * self.dx**2 / self.dt**2)
+        else:
+            sys.exit('Error: The prescribed flow rate type is not available!')
+        df['Q'] = density * df['Un']
+
+    def CalAverageFlowRates(self, df, clusters, avgSteps=1):
         result = pd.DataFrame()
         for i in clusters:
             # Calculate the local flow rate of ith cluster
             new = df[df['cluster'] == i].copy()
-            if normal is None:
-                new['Q'] = self.NormalVelocity(new)
-            else:
-                new['Q'] = self.NormalVelocity(new, normal[i,:])
             # Calculate the spatial sum
             new = new.groupby(['step', 'cluster'], as_index=False)['Q'].sum()
             # Calculate the temporal average over the given period
@@ -74,14 +77,10 @@ class Windkessel(PipeFlow):
         return result
 
     def CheckMassConservation(self):
-        Q_iN = self.iN[['step', 'P', 'Un']].copy()
-        Q_iN['Q'] = Q_iN['P'] * Q_iN['Un']
-        Q_iN = Q_iN.groupby(['step'], as_index=False)['Q'].sum()
+        Q_iN = self.iN.groupby(['step'], as_index=False)['Q'].sum()
         Q_iN['cum_Q'] = np.cumsum(Q_iN['Q'])
         Q_iN.name = self.iN.name
-        Q_oUT = self.oUT[['step', 'P', 'Un']].copy()
-        Q_oUT['Q'] = Q_oUT['P'] * Q_oUT['Un']
-        Q_oUT = Q_oUT.groupby(['step'], as_index=False)['Q'].sum()
+        Q_oUT = self.oUT.groupby(['step'], as_index=False)['Q'].sum()
         Q_oUT['cum_Q'] = np.cumsum(Q_oUT['Q'])
         Q_oUT.name = self.oUT.name
         super().Compare_TimeSeries(Q_iN, Q_oUT, 'cum_Q')
