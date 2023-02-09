@@ -47,7 +47,7 @@ class Windkessel(PipeFlow):
         if type == 'volume':
             density = 1
         elif type == 'mass':
-            density = rho + df['P'] * mmHg / (cs2 * self.dx**2 / self.dt**2)
+            density = df['P'] * mmHg / (cs2 * self.dx**2 / self.dt**2)
         else:
             sys.exit('Error: The prescribed flow rate type is not available!')
         df['Q'] = density * df['Un']
