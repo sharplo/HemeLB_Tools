@@ -84,6 +84,7 @@ class Windkessel(PipeFlow):
         Q_oUT['cum_Q'] = np.cumsum(Q_oUT['Q'])
         Q_oUT.name = self.oUT.name
         super().Compare_TimeSeries(Q_iN, Q_oUT, 'cum_Q')
+        super().Compare_TimeSeries(Q_iN, Q_oUT, 'Q')
 
     def CheckNormalAssumption(self, df_mag, df_norm, clusters):
         arr = np.array([])
