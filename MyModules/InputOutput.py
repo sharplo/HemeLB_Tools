@@ -1,3 +1,4 @@
+import os
 import sys
 import xml.etree.ElementTree as ET
 import numpy as np
@@ -189,7 +190,7 @@ class InputOutput():
             value = value * scale**2
             elm.set('value', '{:0.15e}'.format(value))
 
-    def ChangeParam(self, param_sim, param_iN, param_oUT):
+    def ChangeParam(self, param_sim, param_iN, param_oUT, geometryPath=None):
         root = self.tree.getroot()
 
         # Change parameters in simulation
@@ -252,6 +253,15 @@ class InputOutput():
 
         for elm in root.find('properties').iter('propertyoutput'):
             self.SetPropertiesOutput(elm, freq)
+
+        # Make paths to be absolute paths
+        if geometryPath is not None:
+            elm = root.find('geometry').find('datafile')
+            if not os.path.isabs(elm.get('path')):
+                elm.set('path', geometryPath + elm.get('path'))
+            for elm in root.iter('path'):
+                if not os.path.isabs(elm.get('value')):
+                    elm.set('value', geometryPath + elm.get('value'))
 
     def SetParam_Time(self, elm, param_sim, Re):
         self.kernel = param_sim['kernel']
