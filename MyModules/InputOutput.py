@@ -243,8 +243,8 @@ class InputOutput():
 
         # Change parameters in properties
         print('\nSetting parameters in properties...')
-        if param_iN['Wo'] is None:
-            freq = self.timeSteps
+        if param_iN.get('Wo') is None:
+            freq = int(self.timeSteps / 10)
         else:
             period = self.OscillationPeriod(self.radius_iN[0], param_iN['Wo'])
             freq = int(period / self.dt)
