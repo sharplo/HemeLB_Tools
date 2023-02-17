@@ -259,7 +259,7 @@ class InputOutput():
             elm = root.find('geometry').find('datafile')
             if not os.path.isabs(elm.get('path')):
                 elm.set('path', geometryPath + elm.get('path'))
-            for elm in root.iter('path'):
+            for elm in root.find('outlets').iter('path'):
                 if not os.path.isabs(elm.get('value')):
                     elm.set('value', geometryPath + elm.get('value'))
 
