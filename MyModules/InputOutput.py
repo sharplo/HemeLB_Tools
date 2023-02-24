@@ -122,8 +122,10 @@ class InputOutput():
         # Find the pressure of inlets
         if self.type_iN == 'pressure' or self.type_iN == 'yangpressure':
             for elm in root.find('inlets').iter('inlet'):
-                value = elm.find('condition').find('mean').attrib['value']
-                self.P_iN = np.append(self.P_iN, float(value))
+                condition = elm.find('condition')
+                if self.subtype_iN == 'cosine':
+                    value = condition.find('mean').attrib['value']
+                    self.P_iN = np.append(self.P_iN, float(value))
         #print('P_iN', self.P_iN)
 
         # Find the parmeters in the pressure condition for outlets
@@ -131,7 +133,7 @@ class InputOutput():
             for elm in root.find('outlets').iter('outlet'):
                 condition = elm.find('condition')
 
-                if self.subtype_oUT == 'cosine' or self.subtype_oUT == 'file':
+                if self.subtype_oUT == 'cosine':
                     value = condition.find('mean').attrib['value']
                     self.P_oUT = np.append(self.P_oUT, float(value))
                 elif self.subtype_oUT == 'WK' or self.subtype_oUT == 'fileWK':
