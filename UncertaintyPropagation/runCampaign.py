@@ -76,8 +76,8 @@ try:
             ),
             template=EasyVVUQParallelTemplate(),
             template_params={
-                'numCores':3,
-                'numNodes':1,
+                'numCores':3, # per node
+                'numNodes':1, # default is 1
                 'venv':'/mnt/lustre/a2fs-work3/work/d137/d137/sharplo3/venv'
             }
         ) as qcgpj:

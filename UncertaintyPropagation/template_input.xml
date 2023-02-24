@@ -9,7 +9,7 @@
     <origin units="m" value="(0.0,0.0,0.0)" />
   </simulation>
  <geometry>
-    <datafile path="/work/d137/d137/sharplo3/HemePure/cases/SixBranch_r10/SixBranch.gmy" />
+    <datafile path="SixBranch.gmy" />
   </geometry>
   <initialconditions>
     <pressure>

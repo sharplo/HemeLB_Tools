@@ -38,11 +38,11 @@ Qratios[4] = Qratios[4] * (1 - $DoS_4)
 param_oUT['flowRateRatios'] = list(Qratios)
 
 # Make the new input file
-InOut.ChangeParam(param_sim, param_iN, param_oUT)
+InOut.ChangeParam(param_sim, param_iN, param_oUT, geometryPath=DIR + 'HemePure/cases/SixBranch_r10/')
 InOut.WriteInput(fileName='input.xml')
 
 # Run the simulation
-execute('srun --ntasks=3 --nodes=1 --mem=1G --cpus-per-task=1 --overlap ' + EXE + ' -in input.xml -out sim_results')
+execute('srun --nodes=1 --ntasks=3 --cpus-per-task=1 --mem-per-cpu=0 --overlap --exact ' + EXE + ' -in input.xml -out sim_results; sleep 10')
 
 # Post-process data
 data = ['inlet', 'outlet', 'surface']
