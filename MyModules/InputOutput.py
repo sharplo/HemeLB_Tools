@@ -273,9 +273,9 @@ class InputOutput():
                 self.dt = cs2 * (tau - 0.5) * self.dx**2 / nu
             elif param_sim.get('tau') is None:
                 self.dt = param_sim['dt']
-                self.RelaxationTimeCheck()
             else:
                 sys.exit('Error: dt and tau should not be specified simultaneously!')
+            self.RelaxationTimeCheck()
         elif self.kernel == 'MRT':
             if self.type_iN == 'velocity':
                 print('Note: since MRT is used, tau determines dt only.')
@@ -448,10 +448,10 @@ class InputOutput():
 
     def RelaxationTimeCheck(self):
         tau = nu * self.dt / (cs2 * self.dx**2) + 0.5
-        if tau < 0.55:
-            sys.exit('Error: tau = %.3f falls below 0.55' %(tau))
-        elif tau < 0.6:
-            print('Warning: tau = %.3f falls below 0.6!' %(tau))
+        if tau < 0.51:
+            sys.exit('Error: tau = %.3f falls below 0.51!' %(tau))
+        elif tau < 0.55:
+            print('Warning: tau = %.3f falls below 0.55!' %(tau))
         elif tau > 1:
             print('Warning: tau = %.3f exceeds 1!' %(tau))
         #print('tau', tau)
