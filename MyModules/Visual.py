@@ -171,10 +171,9 @@ class Visual(object):
         plt.figure()
         view_ref = df[df['cluster'] == ref]
         for i in clusters:
-            if i != ref:
-                view = df[df['cluster'] == i]
-                plt.plot(view['step'], view[var] / view_ref[var], \
-                    label=self.dfDict[df.name] + ' ' + str(i))
+            view = df[df['cluster'] == i]
+            plt.plot(view['step'], view[var] / view_ref[var], \
+                label=self.dfDict[df.name] + ' ' + str(i))
         for i in range(len(desired)):
             if i == 0:
                 label = 'desired'
@@ -183,7 +182,7 @@ class Visual(object):
             plt.hlines(desired[i], df['step'].min(), df['step'].max(), \
                 colors=self.color[-1], linestyles='dashed', label=label)
         
-        plt.ylim(np.min(desired) - 0.1, np.max(desired) + 0.1)
+        plt.ylim(np.min(desired) - 0.3, np.max(desired) + 0.3)
         plt.minorticks_on()
         plt.ticklabel_format(style='sci', scilimits=(0,3), useMathText=True)
         plt.xlabel('Time step')

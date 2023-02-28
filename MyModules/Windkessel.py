@@ -72,7 +72,6 @@ class Windkessel(PipeFlow):
         measured = mean['Q'] / mean['Q'].loc[self.ref]
         relErr = (measured - desired) / desired
         result = pd.DataFrame({'Desired':desired, 'Measured':measured, 'RelErr':relErr})
-        result = result.drop(index=self.ref)
         result.name = df.name + '_Qratios'
         return result
 
@@ -104,11 +103,10 @@ class Windkessel(PipeFlow):
 
     def EmpiricalMurrayPower(self, Q_oUT):
         r_ratios = self.radius_oUT / self.radius_oUT[self.ref]
-        r_ratios = np.delete(r_ratios, self.ref)
-        power = np.log(Q_oUT) / np.log(r_ratios)
+        with np.errstate(invalid='ignore'):
+            power = np.log(Q_oUT) / np.log(r_ratios)
         print('Empirical Murray\'s law power:', power)
 
     def Visualise_Ratios(self, df, var, clusters):
         desired = self.resistance[self.ref] / self.resistance[clusters]
-        desired = np.delete(desired, self.ref)
         return super().Visualise_Ratios(df, var, clusters, self.ref, desired)
