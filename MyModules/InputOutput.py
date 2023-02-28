@@ -251,14 +251,14 @@ class InputOutput():
         # Change parameters in properties
         print('\nSetting parameters in properties...')
         if param_iN.get('Wo') is None:
-            freq = int(self.timeSteps / 10)
+            self.outputPeriod = int(self.timeSteps / 10)
         else:
             period = self.OscillationPeriod(self.radius_iN[0], param_iN['Wo'])
-            freq = int(period / self.dt)
-            print('period %lf s (%d steps)' %(period, freq))
+            self.outputPeriod = int(period / self.dt)
+            print('period %lf s (%d steps)' %(period, self.outputPeriod))
 
         for elm in root.find('properties').iter('propertyoutput'):
-            self.SetPropertiesOutput(elm, freq)
+            self.SetParam_OutputPeriod(elm)
 
         # Make paths to be absolute paths
         if geometryPath is not None:
@@ -425,12 +425,12 @@ class InputOutput():
         else:
             condition.find('C').set('value', '{:0.15e}'.format(capacitance))
 
-    def SetPropertiesOutput(self, elm, freq):
+    def SetParam_OutputPeriod(self, elm):
         geometry = elm.find('geometry').attrib['type']
         if geometry == 'whole':
-            elm.set('period', str(freq))
+            elm.set('period', str(self.outputPeriod))
         else:
-            elm.set('period', str(int(freq / 10)))
+            elm.set('period', str(int(self.outputPeriod / 10)))
 
     def AngularFrequency(self, radius, Wo):
         omega = (Wo / radius)**2 * nu
