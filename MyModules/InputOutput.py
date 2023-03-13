@@ -239,12 +239,12 @@ class InputOutput():
             idx = 0
             for elm in root.find('outlets').iter('outlet'):
                 condition = elm.find('condition')
-                if param_iN.get('Wo') is not None:
-                    Wo = param_iN['Wo'] # from the inlet
-                    omega = self.AngularFrequency(self.radius_iN[0], Wo)
-                else:
-                    omega = PI / self.radius_oUT[idx]
                 if self.subtype_oUT == 'WK' or self.subtype_oUT == 'fileWK':
+                    if param_iN.get('Wo') is not None:
+                        Wo = param_iN['Wo'] # from the inlet
+                        omega = self.AngularFrequency(self.radius_iN[0], Wo)
+                    else:
+                        omega = PI / self.radius_oUT[idx]
                     self.SetParam_Windkessel(condition, idx, param_oUT, maxLK, ratios, omega)
                 idx = idx + 1
 
