@@ -27,6 +27,7 @@ class Windkessel(PipeFlow):
         # Determine the reference outlet
         self.ref = np.argsort(self.resistance)[self.numOutlets // 2]
         #self.ref = np.argmin(self.resistance)
+        print('Reference outlet:', self.ref)
 
     def AddCentreDataFrames(self):
         for i in range(self.numInlets):

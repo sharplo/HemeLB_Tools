@@ -107,7 +107,7 @@ class Visual(object):
         ax.set_zlabel('z')
         cbaxes = fig.add_axes([0.2, 0.9, 0.8, 0.03])
         fig.colorbar(img, label=var, orientation='horizontal', cax=cbaxes)
-        fileName = df.name + '_' + var + '-3D' + '.pdf'
+        fileName = df.name + '_' + var + '-3D' + '.png'
         fig.savefig(self.outDir + fileName, bbox_inches='tight')
         plt.close()
 
