@@ -472,8 +472,10 @@ class InputOutput():
         df = pd.read_csv(profile, sep=' ', header=None, names=['time', 'Umax'])
         # Scale the waveform to match the required period
         df['time'] = df['time'] * period / df['time'].iloc[-1]
-        # Scale the waveform to match the required Umax
-        df['Umax'] = df['Umax'] * Umax / df['Umax'].max()
+        # Scale the waveform to match the required Umax on top of an offset
+        offset = 0.2 * Umax
+        df['Umax'] = offset + (df['Umax'] - df['Umax'].min()) \
+            * (Umax - offset) / (df['Umax'].max() - df['Umax'].min())
         # Roll the waveform such that it starts in the diastolic period
         df['Umax'] = np.roll(df['Umax'], int(df.shape[0] / 4))
         # Construct an interpolation function
