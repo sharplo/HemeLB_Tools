@@ -2,10 +2,18 @@ import numpy as np
 from MyModules.PipeFlow import *
 
 class Windkessel(PipeFlow):
-    def __init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict=None):
+    def __init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict=None, ref=None):
         if dfDict is None:
             dfDict = {'iN':'inlet', 'oUT':'outlet'}
         PipeFlow.__init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict)
+
+        # Set the reference outlet
+        if ref is None:
+            self.ref = np.argsort(self.resistance)[self.numOutlets // 2]
+            #self.ref = np.argmin(self.resistance)
+        else:
+            self.ref = ref
+        print('Reference outlet:', self.ref)
 
         self.Clustering(self.iN, self.position_iN)
         self.Clustering(self.oUT, self.position_oUT)
@@ -23,11 +31,6 @@ class Windkessel(PipeFlow):
     def DeriveParams(self):
         self.numInlets = len(self.position_iN)
         self.numOutlets = len(self.position_oUT)
-        
-        # Determine the reference outlet
-        self.ref = np.argsort(self.resistance)[self.numOutlets // 2]
-        #self.ref = np.argmin(self.resistance)
-        print('Reference outlet:', self.ref)
 
     def AddCentreDataFrames(self):
         for i in range(self.numInlets):
