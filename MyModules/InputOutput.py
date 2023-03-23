@@ -473,7 +473,7 @@ class InputOutput():
         # Scale the waveform to match the required period
         df['time'] = df['time'] * period / df['time'].iloc[-1]
         # Scale the waveform to match the required Umax on top of an offset
-        offset = 0.2 * Umax
+        offset = 0.236 * Umax
         df['Umax'] = offset + (df['Umax'] - df['Umax'].min()) \
             * (Umax - offset) / (df['Umax'].max() - df['Umax'].min())
         # Roll the waveform such that it starts in the diastolic period
