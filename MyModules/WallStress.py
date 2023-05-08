@@ -38,6 +38,11 @@ class WallStress(object):
         result['OSI'] = 0.5 * (1 - temp / result['TAWSS'])
         return result
 
+    def RelativeResidenceTime(self, df, steps):
+        result = self.OscillationShearIndex(df, steps)
+        result['RRT'] = 1 / ( (1 - 2 * result['OSI']) * result['TAWSS'] )
+        return result
+
     def EndothelialCellActivationPotential(self, df, steps):
         result = self.OscillationShearIndex(df, steps)
         result['ECAP'] = result['OSI'] / result['TAWSS']
