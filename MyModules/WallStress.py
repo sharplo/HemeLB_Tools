@@ -38,16 +38,6 @@ class WallStress(object):
         result['OSI'] = 0.5 * (1 - temp / result['TAWSS'])
         return result
 
-    def RelativeResidenceTime(self, df, steps):
-        result = self.OscillationShearIndex(df, steps)
-        result['RRT'] = 1 / ( (1 - 2 * result['OSI']) * result['TAWSS'] )
-        return result
-
-    def EndothelialCellActivationPotential(self, df, steps):
-        result = self.OscillationShearIndex(df, steps)
-        result['ECAP'] = result['OSI'] / result['TAWSS']
-        return result
-
     def MaximumNormalStress(self, df, steps):
         if 'WNS' not in df.columns:
             df['WNS'] = np.linalg.norm(df[['WNS_x', 'WNS_y', 'WNS_z']], axis=1)
@@ -58,8 +48,7 @@ class WallStress(object):
         return result
 
     def AneurysmsRiskFactors(self, df, steps):
-        ECAP = self.EndothelialCellActivationPotential(df, steps)
-        MNS = self.MaximumNormalStress(df, steps)
-        result = ECAP.merge(MNS)
-        result.name = df.name
+        result = self.OscillationShearIndex(df, steps)
+        result['RRT'] = 1 / ( (1 - 2 * result['OSI']) * result['TAWSS'] )
+        result['ECAP'] = result['OSI'] / result['TAWSS']
         return result
