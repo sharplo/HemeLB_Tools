@@ -1,0 +1,193 @@
+<?xml version="1.0"?>
+<hemelbsettings version="3">
+  <simulation>
+    <step_length units="s" value="0.00041666666666666664"/>
+    <steps units="lattice" value="CHANGE"/>
+    <stresstype value="1"/>
+    <voxel_size units="m" value="0.0001"/>
+    <origin units="m" value="(0.0,0.0,0.0)"/>
+  </simulation>
+ <geometry>
+    <datafile path="0156_0001v3.gmy"/>
+  </geometry>
+  <initialconditions>
+    <pressure>
+      <uniform units="mmHg" value="0.0"/>
+    </pressure>
+  </initialconditions>
+  <monitoring>
+    <incompressibility/>
+  </monitoring>
+
+  <inlets>
+    <inlet>
+      <!-- index value=0-->
+      <condition type="velocity" subtype="file">
+        <path value="MESHX_INLET0_VELOCITY.txt"/>
+        <radius value="0.00717484" units="m"/>
+        <area value="0.000166066" units="m^2"/>
+       <!-- <maximum value="CHANGE (Coupled only)" units="m/s"/> -->
+      </condition>
+      <normal units="dimensionless" value="(0.309273,0.264927,-0.913326)"/>
+      <position units="lattice" value="(433.618,173.491,2474.43)"/>
+    </inlet>
+  </inlets>
+  <outlets>
+    <outlet>
+      <!-- index value=0 -->
+      <condition subtype="fileWK" type="pressure">
+        <path value="OUTLET0_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <C value="CHANGE" units="m^4*s^2/kg"/>
+        <radius value="0.00284329" units="m"/>
+        <area value="2.66879e-05" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.101823,0.232239,0.967314)"/>
+      <position units="lattice" value="(50.4407,481.929,9.80498)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=1 -->
+      <condition subtype="fileWK" type="pressure">
+        <path value="OUTLET1_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <C value="CHANGE" units="m^4*s^2/kg"/>
+        <radius value="0.00130985" units="m"/>
+        <area value="5.37535e-06" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(0.771295,0.635078,0.0421858)"/>
+      <position units="lattice" value="(53.179,220.522,1710.67)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=2 -->
+      <condition subtype="fileWK" type="pressure">
+        <path value="OUTLET2_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <C value="CHANGE" units="m^4*s^2/kg"/>
+        <radius value="0.0020313" units="m"/>
+        <area value="1.29309e-05" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(0.93231,-0.156396,-0.326095)"/>
+      <position units="lattice" value="(312.522,610.941,2069.37)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=3 -->
+      <condition subtype="fileWK" type="pressure">
+        <path value="OUTLET3_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <C value="CHANGE" units="m^4*s^2/kg"/>
+        <radius value="0.00112402" units="m"/>
+        <area value="3.95718e-06" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(0.453194,0.350138,0.819767)"/>
+      <position units="lattice" value="(386.903,565.285,1099.55)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=4 -->
+      <condition subtype="fileWK" type="pressure">
+        <path value="OUTLET4_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <C value="CHANGE" units="m^4*s^2/kg"/>
+        <radius value="0.00214491" units="m"/>
+        <area value="1.47029e-05" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(0.200764,0.123852,0.971779)"/>
+      <position units="lattice" value="(388.362,682.963,1455.69)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=5 -->
+      <condition subtype="fileWK" type="pressure">
+        <path value="OUTLET5_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <C value="CHANGE" units="m^4*s^2/kg"/>
+        <radius value="0.00227502" units="m"/>
+        <area value="1.61168e-05" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.45247,0.761169,0.464642)"/>
+      <position units="lattice" value="(414.612,40.3657,588.598)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=6 -->
+      <condition subtype="fileWK" type="pressure">
+        <path value="OUTLET6_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <C value="CHANGE" units="m^4*s^2/kg"/>
+        <radius value="0.00152238" units="m"/>
+        <area value="7.25875e-06" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.00713469,-0.456568,0.88966)"/>
+      <position units="lattice" value="(664.88,810.429,1807.28)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=7 -->
+      <condition subtype="fileWK" type="pressure">
+        <path value="OUTLET7_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <C value="CHANGE" units="m^4*s^2/kg"/>
+        <radius value="0.00226236" units="m"/>
+        <area value="1.596e-05" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.478176,0.483069,0.733479)"/>
+      <position units="lattice" value="(827.943,22.808,560.582)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=8 -->
+      <condition subtype="fileWK" type="pressure">
+        <path value="OUTLET8_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <C value="CHANGE" units="m^4*s^2/kg"/>
+        <radius value="0.00137233" units="m"/>
+        <area value="5.90587e-06" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(-0.676508,0.210122,-0.705823)"/>
+      <position units="lattice" value="(846.904,277.594,1836.4)"/>
+    </outlet>
+    <outlet>
+      <!-- index value=9 -->
+      <condition subtype="fileWK" type="pressure">
+        <path value="OUTLET9_WK.txt.weights.txt"/>
+        <R value="CHANGE" units="kg/m^4*s"/>
+        <C value="CHANGE" units="m^4*s^2/kg"/>
+        <radius value="0.00269382" units="m"/>
+        <area value="2.22202e-05" units="m^2"/>
+      </condition>
+      <normal units="dimensionless" value="(0.0481374,-0.0512686,0.997524)"/>
+      <position units="lattice" value="(1013.04,617.412,38.111)"/>
+    </outlet>
+  </outlets>
+
+  <properties>
+   <propertyoutput file="inlet.dat" period="100">
+     <geometry type="inlet" />
+     <field type="velocity" />
+     <field type="pressure" />
+   </propertyoutput>
+   <propertyoutput file="outlet.dat" period="100">
+     <geometry type="outlet" />
+     <field type="velocity" />
+     <field type="pressure" />
+   </propertyoutput>
+   <!--propertyoutput file="whole.dat" period="100">
+     <geometry type="whole" />
+     <field type="velocity" />
+     <field type="pressure" />
+   </propertyoutput-->
+   <propertyoutput file="sphereA.dat" period="100">
+     <geometry type="surfaceWithinSphere">
+        <point value="(0.0406982,0.0464332,0.131996)" units="m"/>
+        <radius value="0.018" units="m"/>
+     </geometry>
+     <field type="tangentialprojectiontraction" />
+     <field type="normalprojectiontraction" />
+     <field type="shearstress" />
+   </propertyoutput>
+   <propertyoutput file="sphereB.dat" period="100">
+     <geometry type="surfaceWithinSphere">
+        <point value="(0.0468982,0.0466332,0.115996)" units="m"/>
+        <radius value="0.012" units="m"/>
+     </geometry>
+     <field type="tangentialprojectiontraction" />
+     <field type="normalprojectiontraction" />
+     <field type="shearstress" />
+   </propertyoutput>
+  </properties>
+</hemelbsettings>

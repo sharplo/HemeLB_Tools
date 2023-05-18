@@ -16,12 +16,12 @@ for root, dirs, files in os.walk(os.path.join(cwd, 'run')):
 grid = pd.read_csv(pathToGrid, usecols=['grid_x', 'grid_y', 'grid_z'])
 
 # Load campaign
-campaign = uq.Campaign(name='UncertaintyPropagation', \
+campaign = uq.Campaign(name='UQ_DegreeOfStenosis', \
     db_location='sqlite:///' + os.path.join(cwd, 'run/campaign.db'))
 
 # Analyse the results of simulations
-results = campaign.analyse(qoi_cols=['ECAP', 'MNS'])
-MNS_stat = results.describe('MNS')
+results = campaign.analyse(qoi_cols=['ECAP', 'RRT'])
+RRT_stat = results.describe('RRT')
 
 # Visualise statistics
 def Visualise_3D(grid, df, var, fileName, kwargs={}):
@@ -37,5 +37,5 @@ def Visualise_3D(grid, df, var, fileName, kwargs={}):
     fig.savefig(fileName, bbox_inches='tight')
     plt.close()
 
-Visualise_3D(grid, MNS_stat, 'mean', 'MNS_mean.pdf')
-Visualise_3D(grid, MNS_stat, 'var', 'MNS_var.pdf')
+Visualise_3D(grid, RRT_stat, 'mean', 'RRT_mean.pdf')
+Visualise_3D(grid, RRT_stat, 'var', 'RRT_var.pdf')
