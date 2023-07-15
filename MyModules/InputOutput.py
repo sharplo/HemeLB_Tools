@@ -474,8 +474,8 @@ class InputOutput():
         df['time'] = df['time'] * period / df['time'].iloc[-1]
         # Scale the waveform to match the required Umax
         df['Umax'] = df['Umax'] * Umax / df['Umax'].max()
-        # Roll the waveform such that it starts in the diastolic period
-        df['Umax'] = np.roll(df['Umax'], int(df.shape[0] / 4))
+        # Roll the waveform such that it starts at the maximum speed
+        df['Umax'] = np.roll(df['Umax'], -df['Umax'].idxmax())
         # Construct an interpolation function
         func = interp1d(df['time'], df['Umax'], 'cubic')
         # Calculate the equivalent time in the cardiac cycle

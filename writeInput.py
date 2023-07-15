@@ -8,7 +8,7 @@ from MyModules.InputOutput import *
 InOut = InputOutput(sys.argv[1], sys.argv[2])
 
 # General
-param_sim = {'kernel':'LBGK', 'tau':0.54, 'time':5}
+param_sim = {'kernel':'LBGK', 'tau':0.56, 'timeSteps':55000}
 
 # Cylinder
 #param_iN = {'type':'velocity', 'subtype':'parabolic', 'Re':10}
@@ -29,9 +29,9 @@ param_sim = {'kernel':'LBGK', 'tau':0.54, 'time':5}
 #param_oUT = {'type':'pressure', 'subtype':'fileWK', 'geometry':'ProfundaFemoris2_2e-3', \
 #    'flowRateRatios':'Murray', 'power':3, 'gamma_R':1, 'gamma_RC':1}
 
-# Aorta
-param_iN = {'type':'velocity', 'subtype':'file', 'Re':309, 'Wo':11.2, 'profile':'ESM_File2_Q_d4.txt'}
-param_oUT = {'type':'pressure', 'subtype':'fileWK', 'geometry':'0149_1001_7e-3', \
+# Abdominal aorta
+param_iN = {'type':'velocity', 'subtype':'file', 'Re':660, 'Wo':12.3, 'profile':'ESM_File2_Q_d4.txt'}
+param_oUT = {'type':'pressure', 'subtype':'WK', 'geometry':'0156_0001_7e-3', \
     'flowRateRatios':'Murray', 'power':3, 'gamma_R':1e3, 'gamma_RC':1e5}
 
 #InOut.RescaleSize(1e-3)
