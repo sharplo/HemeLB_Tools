@@ -212,15 +212,16 @@ class InputOutput():
         elif self.subtype_iN != param_iN['subtype']:
             sys.exit('Error: Inlet subtypes are different!')
         elif self.type_iN == 'velocity':
+            maxSpeed = self.CalMaxSpeed(param_iN, Re)
             idx = 0
             for elm in root.find('inlets').iter('inlet'):
                 condition = elm.find('condition')
                 if self.subtype_iN == 'file':
-                    self.SetParam_FileVelocity(condition, idx, param_iN)
+                    self.SetParam_FileVelocity(condition, idx, param_iN, maxSpeed)
                 elif self.subtype_iN == 'parabolic':
-                    self.SetParam_ParabolicVelocity(condition, idx, param_iN)
+                    self.SetParam_ParabolicVelocity(condition, idx, param_iN, maxSpeed)
                 elif self.subtype_iN == 'womersley':
-                    self.SetParam_WomersleyVelocity(condition, idx, param_iN)
+                    self.SetParam_WomersleyVelocity(condition, idx, param_iN, maxSpeed)
                 idx = idx + 1
 
         # Change parameters in outlets
@@ -351,15 +352,13 @@ class InputOutput():
         else:
             elm.find('boundary_velocity_ratio').set('value', '{:0.15e}'.format(F))
 
-    def SetParam_FileVelocity(self, condition, idx, param_iN):
+    def SetParam_FileVelocity(self, condition, idx, param_iN, maxSpeed):
         fileName = 'INLET' + str(idx) + '_VELOCITY.txt'
         condition.find('path').set('value', fileName)
         
         radius = self.radius_iN[idx]
-        Re = param_iN['Re']
         Wo = param_iN['Wo']
-
-        Umax = self.CentralVelocity(radius, Re)
+        Umax = maxSpeed[idx]
         self.CompressibilityErrorCheck(Umax)
         #print('Umax', Umax)
 
@@ -383,18 +382,15 @@ class InputOutput():
             for i in range(len(time)):
                 f.write(str(time[i]) + ' ' + str(vel[i]) + '\n')
 
-    def SetParam_ParabolicVelocity(self, condition, idx, param_iN):
-        radius = self.radius_iN[idx]
-        Re = param_iN['Re']
-        Umax = self.CentralVelocity(radius, Re)
+    def SetParam_ParabolicVelocity(self, condition, idx, param_iN, maxSpeed):
+        Umax = maxSpeed[idx]
         self.CompressibilityErrorCheck(Umax)
         condition.find('maximum').set('value', '{:0.15e}'.format(Umax))
 
-    def SetParam_WomersleyVelocity(self, condition, idx, param_iN):
+    def SetParam_WomersleyVelocity(self, condition, idx, param_iN, maxSpeed):
         radius = self.radius_iN[idx]
-        Re = param_iN['Re']
         Wo = param_iN['Wo']
-        Umax = self.CentralVelocity(radius, Re)
+        Umax = maxSpeed[idx]
         self.CompressibilityErrorCheck(Umax)
         G = self.PressureGradient(radius, Umax)
         period = self.OscillationPeriod(radius, Wo)
@@ -456,6 +452,23 @@ class InputOutput():
         elif tau > 1:
             print('Warning: tau = %.3f exceeds 1!' %(tau))
         #print('tau', tau)
+
+    def CalMaxSpeed(self, param_iN, Re):
+        if self.radius_iN.shape[0] > 1:
+            try:
+                flowRateRatios = np.array(param_iN['flowRateRatios'])
+            except:
+                print('Error: flowRateRatios is required!')
+            if self.radius_iN.shape != flowRateRatios.shape:
+                sys.exit('Error: Invalid length of flowRateRatios!')
+            ref = np.argmax(flowRateRatios)
+            radius = self.radius_iN
+            # Q_i / Q_j = (r_i^2)u_i / (r_j^2)u_j
+            velRatios = (flowRateRatios / flowRateRatios[ref]) * (radius[ref] / radius)**2
+            maxSpeed = self.CentralVelocity(radius[ref], Re) * velRatios
+        else:
+            maxSpeed = np.atleast_1d(self.CentralVelocity(self.radius_iN[0], Re))
+        return maxSpeed
 
     def CompressibilityErrorCheck(self, Umax):
         Ma2 = (Umax * self.dt / self.dx)**2 / cs2
