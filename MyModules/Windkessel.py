@@ -54,7 +54,7 @@ class Windkessel(PipeFlow):
             density = df['P'] * mmHg / (cs2 * self.dx**2 / self.dt**2)
         else:
             sys.exit('Error: The prescribed flow rate type is not available!')
-        df['Q'] = density * df['Un']
+        df['Q'] = density * df['Un'] * self.dx**2
 
     def CalAverageFlowRates(self, df, clusters, avgSteps=1):
         result = pd.DataFrame()
