@@ -360,7 +360,7 @@ class InputOutput():
         Wo = param_iN['Wo']
         Umax = maxSpeed[idx]
         self.CompressibilityErrorCheck(Umax)
-        #print('Umax', Umax)
+        print('Umax', Umax)
 
         if param_iN.get('profile') is None:
             epsilon = param_iN['epsilon']
@@ -426,7 +426,7 @@ class InputOutput():
         if geometry == 'whole':
             elm.set('period', str(self.outputPeriod))
         else:
-            elm.set('period', str(int(self.outputPeriod / 10)))
+            elm.set('period', str(int(self.outputPeriod / 20)))
 
     def AngularFrequency(self, radius, Wo):
         omega = (Wo / radius)**2 * nu
