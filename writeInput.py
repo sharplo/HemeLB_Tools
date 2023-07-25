@@ -30,7 +30,8 @@ param_sim = {'kernel':'LBGK', 'tau':0.56, 'timeSteps':55000}
 #    'flowRateRatios':'Murray', 'power':3, 'gamma_R':1, 'gamma_RC':1}
 
 # Abdominal aorta
-param_iN = {'type':'velocity', 'subtype':'file', 'Re':660, 'Wo':12.3, 'profile':'ESM_File2_Q_d4.txt'}
+param_iN = {'type':'velocity', 'subtype':'file', 'Re':660, 'Wo':12.3, \
+            'profile':'ESM_File2_Q_d4.txt', 'offset':0.2}
 param_oUT = {'type':'pressure', 'subtype':'WK', 'geometry':'0156_0001_7e-3', \
     'flowRateRatios':'Murray', 'power':3, 'gamma_R':1e3, 'gamma_RC':1e5}
 

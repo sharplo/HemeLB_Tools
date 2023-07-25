@@ -370,14 +370,13 @@ class InputOutput():
             vel = self.SinusoidalWave(Umean, epsilon, omega, time)
         else:
             # Reconstruct the given profile and add a warm-up period
-            profile = param_iN['profile']
             period = self.OscillationPeriod(radius, Wo)
             timeSteps = int(1000 * self.dt * self.timeSteps / period) # 1000 points per period
             time = np.linspace(period, self.dt * self.timeSteps, timeSteps)
-            vel = self.Heartbeat(profile, period, Umax, time)
+            vel = self.Heartbeat(param_iN, period, Umax, time)
             time = np.insert(time, 0, [0, 0.618 * period]) # 0.618 is arbitrary
             vel = np.insert(vel, 0, [0, vel[0]])
-        
+
         with open(self.outDir + fileName, 'w') as f:
             for i in range(len(time)):
                 f.write(str(time[i]) + ' ' + str(vel[i]) + '\n')
@@ -481,12 +480,18 @@ class InputOutput():
     def SinusoidalWave(self, Umean, epsilon, omega, time):
         return Umean * (1 - epsilon * np.cos(omega * time))
 
-    def Heartbeat(self, profile, period, Umax, time):
+    def Heartbeat(self, param_iN, period, Umax, time):
+        profile = param_iN['profile']
         df = pd.read_csv(profile, sep=' ', header=None, names=['time', 'Umax'])
         # Scale the waveform to match the required period
         df['time'] = df['time'] * period / df['time'].iloc[-1]
-        # Scale the waveform to match the required Umax
-        df['Umax'] = df['Umax'] * Umax / df['Umax'].max()
+        # Scale the waveform to match the required Umax on top of an offset
+        if param_iN.get('offset') is None:
+            df['Umax'] = df['Umax'] * Umax / df['Umax'].max()
+        else:
+            offset = param_iN['offset']
+            df['Umax'] = Umax * (offset + (1 - offset) \
+                * (df['Umax'] - df['Umax'].min()) / (df['Umax'].max() - df['Umax'].min()))
         # Roll the waveform such that it starts at the maximum speed
         df['Umax'] = np.roll(df['Umax'], -df['Umax'].idxmax())
         # Construct an interpolation function
