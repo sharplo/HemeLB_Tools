@@ -12,7 +12,8 @@ cs2 = 1.0 / 3.0 # speed of sound squared (lattice unit)
 mu = 0.004 # dynamic viscosity (Pa*s)
 rho = 1000 # fluid density (kg/m^3)
 PoissonsRatio = 0.5 # Poisson's ratio of blood vessels (dimensionless)
-WallToLumenRatio = 0.1 # wall-to-lumen ratio of blood vessels (dimensionless)
+WallThickness = 1.775e-3 # thickness of vessel walls (m)
+medianRadius = 2.015e-3 # median radius of blood vessels (m)
 
 # Derived constants
 nu = mu / rho # kinematic viscosity
@@ -332,7 +333,7 @@ class InputOutput():
 
     def SetParam_ElasticWall(self, elm, param_sim):
         E = param_sim['YoungsModulus']
-        stiffness = E * WallToLumenRatio / (1 - PoissonsRatio**2) / self.radius_iN[0]
+        stiffness = E * WallThickness / (1 - PoissonsRatio**2) / medianRadius**2
         stiffness = stiffness * self.dt**2 / (rho * self.dx)
         F = param_sim['BoundaryVelocityRatio']
 
