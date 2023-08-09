@@ -111,12 +111,14 @@ class InputOutput():
             for elm in root.find('inlets').iter('inlet'):
                 condition = elm.find('condition')
 
-                value = condition.find('radius').attrib['value']
-                self.radius_iN = np.append(self.radius_iN, float(value))
-
-                if condition.find('area') is not None:
+                if condition.find('area') is None:
+                    value = condition.find('radius').attrib['value']
+                    self.radius_iN = np.append(self.radius_iN, float(value))
+                else:
                     value = condition.find('area').attrib['value']
                     self.area_iN = np.append(self.area_iN, float(value))
+                    # Calculate equivalent radius
+                    self.radius_iN = np.append(self.radius_iN, np.sqrt(float(value)/PI))
         #print('radius_iN', self.radius_iN)
         #print('area_iN', self.area_iN)
 
