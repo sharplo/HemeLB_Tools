@@ -9,8 +9,8 @@ from scipy.interpolate import interp1d
 PI = 3.14159265358979323846264338327950288
 mmHg = 133.3223874 # Pa
 cs2 = 1.0 / 3.0 # speed of sound squared (lattice unit)
-mu = 0.004 # dynamic viscosity (Pa*s)
-rho = 1000 # fluid density (kg/m^3)
+mu = 0.0035 # dynamic viscosity (Pa*s)
+rho = 1050 # fluid density (kg/m^3)
 PoissonsRatio = 0.5 # Poisson's ratio of blood vessels (dimensionless)
 WallThickness = 1.775e-3 # thickness of vessel walls (m)
 medianRadius = 2.015e-3 # median radius of blood vessels (m)

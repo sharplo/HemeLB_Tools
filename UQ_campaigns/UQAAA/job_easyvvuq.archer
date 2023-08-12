@@ -1,0 +1,31 @@
+#!/bin/bash
+# slurm job script for EasyVVUQ on ARCHER2
+
+# Job options
+# ======================================================
+#SBATCH --account=e769-sharplo4
+#SBATCH --job-name=easyvvuq
+#SBATCH --output=slurm-%j.out
+#SBATCH --error=slurm-%j.err
+#SBATCH --export=none
+
+#SBATCH --partition=standard
+#SBATCH --qos=standard
+#SBATCH --nodes=160
+#SBATCH --time=03:20:00
+# ======================================================
+
+# Load modules
+#module load cray-python
+source /work/e769/e769/sharplo4/venv/bin/activate
+
+# Go to the project directory
+cd /work/e769/e769/sharplo4/UQAAA_order2
+
+# Run the campaign if it is the first time
+time python runCampaign.py
+
+# Rename the outputs from the first run and restart the campaign
+#find ./run/ -iname "stderr.log" -exec rename stderr stderr_sim ./run/ '{}' \;
+#find ./run/ -iname "stdout.log" -exec rename stdout stdout_sim ./run/ '{}' \;
+#time python restartCampaign.py
