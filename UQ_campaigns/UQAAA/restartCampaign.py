@@ -7,7 +7,7 @@ from easyvvuq.constants import Status
 cwd = os.getcwd()
 
 # Reload campaign
-campaign = uq.Campaign(name='QratiosAAA_order2', \
+campaign = uq.Campaign(name='UQAAA_order2', \
     db_location='sqlite:///' + os.path.join(cwd, 'run/campaign.db'))
 sampler = campaign.get_active_sampler()
 campaign.set_sampler(sampler, update=True)
@@ -22,13 +22,13 @@ try:
     from qcg.pilotjob.executor_api.qcgpj_executor import QCGPJExecutor
     with QCGPJPool(
             qcgpj_executor=QCGPJExecutor(
+                #log_level='debug',
                 #resources='128,128', # local mode
-                reserve_core=False,
-                #log_level='debug'
+                reserve_core=False
             ),
             template=EasyVVUQParallelTemplate(),
             template_params={
-                'numCores':128, # per node
+                'numCores':32, # per node
                 'numNodes':1, # default is 1
                 'venv':'/mnt/lustre/a2fs-work3/work/e769/e769/sharplo4/venv'
             }

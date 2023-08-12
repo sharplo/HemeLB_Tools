@@ -9,28 +9,32 @@ from easyvvuq.actions import Actions, CreateRunDirectory, Encode, Decode, Execut
 cwd = os.getcwd()
 
 # Reset the run directory
-#if os.path.isdir('run'):
-#    shutil.rmtree('run')
-#os.mkdir('run')
+if os.path.isdir('run'):
+    shutil.rmtree('run')
+os.mkdir('run')
 
 # Define parameter space
 params = {
-    'magic':{'type':'float', 'min':0.01, 'max':1, 'default':0.25},
+    'Lambda':{'type':'float', 'min':0.0001, 'max':1, 'default':0.25},
+    'E':{'type':'float', 'min':0.01, 'max':1e10, 'default':9000000},
+    'F':{'type':'float', 'min':0, 'max':1, 'default':0.45},
     'Re':{'type':'float', 'min':1, 'max':778, 'default':600},
     'Wo':{'type':'float', 'min':0.1, 'max':15, 'default':11.2},
-    'power':{'type':'float', 'min':0, 'max':10, 'default':2},
-    'exp_R':{'type':'float', 'min':-20, 'max':20, 'default':6},
-    'exp_C':{'type':'float', 'min':-20, 'max':20, 'default':7}
+    'm':{'type':'float', 'min':0, 'max':10, 'default':2},
+    'gamma_R':{'type':'float', 'min':0, 'max':1e10, 'default':2**10},
+    'gamma_C':{'type':'float', 'min':0, 'max':1e10, 'default':2**(-2)}
 }
 
 # Set distributions
 vary = {
-    'magic': cp.Uniform(0.125, 0.25),
+    'Lambda': cp.Reciprocal(0.0036, 0.25),
+    'E': cp.Uniform(3320000, 27570000),
+    'F': cp.Uniform(0.32, 0.76),
     'Re': cp.Uniform(540, 660),
     'Wo': cp.Uniform(10.1, 12.3),
-    'power': cp.Uniform(1, 4),
-    'exp_R': cp.Uniform(3, 9),
-    'exp_C': cp.Uniform(4, 10)
+    'm': cp.Uniform(1, 4),
+    'gamma_R': cp.Reciprocal(2**8, 2**12),
+    'gamma_C': cp.Reciprocal(2**(-4), 2**0)
 }
 
 # Create an encoder
@@ -79,7 +83,7 @@ actions = Actions(CreateRunDirectory(root=os.path.join(cwd, 'run'), flatten=True
                   Decode(decoder))
 
 # Set campaign
-campaign = uq.Campaign(name='QratiosAAA_order2', \
+campaign = uq.Campaign(name='UQAAA_order2', \
     db_location='sqlite:///' + os.path.join(cwd, 'run/campaign.db'), \
     work_dir=os.path.join(cwd, 'run'), params=params, actions=actions)
 campaign.set_sampler(uq.sampling.PCESampler(vary=vary, polynomial_order=2, regression=True))
@@ -94,14 +98,14 @@ try:
     from qcg.pilotjob.executor_api.qcgpj_executor import QCGPJExecutor
     with QCGPJPool(
             qcgpj_executor=QCGPJExecutor(
+                #log_level='debug',
                 #resources='128,128', # local mode
-                reserve_core=False,
-                #log_level='debug'
+                reserve_core=False
             ),
             template=EasyVVUQParallelTemplate(),
             template_params={
                 'numCores':128, # per node
-                'numNodes':32, # default is 1
+                'numNodes':16, # default is 1
                 'venv':'/mnt/lustre/a2fs-work3/work/e769/e769/sharplo4/venv'
             }
         ) as qcgpj:

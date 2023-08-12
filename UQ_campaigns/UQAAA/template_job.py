@@ -28,42 +28,44 @@ def execute(command):
 ## Make an input file of HemeLB
 # Define parameters
 InOut = InputOutput(inFile='template_input.xml', outDir='./')
-param_sim = {'kernel':'TRT', 'tau':0.54, 'time':8.51, 'relaxationParameter':$magic}
-param_iN = {'type':'velocity', 'subtype':'file', 'Re':$Re, 'Wo':$Wo, 'profile':'ESM_File2_Q_d4.txt'}
-param_oUT = {'type':'pressure', 'subtype':'fileWK', 'geometry':'0156_0001_7e-3', \
-    'flowRateRatios':'Murray', 'power':$power}
-param_oUT['gamma_R'] = 10**$exp_R
-param_oUT['gamma_RC'] = param_oUT['gamma_R'] * 10**$exp_C
+param_sim = {'kernel':'TRT', 'tau':0.56, 'time':9.2, 'relaxationParameter':$Lambda, \
+             'YoungsModulus':$E, 'BoundaryVelocityRatio':$F}
+param_iN = {'type':'velocity', 'subtype':'file', 'Re':$Re, 'Wo':$Wo, \
+            'profile':'ESM_File2_Q_d4.txt', 'offset':0.2}
+param_oUT = {'type':'pressure', 'subtype':'WK', 'geometry':'0156_0001_7e-3', \
+    'flowRateRatios':'Murray', 'power':$m, 'gamma_R':$gamma_R}
+param_oUT['gamma_RC'] = $gamma_R * $gamma_C
 
 # Make the new input file
 InOut.ChangeParam(param_sim, param_iN, param_oUT, geometryPath=DIR + 'HemePure/cases/0156_0001v3_1e-4/')
 InOut.WriteInput(fileName='input.xml')
 
 # Run the HemeLB simulation
-#execute('srun --nodes=32 --ntasks=4096 --cpus-per-task=1 --mem-per-cpu=0 --overlap --exact ' + EXE + ' -in input.xml -out sim_results; sleep 10')
+execute('srun --nodes=16 --ntasks=2048 --cpus-per-task=1 --mem-per-cpu=0 --overlap --exact ' + EXE + ' -in input.xml -out sim; sleep 10')
 
 ## Post-process results of the simulation (perform in the second run)
 # Convert data to a human-readable format
 data = ['inlet', 'outlet', 'sphereA', 'sphereB']
 for datum in data:
-    #execute('bash ' + TOOLDIR + 'paraviewPreprocess.sh sim_results/Extracted/' + datum + '.dat')
+    execute('bash ' + TOOLDIR + 'paraviewPreprocess.sh sim/Extracted/' + datum + '.dat')
     pass
 
 # Set parameters for ranges
-stepsPerShot = int(InOut.outputPeriod / 10)
+avgSteps = 20
+stepsPerShot = int(InOut.outputPeriod / avgSteps)
 shotEnd = int(InOut.timeSteps / stepsPerShot) - 1
-shotBeg = shotEnd - numPeriods * 10 + 1
-stepsRange = range(InOut.timeSteps - stepsPerShot * (numPeriods * 10 - 1), InOut.timeSteps)
+shotBeg = shotEnd - numPeriods * avgSteps + 1
+stepsRange = range(InOut.timeSteps - stepsPerShot * (numPeriods * avgSteps - 1), InOut.timeSteps)
 
 # Calculate quantities related to the Windkessel BC for the outlets
-obj = Windkessel(inFile='input.xml', dataDir='sim_results/Extracted/', outDir=outDir, \
+obj = Windkessel(inFile='input.xml', dataDir='sim/Extracted/', outDir=outDir, \
     shotBeg=shotBeg, shotEnd=shotEnd, shotStep=1, ref=2)
 obj.CheckMassConservation()
 
 # Calculate the flow rate
 Q_iN = obj.CalAverageFlowRates(obj.iN, range(obj.numInlets))
 Q_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets))
-Qavg_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets), avgSteps=10)
+Qavg_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets), avgSteps=avgSteps)
 obj.Visualise_Clusters(Q_iN, 'Q', range(obj.numInlets))
 obj.Visualise_Clusters(Q_oUT, 'Q', range(obj.numOutlets))
 obj.Visualise_Ratios(Qavg_oUT, 'Q', range(obj.numOutlets))
@@ -88,7 +90,7 @@ obj.Visualise_TimeSeries(obj.oUT8cEN, 'P', 'Un')
 obj.Visualise_TimeSeries(obj.oUT9cEN, 'P', 'Un')
 
 # Calculate the risk factors for aneurysm
-obj2 = PipeFlow(inFile='input.xml', dataDir='sim_results/Extracted/', outDir=outDir, \
+obj2 = PipeFlow(inFile='input.xml', dataDir='sim/Extracted/', outDir=outDir, \
     shotBeg=shotBeg, shotEnd=shotEnd, shotStep=1, \
     dfDict={'sA':'sphereA', 'sB':'sphereB'})
 AAA = pd.merge(obj2.sA, obj2.sB, how='outer')
