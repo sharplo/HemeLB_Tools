@@ -3,6 +3,7 @@ import numpy as np
 
 from scipy.special import jv
 
+plt.rc('font', family='serif')
 
 dx = 1.0e-4
 h = 1.775e-3 #m, wall thickness
