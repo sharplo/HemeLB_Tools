@@ -44,7 +44,7 @@ plt.xlabel('Extension (%)')
 plt.ylabel('F')
 plt.grid()
 plt.minorticks_on()
-plt.savefig("lineF.png")
+plt.savefig("lineF.pdf")
 
 
 plt.figure(2)
@@ -80,4 +80,4 @@ plt.imshow(f.reshape(len(Extend),len(Wom)), aspect="auto", extent=[10.1,12.3,0,1
 plt.colorbar(label='F') 
 plt.xlabel("Womersley Number")
 plt.ylabel("Extension (%)")
-plt.savefig("mapF.png")
+plt.savefig("mapF.pdf")
