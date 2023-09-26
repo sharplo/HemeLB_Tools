@@ -22,7 +22,8 @@ params = {
     'Wo':{'type':'float', 'min':0.1, 'max':15, 'default':11.2},
     'm':{'type':'float', 'min':0, 'max':10, 'default':2},
     'gamma_R':{'type':'float', 'min':0, 'max':1e10, 'default':2**10},
-    'gamma_C':{'type':'float', 'min':0, 'max':1e10, 'default':2**(-2)}
+    'gamma_C':{'type':'float', 'min':0, 'max':1e10, 'default':2**(-2)},
+    'shotShift':{'type':'float', 'min':0, 'max':1000, 'default':0}
 }
 
 # Set distributions
@@ -34,7 +35,8 @@ vary = {
     'Wo': cp.Uniform(10.1, 12.3),
     'm': cp.Uniform(1, 4),
     'gamma_R': cp.Reciprocal(2**8, 2**12),
-    'gamma_C': cp.Reciprocal(2**(-4), 2**0)
+    'gamma_C': cp.Reciprocal(2**(-4), 2**0),
+    'shotShift': cp.Uniform(0, 20)
 }
 
 # Create an encoder
@@ -51,7 +53,7 @@ copy_encoder3 = uq.encoders.CopyEncoder(
     'ESM_File2_Q_d4.txt'
 )
 generic_encoder = uq.encoders.GenericEncoder(
-    template_fname="template_job.py",
+    template_fname="template_model.py",
     delimiter="$",
     target_filename="simulationModel.py"
 )
@@ -71,8 +73,8 @@ decoder = uq.decoders.JSONDecoder(
         'Qratios_RelErr',
         'TAWSS',
         'OSI',
-        'RRT',
-        'ECAP'
+        'ECAP',
+        'RRT'
     ]
 )
 
@@ -105,7 +107,7 @@ try:
             template=EasyVVUQParallelTemplate(),
             template_params={
                 'numCores':128, # per node
-                'numNodes':16, # default is 1
+                'numNodes':32, # default is 1
                 'venv':'/mnt/lustre/a2fs-work3/work/e769/e769/sharplo4/venv'
             }
         ) as qcgpj:
