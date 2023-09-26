@@ -6,7 +6,7 @@ import json
 # Define paths
 DIR = '/work/e769/e769/sharplo4/'
 TOOLDIR = DIR + 'HemeLB_Tools/'
-EXE = DIR + 'HemePure/src/build_Ladd_Nash_TRT/hemepure'
+EXE = DIR + 'HemePure/src/build_Ladd_Nash_TRT_GZSE/hemepure'
 
 numPeriods = int(sys.argv[1])
 outDir = sys.argv[2]
@@ -41,7 +41,7 @@ InOut.ChangeParam(param_sim, param_iN, param_oUT, geometryPath=DIR + 'HemePure/c
 InOut.WriteInput(fileName='input.xml')
 
 # Run the HemeLB simulation
-execute('srun --nodes=16 --ntasks=2048 --cpus-per-task=1 --mem-per-cpu=0 --overlap --exact ' + EXE + ' -in input.xml -out sim; sleep 10')
+execute('srun --nodes=32 --ntasks=4096 --cpus-per-task=1 --mem-per-cpu=0 --overlap --exact ' + EXE + ' -in input.xml -out sim; sleep 10')
 
 ## Post-process results of the simulation (perform in the second run)
 # Convert data to a human-readable format
@@ -53,9 +53,8 @@ for datum in data:
 # Set parameters for ranges
 avgSteps = 20
 stepsPerShot = int(InOut.outputPeriod / avgSteps)
-shotEnd = int(InOut.timeSteps / stepsPerShot) - 1
+shotEnd = int(InOut.timeSteps / stepsPerShot - 1 - $shotShift)
 shotBeg = shotEnd - numPeriods * avgSteps + 1
-stepsRange = range(InOut.timeSteps - stepsPerShot * (numPeriods * avgSteps - 1), InOut.timeSteps)
 
 # Calculate quantities related to the Windkessel BC for the outlets
 obj = Windkessel(inFile='input.xml', dataDir='sim/Extracted/', outDir=outDir, \
@@ -95,7 +94,7 @@ obj2 = PipeFlow(inFile='input.xml', dataDir='sim/Extracted/', outDir=outDir, \
     dfDict={'sA':'sphereA', 'sB':'sphereB'})
 AAA = pd.merge(obj2.sA, obj2.sB, how='outer')
 AAA.name = 'AAA'
-riskFactors = obj2.AneurysmsRiskFactors(AAA, stepsRange)
+riskFactors = obj2.AneurysmsRiskFactors(AAA, range(InOut.timeSteps))
 riskFactors.to_csv(outDir + 'riskFactors.csv', index=False)
 
 ## Write quantities of interest
@@ -106,8 +105,8 @@ qoi = {
     'Qratios_RelErr': Qratios['RelErr'].tolist(),
     'TAWSS': riskFactors['TAWSS'].describe().drop(['count']).tolist(),
     'OSI': riskFactors['OSI'].describe().drop(['count']).tolist(),
-    'RRT': riskFactors['RRT'].describe().drop(['count']).tolist(),
-    'ECAP': riskFactors['ECAP'].describe().drop(['count']).tolist()
+    'ECAP': riskFactors['ECAP'].describe().drop(['count']).tolist(),
+    'RRT': riskFactors['RRT'].describe().drop(['count']).tolist()
 }
 """
 # For the first run
@@ -117,8 +116,8 @@ qoi = {
     'Qratios_RelErr': 0,
     'TAWSS': 0,
     'OSI': 0,
-    'RRT': 0,
-    'ECAP': 0
+    'ECAP': 0,
+    'RRT': 0
 }
 """
 with open(outDir + 'qoi.json', 'w') as f:

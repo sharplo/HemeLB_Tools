@@ -33,7 +33,7 @@ copy_encoder = uq.encoders.CopyEncoder(
     'template_input.xml'
 )
 generic_encoder = uq.encoders.GenericEncoder(
-    template_fname="template_job.py",
+    template_fname="template_model.py",
     delimiter="$",
     target_filename="simulationModel.py"
 )
