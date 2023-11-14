@@ -101,9 +101,11 @@ class Windkessel(PipeFlow):
 
     def CheckPressureAssumption(self, df):
         std = df.groupby(['step', 'cluster'], as_index=False)['P'].std()
-        mean = std.groupby(['cluster'], as_index=False)['P'].mean()
-        print('Time Averaged Standard Deviations:')
-        print(mean['P'])
+        mean = df.groupby(['step', 'cluster'], as_index=False)['P'].mean()
+        std_TA = std.groupby(['cluster'], as_index=False)['P'].mean()
+        mean_TA = mean.groupby(['cluster'], as_index=False)['P'].mean()
+        print('Time-averaged coefficient of variation:')
+        print(std_TA['P'] / mean_TA['P'])
 
     def EmpiricalMurrayPower(self, Q_oUT):
         r_ratios = self.radius_oUT / self.radius_oUT[self.ref]
