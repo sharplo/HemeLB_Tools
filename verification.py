@@ -68,7 +68,6 @@ obj.Visualise_TimeSeries(obj.oUT0cEN, 'P', 'Un')
 obj.Visualise_TimeSeries(obj.oUT1cEN, 'P', 'Un')
 obj.Visualise_TimeSeries(obj.oUT2cEN, 'P', 'Un')
 obj.Visualise_TimeSeries(obj.oUT3cEN, 'P', 'Un')
-obj.Visualise_TimeSeries(obj.oUT4cEN, 'P', 'Un')
 
 """
 
