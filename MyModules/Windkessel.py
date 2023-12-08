@@ -21,12 +21,13 @@ class Windkessel(PipeFlow):
         for key in self.dfDict.keys():
             if key[:2] == 'iN':
                 normal = getattr(self, 'normal_iN')
+                area = getattr(self, 'area_iN')
             elif key[:3] == 'oUT':
                 normal = getattr(self, 'normal_oUT')
+                area = getattr(self, 'area_oUT')
             else:
                 sys.exit('Error: No normal vector is found for this data frame!')
-            setattr(self, key, self.AddNormalVelocity(getattr(self, key), normal))
-            self.AddFlowRate(getattr(self, key), 'volume')
+            setattr(self, key, self.AddColumns(getattr(self, key), normal, area))
 
     def DeriveParams(self):
         self.numInlets = len(self.position_iN)
@@ -38,31 +39,31 @@ class Windkessel(PipeFlow):
         for i in range(self.numOutlets):
             super().AddDataFrame('oUT' + str(i) + 'cEN', ['oUT' + str(i), 'cEN'])
 
-    def AddNormalVelocity(self, df, normal):
+    def AddColumns(self, df, normal, area):
         result = pd.DataFrame()
         for i in range(int(df['cluster'].max()) + 1):
             new = df[df['cluster'] == i].copy()
             new['Un'] = self.NormalVelocity(new, normal[i,:])
+            new['Q'] = self.LocalFlowRate(new, 'volume', area[i])
             result = pd.concat([result, new])
         result.name = df.name
         return result
 
-    def AddFlowRate(self, df, type):
+    def LocalFlowRate(self, df, type, area):
         if type == 'volume':
             density = 1
         elif type == 'mass':
             density = df['P'] * mmHg / (cs2 * self.dx**2 / self.dt**2)
         else:
             sys.exit('Error: The prescribed flow rate type is not available!')
-        df['Q'] = density * df['Un'] * self.dx**2
+        return density * df['Un'] * area
 
     def CalAverageFlowRates(self, df, clusters, avgSteps=1):
         result = pd.DataFrame()
         for i in clusters:
-            # Calculate the local flow rate of ith cluster
             new = df[df['cluster'] == i].copy()
-            # Calculate the spatial sum
-            new = new.groupby(['step', 'cluster'], as_index=False)['Q'].sum()
+            # Calculate the spatial average
+            new = new.groupby(['step', 'cluster'], as_index=False)['Q'].mean()
             # Calculate the temporal average over the given period
             new = new.groupby([new.index // avgSteps, 'cluster'], as_index=False).mean()
             # Concatenate results from different clusters
