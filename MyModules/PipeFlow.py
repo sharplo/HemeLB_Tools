@@ -15,8 +15,8 @@ class PipeFlow(InputOutput, Visual, DiscError, WallStress):
         WallStress.__init__(self)
 
         self.dataDir = dataDir # directory where data reside
-        self.shotBeg = shotBeg # first file to be read
-        self.shotEnd = shotEnd # last file to be read
+        self.shotBeg = shotBeg # first time step to read
+        self.shotEnd = shotEnd # last time step to read
         self.shotStep = shotStep # step of file reading
         self.dfDict = dfDict # dictionary between data frame names and data file names
 
@@ -41,13 +41,10 @@ class PipeFlow(InputOutput, Visual, DiscError, WallStress):
         self.MakeDataFrames(key, values)
         self.dfDict[key] = values
 
-    def LoadData(self, file):
-        df = pd.DataFrame()
-        for shot in range(self.shotBeg, self.shotEnd+1, self.shotStep):
-            # TODO: make it compatible with all operating system, e.g. using sys.path
-            fileName = self.dataDir + file + '/' + file + str(shot) + '.txt'
-            df = pd.concat([df, pd.read_csv(fileName, delimiter=' ')], ignore_index=True)
-        return df
+    def LoadData(self, geometry):
+        fileName = self.dataDir + geometry + '/' + geometry + '-all.txt'
+        df = pd.read_table(fileName, comment='#', delim_whitespace=True)
+        return df[(df['step'] >= self.shotBeg) & (df['step'] <= self.shotEnd)]
 
     def JoinDataFrames(self, values):
         df = getattr(self, values[0]).copy() # to ensure it is not a view
