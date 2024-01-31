@@ -9,38 +9,16 @@ OUT_ALL=$VAR-all.txt
 pushd $DIR
 
 # Make a new directory to avoid acidentally changing other files
-mkdir $VAR && cd $VAR
+mkdir -p $VAR && cd $VAR
 
 # Find the full directory name of this script
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # Translate into readable format using submodule hemeXtract
-$SCRIPT_DIR/submodules/hemeXtract/hemeXtract -X ../$FILE -o $OUT_ALL
-
-# Replace "| " with "" and "# step" with "step" in the first 50 lines and save
-HEADER=$(sed -n '1,50s/| //g;1,50s/# step/step/p' $OUT_ALL)
+$MyDir/HemeLB_Tools/submodules/hemeXtract/hemeXtract -X ../$FILE -o $OUT_ALL
 
 # Delete all empty lines
 sed -i '/^$/d' $OUT_ALL
-
-# Separate time series into individual files
-awk -v var=$VAR -v header="$HEADER" -F ' ' \
-'
-    BEGIN{N=-2; last_step=-1}
-    {
-        if(last_step != $1)
-        {
-            N++;
-            print header > var N".txt";
-            print >> var N".txt";
-            last_step=$1;
-        }
-        else
-        {
-            print >> var N".txt"
-        }
-    }
-' $OUT_ALL
 
 # Go back to the original directory
 popd
