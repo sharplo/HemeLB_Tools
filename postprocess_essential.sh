@@ -15,7 +15,7 @@ mkdir -p $VAR && cd $VAR
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # Translate into readable format using submodule hemeXtract
-$MyDir/HemeLB_Tools/submodules/hemeXtract/hemeXtract -X ../$FILE -o $OUT_ALL
+$SCRIPT_DIR/submodules/hemeXtract/hemeXtract -X ../$FILE -o $OUT_ALL
 
 # Delete all empty lines
 sed -i '/^$/d' $OUT_ALL
