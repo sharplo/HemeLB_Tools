@@ -40,10 +40,10 @@ obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT1pYcEN, 'P', 'Uz')
 """
 
 obj = Windkessel(inFile, dataDir, outDir, stepBeg, stepEnd)
-period = 20
+stepsPerPeriod = 1560
 Q_iN = obj.CalAverageFlowRates(obj.iN, range(obj.numInlets))
 Q_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets))
-Qavg_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets), avgSteps=period)
+Qavg_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets), avgSteps=stepsPerPeriod)
 Qratios = obj.CalFlowRateRatios(Q_oUT)
 
 # Check implementations and assumptions

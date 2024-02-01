@@ -65,7 +65,7 @@ class Windkessel(PipeFlow):
             # Calculate the spatial average
             new = new.groupby(['step', 'cluster'], as_index=False)['Q'].mean()
             # Calculate the temporal average over the given period
-            new = new.groupby([new.index // avgSteps, 'cluster'], as_index=False).mean()
+            new = new.groupby([(new.step - new.step[0]) // avgSteps, 'cluster'], as_index=False).mean()
             # Concatenate results from different clusters
             result = pd.concat([result, new])
         result.name = df.name
