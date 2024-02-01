@@ -7,6 +7,7 @@ This repository contains preprocessing and postprocessing tools for simulations 
 
 The scripts in the root directory are intended to be used directly.
 - `analysis.py` is used for parametry analysis of the two-element Windkessel model only
-- `paraviewPreprocess.sh` is used to translate the binary output of HemeLB to human-readable output and divide the results according to the time steps
+- `postprocess_essential.sh` is used to translate the binary output of HemeLB to human-readable output
+- `postprocess_full.sh` has the function of `postprocess_essential.sh` and additionally divides the results into individual time steps for visualisation in ParaView
 - `verification.py` is used to verify and analyse the simulation results in general
 - `writeInput.py` is used to generate an array of input files of HemeLB
