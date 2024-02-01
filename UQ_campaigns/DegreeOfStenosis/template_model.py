@@ -47,13 +47,13 @@ execute('srun --nodes=1 --ntasks=3 --cpus-per-task=1 --mem-per-cpu=0 --overlap -
 # Post-process data
 data = ['inlet', 'outlet', 'surface']
 for datum in data:
-    execute('bash ' + TOOLDIR + 'paraviewPreprocess.sh sim_results/Extracted/' + datum + '.dat')
+    execute('bash ' + TOOLDIR + 'postprocess_essential.sh sim_results/Extracted/' + datum + '.dat')
     pass
 
 # Analyse data
 dfDict = {'iN':'inlet', 'oUT':'outlet', 'sF':'surface'}
 obj = PipeFlow(inFile='input.xml', dataDir='sim_results/Extracted/', outDir='./', \
-    shotBeg=0, shotEnd=9, shotStep=1, dfDict=dfDict)
+    stepBeg=600, stepEnd=1000, dfDict=dfDict)
 rng = range(600,1000)
 riskFactors = obj.AneurysmsRiskFactors(obj.sF, rng)
 riskFactors.to_csv('riskFactors.csv', index=False)

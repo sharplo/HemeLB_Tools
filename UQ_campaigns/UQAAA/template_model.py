@@ -47,24 +47,23 @@ execute('srun --nodes=32 --ntasks=4096 --cpus-per-task=1 --mem-per-cpu=0 --overl
 # Convert data to a human-readable format
 data = ['inlet', 'outlet', 'sphereA', 'sphereB']
 for datum in data:
-    execute('bash ' + TOOLDIR + 'paraviewPreprocess.sh sim/Extracted/' + datum + '.dat')
+    execute('bash ' + TOOLDIR + 'postprocess_essential.sh sim/Extracted/' + datum + '.dat')
     pass
 
 # Set parameters for ranges
-avgSteps = 20
-stepsPerShot = int(InOut.outputPeriod / avgSteps)
-shotEnd = int(InOut.timeSteps / stepsPerShot - 1 - $shotShift)
-shotBeg = shotEnd - numPeriods * avgSteps + 1
+stepsPerShot = InOut.stepsPerPeriod / 20
+stepEnd = InOut.timeSteps - $shotShift * stepsPerShot
+stepBeg = stepEnd - numPeriods * InOut.stepsPerPeriod + 1
 
 # Calculate quantities related to the Windkessel BC for the outlets
 obj = Windkessel(inFile='input.xml', dataDir='sim/Extracted/', outDir=outDir, \
-    shotBeg=shotBeg, shotEnd=shotEnd, shotStep=1, ref=2)
+    stepBeg=stepBeg, stepEnd=stepEnd, ref=2)
 obj.CheckMassConservation()
 
 # Calculate the flow rate
 Q_iN = obj.CalAverageFlowRates(obj.iN, range(obj.numInlets))
 Q_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets))
-Qavg_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets), avgSteps=avgSteps)
+Qavg_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets), avgSteps=InOut.stepsPerPeriod)
 obj.Visualise_Clusters(Q_iN, 'Q', range(obj.numInlets))
 obj.Visualise_Clusters(Q_oUT, 'Q', range(obj.numOutlets))
 obj.Visualise_Ratios(Qavg_oUT, 'Q', range(obj.numOutlets))
@@ -90,7 +89,7 @@ obj.Visualise_TimeSeries(obj.oUT9cEN, 'P', 'Un')
 
 # Calculate the risk factors for aneurysm
 obj2 = PipeFlow(inFile='input.xml', dataDir='sim/Extracted/', outDir=outDir, \
-    shotBeg=shotBeg, shotEnd=shotEnd, shotStep=1, \
+    stepBeg=stepBeg, stepEnd=stepEnd, \
     dfDict={'sA':'sphereA', 'sB':'sphereB'})
 AAA = pd.merge(obj2.sA, obj2.sB, how='outer')
 AAA.name = 'AAA'
