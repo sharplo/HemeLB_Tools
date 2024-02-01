@@ -8,7 +8,7 @@ from MyModules.WallStress import *
 pd.set_option("display.precision", 10)
 
 class PipeFlow(InputOutput, Visual, DiscError, WallStress):
-    def __init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict):
+    def __init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, dfDict):
         InputOutput.__init__(self, inFile, outDir)
         Visual.__init__(self, dfDict)
         DiscError.__init__(self)
@@ -17,7 +17,6 @@ class PipeFlow(InputOutput, Visual, DiscError, WallStress):
         self.dataDir = dataDir # directory where data reside
         self.shotBeg = shotBeg # first time step to read
         self.shotEnd = shotEnd # last time step to read
-        self.shotStep = shotStep # step of file reading
         self.dfDict = dfDict # dictionary between data frame names and data file names
 
         # General procedures

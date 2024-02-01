@@ -2,10 +2,10 @@ import numpy as np
 from MyModules.PipeFlow import *
 
 class Windkessel(PipeFlow):
-    def __init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict=None, ref=None):
+    def __init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, dfDict=None, ref=None):
         if dfDict is None:
             dfDict = {'iN':'inlet', 'oUT':'outlet'}
-        PipeFlow.__init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict)
+        PipeFlow.__init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, dfDict)
 
         # Set the reference outlet
         if ref is None:

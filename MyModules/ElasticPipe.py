@@ -2,8 +2,8 @@ import numpy as np
 from MyModules.PipeFlow import *
 
 class ElasticPipe(PipeFlow):
-    def __init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict):
-        PipeFlow.__init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict)
+    def __init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, dfDict):
+        PipeFlow.__init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, dfDict)
 
         for key in self.dfDict.keys():
             self.AddNormalVelocity(getattr(self, key))
