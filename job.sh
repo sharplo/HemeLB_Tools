@@ -16,8 +16,8 @@ cp $INFILE $OUTDIR
 data=("inlet" "outlet" "surface")
 for datum in "${data[@]}"
 do
-    bash $TOOLDIR/paraviewPreprocess.sh $OUTDIR/Extracted/$datum.dat
+    bash $TOOLDIR/postprocess_essential.sh $OUTDIR/Extracted/$datum.dat
 done
 
 # Analyse data
-python $TOOLDIR/verification.py $INFILE $OUTDIR/Extracted/ $OUTDIR/figures/ 0 9 1
+python $TOOLDIR/verification.py $INFILE $OUTDIR/Extracted/ $OUTDIR/figures/ 0 99999 1
