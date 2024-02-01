@@ -8,15 +8,15 @@ from MyModules.WallStress import *
 pd.set_option("display.precision", 10)
 
 class PipeFlow(InputOutput, Visual, DiscError, WallStress):
-    def __init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, dfDict):
+    def __init__(self, inFile, dataDir, outDir, stepBeg, stepEnd, dfDict):
         InputOutput.__init__(self, inFile, outDir)
         Visual.__init__(self, dfDict)
         DiscError.__init__(self)
         WallStress.__init__(self)
 
         self.dataDir = dataDir # directory where data reside
-        self.shotBeg = shotBeg # first time step to read
-        self.shotEnd = shotEnd # last time step to read
+        self.stepBeg = stepBeg # first time step to read
+        self.stepEnd = stepEnd # last time step to read
         self.dfDict = dfDict # dictionary between data frame names and data file names
 
         # General procedures
@@ -43,7 +43,7 @@ class PipeFlow(InputOutput, Visual, DiscError, WallStress):
     def LoadData(self, geometry):
         fileName = self.dataDir + geometry + '/' + geometry + '-all.txt'
         df = pd.read_table(fileName, comment='#', delim_whitespace=True)
-        return df[(df['step'] >= self.shotBeg) & (df['step'] <= self.shotEnd)]
+        return df[(df['step'] >= self.stepBeg) & (df['step'] <= self.stepEnd)]
 
     def JoinDataFrames(self, values):
         df = getattr(self, values[0]).copy() # to ensure it is not a view

@@ -9,16 +9,15 @@ from MyModules.ElasticPipe import *
 inFile=sys.argv[1]
 dataDir=sys.argv[2]
 outDir=sys.argv[3]
-shotBeg=int(sys.argv[4])
-shotEnd=int(sys.argv[5])
-shotStep=int(sys.argv[6])
+stepBeg=int(sys.argv[4])
+stepEnd=int(sys.argv[5])
 
 if not os.path.exists(outDir):
     os.mkdir(outDir)
 
 """
 
-obj = Poiseuille(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep)
+obj = Poiseuille(inFile, dataDir, outDir, stepBeg, stepEnd)
 obj.CompareExSol_1D(obj.cL, 'grid_z', 'Un')
 obj.CompareExSol_1D(obj.cL, 'grid_z', 'P')
 obj.Visualise_1D(obj.cL, 'grid_z', 'err_P')
@@ -31,7 +30,7 @@ obj.WriteDiscErr(obj.pN, 'Un')
 
 
 
-obj = Bifurcation(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep)
+obj = Bifurcation(inFile, dataDir, outDir, stepBeg, stepEnd)
 obj.Visualise_TimeSeries(obj.iNpYcEN, 'P', 'Uz')
 obj.Visualise_TimeSeries(obj.pZOUT0pYcEN, 'P', 'Uz')
 obj.Visualise_TimeSeries(obj.pZOUT1pYcEN, 'P', 'Uz')
@@ -40,7 +39,7 @@ obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT1pYcEN, 'P', 'Uz')
 
 """
 
-obj = Windkessel(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep)
+obj = Windkessel(inFile, dataDir, outDir, stepBeg, stepEnd)
 period = 20
 Q_iN = obj.CalAverageFlowRates(obj.iN, range(obj.numInlets))
 Q_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets))
@@ -75,7 +74,7 @@ dfDict = {'iN':'inlet', 'oUT':'outlet', 'pN':'planeN'}
 rng1 = range(12000, 15500)
 rng2 = range(12200, 15500)
 
-obj = ElasticPipe(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict)
+obj = ElasticPipe(inFile, dataDir, outDir, stepBeg, stepEnd, dfDict)
 obj.AddDataFrame('iNcEN', ['iN', 'cEN'])
 obj.AddDataFrame('oUTcEN', ['oUT', 'cEN'])
 obj.AddDataFrame('pNcEN', ['pN', 'cEN'])
@@ -94,7 +93,7 @@ print('pwv_P', pwv_P, 'pwv_Uz', pwv_Uz)
 
 
 dfDict = {'iN':'inlet', 'oUT':'outlet', 'sF':'surface'}
-obj = PipeFlow(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict)
+obj = PipeFlow(inFile, dataDir, outDir, stepBeg, stepEnd, dfDict)
 rng = range(0,600)
 riskFactors = obj.AneurysmsRiskFactors(obj.sF, rng)
 obj.Visualise_3D(obj.sF, 'WSS')

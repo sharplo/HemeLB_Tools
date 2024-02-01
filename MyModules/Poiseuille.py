@@ -7,10 +7,10 @@ class Poiseuille(PipeFlow):
     # 2) the centre of the inlet is placed at the origin
     # 3) the cylindrical axis lies on the y-z plane
 
-    def __init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, dfDict=None):
+    def __init__(self, inFile, dataDir, outDir, stepBeg, stepEnd, dfDict=None):
         if dfDict is None:
             dfDict = {'iN':'inlet', 'oUT':'outlet', 'cL':'centreLine', 'pN':'planeN'}
-        PipeFlow.__init__(self, inFile, dataDir, outDir, shotBeg, shotEnd, dfDict)
+        PipeFlow.__init__(self, inFile, dataDir, outDir, stepBeg, stepEnd, dfDict)
 
         for key in self.dfDict.keys():
             self.AddRadialDistance(getattr(self, key))
