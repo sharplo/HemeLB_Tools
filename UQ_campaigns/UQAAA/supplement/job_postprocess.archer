@@ -1,0 +1,49 @@
+#!/bin/bash
+# slurm job script for postprocessing HemePure outputs on ARCHER2
+
+# Job options
+# ======================================================
+#SBATCH --account=e769-sharplo4
+#SBATCH --job-name=postprocess
+#SBATCH --export=none
+
+#SBATCH --partition=standard
+#SBATCH --qos=standard
+#SBATCH --ntasks=1
+#SBATCH --time=01:00:00
+#SBATCH --array=0
+# ======================================================
+
+# Load modules
+source /work/e769/e769/sharplo4/venv/bin/activate
+
+# Short name
+JOBID=$SLURM_ARRAY_JOB_ID\_$SLURM_ARRAY_TASK_ID
+
+# Paths
+CASE=0156_0001v3_1e-4
+DIR=/work/e769/e769/sharplo4
+OUTDIR=$DIR/$CASE/case\_$SLURM_ARRAY_TASK_ID
+INFILE=$OUTDIR/input\_$SLURM_ARRAY_TASK_ID.xml
+TOOLDIR=$DIR/HemeLB_Tools
+#RUNDIR=$DIR/UQ_QratiosAAA_1_order2/run/QratiosAAA_1_order2h4d6ksgn/runs/run\_$SLURM_ARRAY_TASK_ID
+#INFILE=$RUNDIR/input.xml
+#OUTDIR=$RUNDIR/sim
+
+# Launch job
+pushd $OUTDIR
+data=("inlet" "outlet" "sphereA" "sphereB")
+for datum in "${data[@]}"
+do
+    bash $TOOLDIR/paraviewPreprocess.sh $OUTDIR/Extracted/$datum.dat
+done
+#pushd $RUNDIR
+#python simulationModel.py 3 ./periods_3/
+
+# Analyse data
+#time python $TOOLDIR/verification.py $INFILE $OUTDIR/Extracted/ $OUTDIR/figures/ 171 230 1
+time python $TOOLDIR/verification.py
+
+# Document input files and log file
+popd
+cp ./slurm-$JOBID.out $OUTDIR

@@ -1,0 +1,38 @@
+#!/bin/bash
+# slurm job script for running HemePure on ARCHER2
+
+# Job options
+# ======================================================
+#SBATCH --account=e769-sharplo4
+#SBATCH --job-name=HemePure
+#SBATCH --export=none
+#SBATCH --distribution=block:block
+#SBATCH --hint=nomultithread
+
+#SBATCH --partition=standard
+#SBATCH --qos=short
+#SBATCH --nodes=32
+#SBATCH --ntasks=4096
+#SBATCH --time=00:20:00
+#SBATCH --array=0
+# ======================================================
+
+# Short name
+JOBID=$SLURM_ARRAY_JOB_ID\_$SLURM_ARRAY_TASK_ID
+
+# Paths
+CASE=0156_0001v3_1e-4
+DIR=/work/e769/e769/sharplo4
+EXE=$DIR/HemePure/src/build_Ladd_Nash_TRT_GZSE/hemepure
+INFILE=$DIR/HemePure/cases/$CASE/input\_$SLURM_ARRAY_TASK_ID.xml
+OUTDIR=$DIR/$CASE/case\_$SLURM_ARRAY_TASK_ID
+#RUNDIR=$DIR/UQAAA_order3/run/UQAAA_order30yvo3f4_/runs/run\_$SLURM_ARRAY_TASK_ID
+#INFILE=$RUNDIR/input.xml
+#OUTDIR=$RUNDIR/sim
+
+# Launch parallel job
+srun -n $SLURM_NTASKS --cpus-per-task=1 --unbuffered $EXE -in $INFILE -out $OUTDIR
+
+# Document input files and log file
+cp ./slurm-$JOBID.out $OUTDIR
+cp $INFILE $OUTDIR

@@ -169,16 +169,18 @@
      <field type="velocity" />
      <field type="pressure" />
    </propertyoutput>
-   <!--propertyoutput file="whole.dat" period="100">
+   <propertyoutput file="whole.dat" period="13238">
      <geometry type="whole" />
      <field type="velocity" />
      <field type="pressure" />
-   </propertyoutput-->
+   </propertyoutput>
    <propertyoutput file="sphereA.dat" period="661">
      <geometry type="surfaceWithinSphere">
         <point value="(0.0406982,0.0464332,0.131996)" units="m" />
         <radius value="0.018" units="m" />
      </geometry>
+     <field type="velocity" />
+     <field type="pressure" />
      <field type="tangentialprojectiontraction" />
      <field type="normalprojectiontraction" />
      <field type="shearstress" />
@@ -188,6 +190,8 @@
         <point value="(0.0468982,0.0466332,0.115996)" units="m" />
         <radius value="0.012" units="m" />
      </geometry>
+     <field type="velocity" />
+     <field type="pressure" />
      <field type="tangentialprojectiontraction" />
      <field type="normalprojectiontraction" />
      <field type="shearstress" />

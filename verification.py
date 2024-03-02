@@ -1,107 +1,78 @@
 #!/usr/bin/python3.6
 import os
-import sys
-from MyModules.Poiseuille import *
-from MyModules.Bifurcation import *
+import json
 from MyModules.Windkessel import *
-from MyModules.ElasticPipe import *
 
-inFile=sys.argv[1]
-dataDir=sys.argv[2]
-outDir=sys.argv[3]
-shotBeg=int(sys.argv[4])
-shotEnd=int(sys.argv[5])
-shotStep=int(sys.argv[6])
+# Define paths
+DIR = '/work/e769/e769/sharplo4/0156_0001v3_1e-4/case_0/'
+inFile = DIR + 'input_0.xml'
+dataDir = DIR + 'Extracted/'
+outDir = DIR + 'verification/'
 
+# Set parameters for ranges
+avgSteps = 20
+shotEnd = 230
+numPeriods = 3
+shotBeg = shotEnd - numPeriods * avgSteps + 1
+
+# Create the output directory if it is absent
 if not os.path.exists(outDir):
     os.mkdir(outDir)
 
-"""
+# Calculate quantities related to the Windkessel BC for the outlets
+obj = Windkessel(inFile=inFile, dataDir=dataDir, outDir=outDir, \
+    shotBeg=shotBeg, shotEnd=shotEnd, shotStep=1, ref=2)
+obj.CheckMassConservation()
 
-obj = Poiseuille(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep)
-obj.CompareExSol_1D(obj.cL, 'grid_z', 'Un')
-obj.CompareExSol_1D(obj.cL, 'grid_z', 'P')
-obj.Visualise_1D(obj.cL, 'grid_z', 'err_P')
-obj.WriteDiscErr(obj.cL, 'P')
-obj.CompareExSol_1D(obj.pN, 'grid_x', 'Un')
-obj.CompareExSol_2D(obj.pN, 'grid_x', 'grid_y', 'Un')
-obj.Visualise_1D(obj.pN, 'grid_x', 'err_Un')
-obj.Visualise_2D(obj.pN, 'grid_x', 'grid_y', 'err_Un')
-obj.WriteDiscErr(obj.pN, 'Un')
-
-
-
-obj = Bifurcation(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep)
-obj.Visualise_TimeSeries(obj.iNpYcEN, 'P', 'Uz')
-obj.Visualise_TimeSeries(obj.pZOUT0pYcEN, 'P', 'Uz')
-obj.Visualise_TimeSeries(obj.pZOUT1pYcEN, 'P', 'Uz')
-obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT0pYcEN, 'P', 'Uz')
-obj.Compare_TimeSeries(obj.iNpYcEN, obj.pZOUT1pYcEN, 'P', 'Uz')
-
-"""
-
-obj = Windkessel(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep)
-period = 20
+# Calculate the flow rate
 Q_iN = obj.CalAverageFlowRates(obj.iN, range(obj.numInlets))
 Q_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets))
-Qavg_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets), avgSteps=period)
-Qratios = obj.CalFlowRateRatios(Q_oUT)
-
-# Check implementations and assumptions
-obj.Check_Clustering(obj.oUT)
-obj.CheckMassConservation()
-Q_mag = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets))
-obj.CheckNormalAssumption(Q_mag, Q_oUT, range(obj.numOutlets))
-obj.CheckPressureAssumption(obj.oUT)
-obj.EmpiricalMurrayPower(Qratios['Measured'].to_numpy())
-
-# Collective analysis
+Qavg_oUT = obj.CalAverageFlowRates(obj.oUT, range(obj.numOutlets), avgSteps=avgSteps)
 obj.Visualise_Clusters(Q_iN, 'Q', range(obj.numInlets))
 obj.Visualise_Clusters(Q_oUT, 'Q', range(obj.numOutlets))
 obj.Visualise_Ratios(Qavg_oUT, 'Q', range(obj.numOutlets))
+
+# Calculate the flow rate ratios
+Qratios = obj.CalFlowRateRatios(Q_oUT)
 obj.Compare_Scatter(Qratios)
 Qratios.to_csv(outDir + 'Qratios.csv', index=False)
+Qratios = Qratios.drop(index=obj.ref)
 
-# Individual analysis
+# Plot the pressure and normal velocity at the centre of the outlets
 obj.Visualise_TimeSeries(obj.iN0cEN, 'P', 'Un')
 obj.Visualise_TimeSeries(obj.oUT0cEN, 'P', 'Un')
 obj.Visualise_TimeSeries(obj.oUT1cEN, 'P', 'Un')
 obj.Visualise_TimeSeries(obj.oUT2cEN, 'P', 'Un')
 obj.Visualise_TimeSeries(obj.oUT3cEN, 'P', 'Un')
 obj.Visualise_TimeSeries(obj.oUT4cEN, 'P', 'Un')
+obj.Visualise_TimeSeries(obj.oUT5cEN, 'P', 'Un')
+obj.Visualise_TimeSeries(obj.oUT6cEN, 'P', 'Un')
+obj.Visualise_TimeSeries(obj.oUT7cEN, 'P', 'Un')
+obj.Visualise_TimeSeries(obj.oUT8cEN, 'P', 'Un')
+obj.Visualise_TimeSeries(obj.oUT9cEN, 'P', 'Un')
 
-"""
+# Calculate the risk factors for aneurysm
+obj2 = PipeFlow(inFile=inFile, dataDir=dataDir, outDir=outDir, \
+    shotBeg=shotBeg, shotEnd=shotEnd, shotStep=1, \
+    dfDict={'sA':'sphereA', 'sB':'sphereB'})
+AAA = pd.merge(obj2.sA, obj2.sB, how='outer')
+AAA.name = 'AAA'
+avgU = AAA[['step', 'grid_x', 'grid_y', 'grid_z', 'Ux', 'Uy', 'Uz']]
+avgU = obj2.CalTemporalAverage(avgU, range(1000000))
+avgU = avgU.drop(columns=['step'])
+riskFactors = obj2.AneurysmsRiskFactors(AAA, range(1000000))
+fields = pd.merge(avgU, riskFactors, how='outer')
+fields.to_csv(outDir + 'fields.csv', index=False)
 
-dfDict = {'iN':'inlet', 'oUT':'outlet', 'pN':'planeN'}
-rng1 = range(12000, 15500)
-rng2 = range(12200, 15500)
-
-obj = ElasticPipe(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict)
-obj.AddDataFrame('iNcEN', ['iN', 'cEN'])
-obj.AddDataFrame('oUTcEN', ['oUT', 'cEN'])
-obj.AddDataFrame('pNcEN', ['pN', 'cEN'])
-obj.Visualise_TimeSeries(obj.iNcEN, 'P', 'Uz')
-obj.Visualise_TimeSeries(obj.pNcEN, 'P', 'Uz')
-obj.Visualise_TimeSeries(obj.oUTcEN, 'P', 'Uz')
-#obj.Compare_TimeSeries(obj.iNcEN, obj.pNcEN, 'P', 'Uz')
-obj.Visualise_1D(obj.iNcEN, 'Uz', 'P', steps=rng1)
-obj.Visualise_1D(obj.pNcEN, 'Uz', 'P', steps=rng2)
-obj.Visualise_1D(obj.iNcEN, 'step', 'P', 'Uz', steps=rng1)
-obj.Visualise_1D(obj.pNcEN, 'step', 'P', 'Uz', steps=rng2)
-pwv_P = obj.CalPulseWaveVelocity(obj.iNcEN, rng1, obj.pNcEN, rng2, 'P', 5e-3)
-pwv_Uz = obj.CalPulseWaveVelocity(obj.iNcEN, rng1, obj.pNcEN, rng2, 'Uz', 5e-3)
-print('pwv_P', pwv_P, 'pwv_Uz', pwv_Uz)
-
-
-
-dfDict = {'iN':'inlet', 'oUT':'outlet', 'sF':'surface'}
-obj = PipeFlow(inFile, dataDir, outDir, shotBeg, shotEnd, shotStep, dfDict)
-rng = range(0,600)
-riskFactors = obj.AneurysmsRiskFactors(obj.sF, rng)
-obj.Visualise_3D(obj.sF, 'WSS')
-obj.Visualise_3D(riskFactors, 'TAWSS')
-obj.Visualise_3D(riskFactors, 'OSI')
-obj.Visualise_3D(riskFactors, 'ECAP')
-obj.Visualise_3D(riskFactors, 'MNS')
-
-"""
+# Write quantities of interest
+qoi = {
+    'Qratios_Desired': Qratios['Desired'].tolist(),
+    'Qratios_Measured': Qratios['Measured'].tolist(),
+    'Qratios_RelErr': Qratios['RelErr'].tolist(),
+    'TAWSS': riskFactors['TAWSS'].describe().drop(['count']).tolist(),
+    'OSI': riskFactors['OSI'].describe().drop(['count']).tolist(),
+    'ECAP': riskFactors['ECAP'].describe().drop(['count']).tolist(),
+    'RRT': riskFactors['RRT'].describe().drop(['count']).tolist()
+}
+with open(outDir + 'qoi.json', 'w') as f:
+    json.dump(qoi, f, indent=2)
