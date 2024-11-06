@@ -540,8 +540,10 @@ class InputOutput():
             lengths = [0.00853]*4
         elif geometry == '0130_0000_9e-3': # inlet radius=9.28e-3
             lengths = [0.0191]*4
-        elif geometry == '0012_H_AO_H_1e-2': # inlet radius=9.52e-3
-            lengths = [0.0565]*4
+        elif geometry == '0012_H_AO_H_2e-2': # inlet radius=2.00e-2
+            lengths = [0.0909]*4
+        elif geometry == '0012_H_AO_H_1e-2': # inlet radius=1.19e-2
+            lengths = [0.0519]*4
         elif geometry == '0003_0001_8e-3': # inlet radius=8.40e-3
             lengths = [0.0462]*17
         elif geometry == '0149_1001_7e-3': # inlet radius=7.38e-3
