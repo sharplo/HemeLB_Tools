@@ -140,7 +140,7 @@ class InputOutput():
                 if self.subtype_oUT == 'cosine':
                     value = condition.find('mean').attrib['value']
                     self.P_oUT = np.append(self.P_oUT, float(value))
-                elif self.subtype_oUT == 'WK' or self.subtype_oUT == 'fileWK':
+                elif self.subtype_oUT == 'WK2':
 
                     if condition.find('R') is None:
                         self.Rp = np.append(self.Rp, None)
@@ -280,7 +280,7 @@ class InputOutput():
             sys.exit('Error: Outlet subtypes are different!')
         elif self.type_oUT == 'pressure' or self.type_oUT == 'yangpressure':
             # Obtain values used in common
-            if self.subtype_oUT == 'WK' or self.subtype_oUT == 'fileWK':
+            if self.subtype_oUT == 'WK2':
                 geometry = param_oUT['geometry']
                 maxLK = self.FindMaxLK(geometry)
                 ratios = self.CalResistanceRatios(param_oUT)
@@ -288,7 +288,7 @@ class InputOutput():
             idx = 0
             for elm in root.find('outlets').iter('outlet'):
                 condition = elm.find('condition')
-                if self.subtype_oUT == 'WK' or self.subtype_oUT == 'fileWK':
+                if self.subtype_oUT == 'WK2':
                     if param_iN.get('Wo') is not None:
                         Wo = param_iN['Wo'] # from the inlet
                         omega = self.AngularFrequency(self.radius_iN[0], Wo)
