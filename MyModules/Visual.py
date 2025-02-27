@@ -112,7 +112,7 @@ class Visual(object):
         plt.close()
 
     def Visualise_TimeSeries(self, df, var1, var2=None):
-        return self.Visualise_1D(df, 'step', var1, var2=var2, steps=range(int(df['step'].max())), \
+        return self.Visualise_1D(df, 'step', var1, var2=var2, steps=range(int(df['step'].max()) + 1), \
             kwargs1={'linestyle':'-'}, kwargs2={'linestyle':'--'})
 
     def Compare_TimeSeries(self, df1, df2, var1, var2=None):
