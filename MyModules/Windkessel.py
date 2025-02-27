@@ -9,8 +9,8 @@ class Windkessel(PipeFlow):
 
         # Set the reference outlet
         if ref is None:
-            self.ref = np.argsort(self.resistance)[self.numOutlets // 2]
-            #self.ref = np.argmin(self.resistance)
+            self.ref = np.argsort(self.Rp)[self.numOutlets // 2]
+            #self.ref = np.argmin(self.Rp)
         else:
             self.ref = ref
         print('Reference outlet:', self.ref)
@@ -72,7 +72,7 @@ class Windkessel(PipeFlow):
         return result
 
     def CalFlowRateRatios(self, df):
-        desired = self.resistance[self.ref] / self.resistance
+        desired = self.Rp[self.ref] / self.Rp
         mean = df.groupby(['cluster'], as_index=False)['Q'].mean()
         measured = mean['Q'] / mean['Q'].loc[self.ref]
         relErr = (measured - desired) / desired
@@ -115,5 +115,5 @@ class Windkessel(PipeFlow):
         print('Empirical Murray\'s law power:', power)
 
     def Visualise_Ratios(self, df, var, clusters):
-        desired = self.resistance[self.ref] / self.resistance[clusters]
+        desired = self.Rp[self.ref] / self.Rp[clusters]
         return super().Visualise_Ratios(df, var, clusters, self.ref, desired)

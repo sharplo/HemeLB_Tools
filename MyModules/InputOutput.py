@@ -43,8 +43,9 @@ class InputOutput():
         self.area_iN = np.array([]) # area of inlets (m^2)
         self.radius_oUT = np.array([]) # radius of outlets (m)
         self.area_oUT = np.array([]) # area of outlets (m^2)
-        self.resistance = np.array([]) # resistance of the Windkessel model (kg/m^4*s)
-        self.capacitance = np.array([]) # capacitance of the Windkessel model (m^4*s^2/kg)
+        self.Rc = np.array([]) # characteristic resistance of the Windkessel model (kg/m^4*s)
+        self.Rp = np.array([]) # peripheral resistance of the Windkessel model (kg/m^4*s)
+        self.Cp = np.array([]) # peripheral capacitance of the Windkessel model (m^4*s^2/kg)
         self.P_iN = np.array([]) # pressure at inlets (mmHg)
         self.P_oUT = np.array([]) # pressure at outlets (mmHg)
 
@@ -142,22 +143,22 @@ class InputOutput():
                 elif self.subtype_oUT == 'WK' or self.subtype_oUT == 'fileWK':
 
                     if condition.find('R') is None:
-                        self.resistance = np.append(self.resistance, None)
+                        self.Rp = np.append(self.Rp, None)
                     else:
                         value = condition.find('R').attrib['value']
                         if value == 'CHANGE':
-                            self.resistance = np.append(self.resistance, None)
+                            self.Rp = np.append(self.Rp, None)
                         else:
-                            self.resistance = np.append(self.resistance, float(value))
+                            self.Rp = np.append(self.Rp, float(value))
                     
                     if condition.find('C') is None:
-                        self.capacitance = np.append(self.capacitance, None)
+                        self.Cp = np.append(self.Cp, None)
                     else:
                         value = condition.find('C').attrib['value']
                         if value == 'CHANGE':
-                            self.capacitance = np.append(self.capacitance, None)
+                            self.Cp = np.append(self.Cp, None)
                         else:
-                            self.capacitance = np.append(self.capacitance, float(value))
+                            self.Cp = np.append(self.Cp, float(value))
                     
                     if condition.find('area') is None:
                         value = condition.find('radius').attrib['value']
@@ -168,8 +169,52 @@ class InputOutput():
                         # Calculate equivalent radius
                         self.radius_oUT = np.append(self.radius_oUT, np.sqrt(float(value)/PI))
         #print('P_oUT', self.P_oUT)
-        #print('resistance', self.resistance)
-        #print('capacitance', self.capacitance)
+        #print('Rp', self.Rp)
+        #print('Cp', self.Cp)
+        #print('radius_oUT', self.radius_oUT)
+        #print('area_oUT', self.area_oUT)
+
+                elif self.subtype_oUT == 'WK3':
+
+                    if condition.find('Rc') is None:
+                        self.Rc = np.append(self.Rc, None)
+                    else:
+                        value = condition.find('Rc').attrib['value']
+                        if value == 'CHANGE':
+                            self.Rc = np.append(self.Rc, None)
+                        else:
+                            self.Rc = np.append(self.Rc, float(value))
+
+                    if condition.find('Rp') is None:
+                        self.Rp = np.append(self.Rp, None)
+                    else:
+                        value = condition.find('Rp').attrib['value']
+                        if value == 'CHANGE':
+                            self.Rp = np.append(self.Rp, None)
+                        else:
+                            self.Rp = np.append(self.Rp, float(value))
+
+                    if condition.find('Cp') is None:
+                        self.Cp = np.append(self.Cp, None)
+                    else:
+                        value = condition.find('Cp').attrib['value']
+                        if value == 'CHANGE':
+                            self.Cp = np.append(self.Cp, None)
+                        else:
+                            self.Cp = np.append(self.Cp, float(value))
+
+                    if condition.find('area') is None:
+                        value = condition.find('radius').attrib['value']
+                        self.radius_oUT = np.append(self.radius_oUT, float(value))
+                    else:
+                        value = condition.find('area').attrib['value']
+                        self.area_oUT = np.append(self.area_oUT, float(value))
+                        # Calculate equivalent radius
+                        self.radius_oUT = np.append(self.radius_oUT, np.sqrt(float(value)/PI))
+        #print('P_oUT', self.P_oUT)
+        #print('Rc', self.Rc)
+        #print('Rp', self.Rp)
+        #print('Cp', self.Cp)
         #print('radius_oUT', self.radius_oUT)
         #print('area_oUT', self.area_oUT)
 
